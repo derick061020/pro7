@@ -259,7 +259,7 @@ class CashController extends Controller
                     })
                     ->sum('payment');
                 $ale = SaleNote::where('id', $sale_note->id)->first();
-                var_dump(json_encode($ale));
+                var_dump($ale->related);
 
                 if ($sale_note->related != null) {
                         foreach ($sale_note->related as $related) {
