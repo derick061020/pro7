@@ -259,6 +259,7 @@ class CashController extends Controller
                     })
                     ->sum('payment');
                 if (is_array($cash_document->sale_note->related)) {
+                    die('hola');
                         foreach ($cash_document->sale_note->related as $sale_note) {
                             if($sale_note){
                                $sale = SaleNote::where('id', $sale_note)->first(); 
