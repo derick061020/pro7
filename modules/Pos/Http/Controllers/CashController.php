@@ -1064,7 +1064,7 @@ class CashController extends Controller
      * @throws \Throwable
      */
     public function reportA4($cash) {
-        var_dump($cash);
+        var_dump( Cash::findOrFail($cash_id)->cash_documents);
         exit();
         $temp = tempnam(sys_get_temp_dir(), 'cash_pdf_a4');
         file_put_contents($temp, $this->getPdf($cash, 'a4'));
