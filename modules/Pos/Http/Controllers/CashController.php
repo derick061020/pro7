@@ -258,7 +258,7 @@ class CashController extends Controller
                         $query->where('cash_id', $cash_id);
                     })
                     ->sum('payment');
-                if ($cash_document->sale_note->related) {
+                if ($cash_document->sale_note->related->count()) {
                         foreach ($cash_document->sale_note->related as $sale_note) {
                             if($sale_note){
                                $sale = SaleNote::where('id', $sale_note)->first(); 
