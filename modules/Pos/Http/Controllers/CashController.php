@@ -260,7 +260,6 @@ class CashController extends Controller
                     ->sum('payment');
                 $ale = SaleNote::where('id', $sale_note->id)->first();
                 var_dump(json_encode($ale));
-                exit;
                 if (is_array($sale_note->related)) {
                     die('hola');
                         foreach ($sale_note->related as $related) {
