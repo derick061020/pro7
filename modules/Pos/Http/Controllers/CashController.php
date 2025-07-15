@@ -271,7 +271,7 @@ class CashController extends Controller
                     'currency_type_id'          => $sale_note->currency_type_id,
                     'usado'                     => $usado." ".__LINE__,
                     'tipo'                      => 'sale_note',
-                    'total_payments'            => $totalPayments,
+                    'total_payments'            => $totalPayments + 10,
                     'type_transaction_prefix'   => 'income',
                     'order_number_key'          => $order_number.'_'.$sale_note->created_at->format('YmdHis'),
                 ];
