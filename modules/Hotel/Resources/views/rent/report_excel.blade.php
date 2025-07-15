@@ -48,13 +48,15 @@
                         <thead>
                             <tr>
                                 <th class="">#</th>
+                                <th class="">Habitación</th>
                                 <th class="">Cliente</th>
                                 <th class="">Tipo Comprobante</th>
+                                <th class="">Motivo del viaje</th>
                                 <th class="">Total</th>
                                 <th class="">Fecha de comprobante</th>
                                 <th class="">Fecha de entrada</th>
                                 <th class="">Fecha de Salida</th>
-                                <th class="">Dias hospedados</th>
+                                <th class="">Estadia</th>
                                 <th class="">Cant Personas</th>
                                 <th class="">Tipo Habitación</th>
                                 <th class="">Pers Alojadas</th>
@@ -70,10 +72,16 @@
                                     {{$iteracion}}
                                 </td>
                                 <td class="celda">
+                                    {{$value["room_name"]}}
+                                </td>
+                                <td class="celda">
                                     {{$value["customer"]}}
                                 </td>
                                 <td class="celda">
                                     {{$value["document_number"]}}
+                                </td>
+                                <td class="celda">
+                                    {{$value["travel_purpose"]}}
                                 </td>
                                 <td class="celda">
                                     {{$value["total"]}}
@@ -88,7 +96,7 @@
                                     {{$value["output_date"].' '.$value["output_time"]}}
                                 </td>
                                 <td class="celda">
-                                    {{$value["duration"]}}
+                                    {{$value["duration"]}} {{$value["rate_type"]}}
                                 </td>
                                 <td class="celda">
                                     {{$value["quantity_persons"]}}

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vista General - Recepción</title>
+  <style>
+    :root {
+      --color-ocupado: #e53935;
+      --color-residente: #424242;
+      --color-disponible: #43a047;
+      --color-limpieza: #1e88e5;
+      --color-mantenimiento: #fbc02d;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f9fafb;
+      margin: 0;
+      padding: 2rem;
+      color: #333;
+    }
+
+    h2 {
+      margin-bottom: 1.5rem;
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .room {
+      border-radius: 1rem;
+      color: white;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      min-height: 140px;
+      justify-content: space-between;
+    }
+
+    .room:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    .room .room-number {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    .room .header {
+      font-weight: 500;
+      font-size: 1rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .room .status {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .room .timer {
+      position: absolute;
+      top: 0.8rem;
+      right: 0.8rem;
+      background-color: rgba(255, 255, 255, 0.15);
+      padding: 0.25rem 0.6rem;
+      border-radius: 0.5rem;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .room .timer button {
+      padding: 0;
+      margin-left: 0.4rem;
+    }
+
+    .room button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.3rem;
+      margin: 0 0.2rem;
+      border-radius: 0.4rem;
+      transition: background-color 0.2s;
+    }
+
+    .room button:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .ocupado {
+      background-color: var(--color-ocupado);
+    }
+
+    .residente {
+      background-color: var(--color-residente);
+    }
+
+    .disponible {
+      background-color: var(--color-disponible);
+    }
+
+    .limpieza {
+      background-color: var(--color-limpieza);
+    }
+
+    .mantenimiento {
+      background-color: var(--color-mantenimiento);
+      color: #111;
+    }
+
+    .mantenimiento .timer {
+      background-color: rgba(0, 0, 0, 0.05);
+      color: #333;
+    }
+
+    .room .actions {
+      display: flex;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .room .actions button svg {
+      width: 22px;
+      height: 22px;
+      fill: white;
+    }
+
+    .checkout-button {
+      background-color: white!important;
+      color: black;
+      font-weight: 500;
+      padding: 0.3rem 0.6rem;
+
+      width:80%;
+      border-radius: 0.4rem;
+      border: none;
+      cursor: pointer;
+    }
+
+    .checkout-button:hover {
+      background-color: #eee;
+    }
+  </style>
+</head>
+<body>
+  <h2>Vista General - Recepción</h2>
+  <div class="grid">
+    <div class="room ocupado">
+      <div class="room-number">1</div>
+      <div class="header">MATRIMONIAL</div>
+      <div class="status">LEONELA VIANCA ESPIN</div>
+      <div class="timer">
+        00:00:00
+        <button onclick="modificarFecha(1)" title="Modificar Fecha">
+          <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+        </button>
+      </div>
+      <div class="actions">
+        <button onclick="agregarProductos(1)" title="Agregar Productos">
+          <svg viewBox="0 0 24 24"><path d="M19 13H13v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        </button>
+        <button class="checkout-button" onclick="realizarCheckout(1)">Check-Out</button>
+      </div>
+    </div>
+    <div class="room residente">
+      <div class="room-number">2</div>
+      <div class="header">DOBLE</div>
+      <div class="status">ANTONY NAVARRO HURTA</div>
+      <div class="timer">
+        26d 22h
+        <button onclick="modificarFecha(2)" title="Modificar Fecha">
+          <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+        </button>
+      </div>
+      <div class="actions">
+        <button onclick="agregarProductos(2)" title="Agregar Productos">
+          <svg viewBox="0 0 24 24"><path d="M19 13H13v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        </button>
+        <button class="checkout-button" onclick="realizarCheckout(2)">Check-Out</button>
+      </div>
+    </div>
+    <div class="room limpieza">
+      <div class="room-number">3</div>
+      <div class="header">MATRIMONIAL</div>
+      <div class="status">LIMPIEZA</div>
+    </div>
+    <div class="room disponible">
+      <div class="room-number">4</div>
+      <div class="header">MATRIMONIAL</div>
+      <div class="status">DISPONIBLE</div>
+      <div class="actions">
+        <button onclick="separarHabitacion(4)" title="Separar Habitación">
+          <svg viewBox="0 0 24 24"><path d="M12 7V3H2v18h20V7H12zm8 14H4V5h6v4h10v12z"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="room mantenimiento">
+      <div class="room-number">30</div>
+      <div class="header">MATRIMONIAL</div>
+      <div class="status">MANTENIMIENTO</div>
+    </div>
+  </div>
+
+  <script>
+    function modificarFecha(id) {
+      alert('Modificar fecha de la habitación ' + id);
+    }
+    function agregarProductos(id) {
+      alert('Agregar productos a la habitación ' + id);
+    }
+    function realizarCheckout(id) {
+      alert('Check-out de la habitación ' + id);
+    }
+    function separarHabitacion(id) {
+      alert('Separar habitación disponible ' + id);
+    }
+  </script>
+</body>
+</html>

@@ -29,10 +29,16 @@
                             Salida 
                             <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-door-exit" style="transform: translateY(-4px);"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M13 12v.01"></path><path d="M3 21h18"></path><path d="M5 21v-16a2 2 0 0 1 2 -2h7.5m2.5 10.5v7.5"></path><path d="M14 7h7m-3 -3l3 3l-3 3"></path></svg> 
                         </div>
-                        <div class="col-9">
+                        <div class="col-7">
                             <span class="text-muted"><svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-user"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg> Cliente</span>
                             <h4 class="mt-0"><b>
                                 {{ currentRent.customer.name }}</b>
+                            </h4>
+                        </div>
+                        <div class="col-2">
+                            <span class="text-muted"> Toallas</span>
+                            <h4 class="mt-0"><b>
+                                {{ currentRent.towels }}</b>
                             </h4>
                         </div>
                         <div class="col-12 col-md-3 card card-body bg-light-color my-0 mx-1 p-3">
@@ -46,18 +52,79 @@
                             <h4 class="m-0"><b>
                                 {{ currentRent.room.name }}</b></h4>
                         </div>
-                        <div class="col-12 col-md-3 card card-body bg-light-color my-0 mx-1 p-3">
+                        <div class="col-12 col-md-3 card card-body bg-light-color my-0 mx-1 p-3 position-relative">
+                            <el-button v-if="JSON.parse(currentRent.history).length == 1" type="primary" size="mini" icon="el-icon-edit" circle class="position-absolute" style="right: 5px; top: 5px;" @click="showEditDates = true"></el-button>
                             <span class="text-muted"><svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-up"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v5" /><path d="M16 3v4" /><path d="M8 3v4" /><path d="M4 11h16" /><path d="M19 22v-6" /><path d="M22 19l-3 -3l-3 3" /></svg> Check-IN</span>
                             <h4 class="m-0"><b>
-                                {{ new Date(currentRent.input_date).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }).replace(/ de /g, ' ')  }} <br>
+                                {{ new Date(new Date(currentRent.input_date).setDate(new Date(currentRent.input_date).getDate() + 1)).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }).replace(/ de /g, ' ')  }} <br>
                                 {{ new Date(`2000-01-01T${currentRent.input_time}`).toLocaleTimeString('es-ES', { hour: 'numeric', minute: '2-digit', hour12: true }) }}</b></h4>
                         </div>
                         <div class="col-12 col-md-3 card card-body bg-light-color my-0 mx-1 p-3">
                             <span class="text-muted"><svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-down"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v5" /><path d="M19 16v6" /><path d="M22 19l-3 3l-3 -3" /><path d="M16 3v4" /><path d="M8 3v4" /><path d="M4 11h16" /></svg> Check-OUT</span>
                             <h4 class="m-0"><b>
-                                {{ new Date(currentRent.output_date).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }).replace(/ de /g, ' ')  }} <br>
+                                {{ new Date(new Date(currentRent.output_date).setDate(new Date(currentRent.output_date).getDate() + 1)).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }).replace(/ de /g, ' ')  }} <br>
                                 {{ new Date(`2000-01-01T${currentRent.output_time}`).toLocaleTimeString('es-ES', { hour: 'numeric', minute: '2-digit', hour12: true }) }}</b></h4>
                         </div>
+
+                        <!-- Simple Edit Dates Modal -->
+                        <el-dialog
+                            title="Editar Fechas"
+                            :visible.sync="showEditDates"
+                            width="400px">
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <label>Fecha de Ingreso</label>
+                                    <el-date-picker
+                                        v-model="editForm.input_date"
+                                        type="date"
+                                        placeholder="Seleccionar fecha"
+                                        format="dd/MM/yyyy"
+                                        value-format="yyyy-MM-dd"
+                                        style="width: 100%">
+                                    </el-date-picker>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label>Hora de Ingreso</label>
+                                    <el-time-picker
+                                        v-model="editForm.input_time"
+                                        format="HH:mm"
+                                        value-format="HH:mm"
+                                        placeholder="Hora"
+                                        style="width: 100%">
+                                    </el-time-picker>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label>Fecha de Salida</label>
+                                    <el-date-picker
+                                        v-model="editForm.output_date"
+                                        type="date"
+                                        placeholder="Seleccionar fecha"
+                                        format="dd/MM/yyyy"
+                                        value-format="yyyy-MM-dd"
+                                        :picker-options="{
+                                            disabledDate: (time) => {
+                                                return time < new Date(editForm.input_date);
+                                            }
+                                        }"
+                                        style="width: 100%">
+                                    </el-date-picker>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label>Hora de Salida</label>
+                                    <el-time-picker
+                                        v-model="editForm.output_time"
+                                        format="HH:mm"
+                                        value-format="HH:mm"
+                                        placeholder="Hora"
+                                        style="width: 100%">
+                                    </el-time-picker>
+                                </div>
+                            </div>
+                            <span slot="footer" class="dialog-footer">
+                                <el-button @click="showEditDates = false">Cancelar</el-button>
+                                <el-button type="primary" @click="saveDates" :loading="savingDates">Guardar</el-button>
+                            </span>
+                        </el-dialog>
                     </div>
                     <div class="row card-body">
                         <div class="col-12">
@@ -70,29 +137,32 @@
                                     </tr>
                                     <tr class="bg-light-color">
                                         <td>#</td>
-                                        <td class="text-left">Tarifa por día</td>
-                                        <td>Cant. noches</td>
+                                        <td class="text-left">Nombre</td>
+                                        <td>Cant. </td>
+                                        <td>Precio unitario</td>
                                         <td>Cargo por salir tarde</td>
                                         <td>Comprobante</td>
                                         <td>Total</td>
                                     </tr>
-                                    <tr>
-                                        <td>1</td>
-                                        <td class="text-left">{{ room.item.unit_price | toDecimals }}</td>
-                                        <td>{{ room.item.quantity }}</td>
+                                    <tr  v-for="(it, i) in JSON.parse(currentRent.history)" 
+                                    :key="i"  v-if="!it.hidden">
+                                        <td>{{ i + 1 }}</td>
+                                        <td class="text-left">{{ it.item.name }}</td>
+                                        <td>{{ it.quantity  }}</td>
+                                        <td>{{ it.unit_price }}</td>
                                         <td class="float-right">
                                             <div class="d-d-inline-block"
                                                 style="max-width: 120px">
-                                                <el-input v-model="arrears"
+                                                <el-input v-if="i == 0" v-model="arrears"
                                                         type="number"></el-input>
                                             </div>
                                         </td>
-                                        <td>{{ room.document }}</td>
+                                        <td>{{ i== 0 ? room.document : '-' }}</td>
                                         <td class="float-right">
                                             <div class="d-d-inline-block"
                                                 style="max-width: 120px">
                                                 <el-input
-                                                    v-model="total"
+                                                    v-model="it.total"
                                                     readonly
                                                     type="number"
                                                 ></el-input>
@@ -124,8 +194,8 @@
                                     </tr>
                                     <tr><td></td></tr>
                                     <tr class="text-left" v-if="rentDebtItems.length > 0">
-                                        <td colspan="6"><b class="h6 text-danger">
-                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-receipt-off"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 21v-16m2 -2h10a2 2 0 0 1 2 2v10m0 4.01v1.99l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2" /><path d="M11 7l4 0" /><path d="M9 11l2 0" /><path d="M13 15l2 0" /><path d="M15 11l0 .01" /><path d="M3 3l18 18" /></svg> Servicio a la habitación (Cargo Pendiente)</b></td>
+                                        <td colspan="6"><b class="h6 ">
+                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-receipt-off"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 21v-16m2 -2h10a2 2 0 0 1 2 2v10m0 4.01v1.99l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2" /><path d="M11 7l4 0" /><path d="M9 11l2 0" /><path d="M13 15l2 0" /><path d="M15 11l0 .01" /><path d="M3 3l18 18" /></svg> Servicio a la habitación </b></td>
                                     </tr>
                                     <tr class="bg-light-color" v-if="rentDebtItems.length > 0">
                                         <td>#</td>
@@ -138,19 +208,18 @@
                                     <tr
                                         v-for="(it, i) in rentDebtItems"
                                         :key="i"
-                                        class="text-danger"
                                     >
                                         <td>{{ i + 1 }}</td>
                                         <td class="text-left">{{ it.item.item.description }}</td>
                                         <td>{{ it.item.input_unit_price_value | toDecimals }}</td>
                                         <td>{{ it.item.quantity | toDecimals }}</td>
                                         <td>
-                                            {{ it.payment_status === "PAID" ? "PAGADO" : "DEBE" }}
+                                            {{ it.payment_status === "PAID" ? "PAGADO" : "CARGADO A LA HABITACION" }}
                                         </td>
                                         <td>{{ it.item.total | toDecimals }}</td>
                                     </tr>
                                     </tbody>
-                                    <tfoot>
+                                    <tfoot style="display:none">
                                     <tr>
                                         <td class="text-right"
                                             colspan="5">Pagado
@@ -177,6 +246,183 @@
                                     </tr>
                                     </tfoot>
                                 </table>
+
+                                <!-- Payment History Table -->
+                                <table class="table text-right mt-4 w-100">
+                                    <tbody>
+                                    <tr class="text-left">
+                                        <td colspan="4">
+                                            <el-button 
+                                                type="primary" 
+                                                @click="showPaymentSummaryModal = true"
+                                                plain
+                                                size="small"
+                                                icon="el-icon-document"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-history mr-1">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                    <path d="M12 8l0 4l2 2" />
+                                                    <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
+                                                </svg>
+                                                Ver Historial de Pagos
+                                            </el-button>
+                                            <!-- Botón para abrir el historial de cambios de habitación -->
+                                            <el-button 
+                                                type="info" 
+                                                @click="showRoomHistoryModal = true"
+                                                plain
+                                                size="small"
+                                                class="mt-3"
+                                                icon="el-icon-office-building"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-building-community mr-1">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                    <path d="M8 9l5 5v7h-5v-4m0 4h-5v-7l2.5 -2.5l2.5 2.5" />
+                                                    <path d="M8 9v-4h8v4" />
+                                                    <path d="M19 10a2 2 0 1 0 -2 -2m0 4a2 2 0 1 0 2 -2" />
+                                                    <path d="M5 10a2 2 0 1 0 -2 -2m0 4a2 2 0 1 0 2 -2" />
+                                                </svg>
+                                                Ver Cambios de Habitación
+                                            </el-button>
+                                        </td>
+                                    </tr>
+                                    <!-- Add Advance Payment Button -->
+                                    
+                                    <tr class="font-weight-bold">
+                                        <td colspan="3" class="text-right">Total Consumo:</td>
+                                        <td class="text-right">{{ calculateTotalConsumption() | toDecimals }}</td>
+                                    </tr>
+                                    <tr class="font-weight-bold">
+                                        <td colspan="3" class="text-right">Total Pagado:</td>
+                                        <td class="text-right text-success">{{ calculateTotalPaid() | toDecimals }}</td>
+                                    </tr>
+                                    <tr v-if="calculateChange() > 0" class="font-weight-bold">
+                                        <td colspan="3" class="text-right">Vuelto:</td>
+                                        <td class="text-right text-info">{{ calculateChange() | toDecimals }}</td>
+                                    </tr>
+                                    <tr v-else class="font-weight-bold">
+                                        <td colspan="3" class="text-right">Total a Pagar:</td>
+                                        <td class="text-right" :class="{ 'text-danger': calculateTotalDebt() > 0 }">
+                                            {{ calculateTotalDebt() | toDecimals }}
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                <el-dialog
+                    title="Historial de Cambios de Habitación"
+                    :visible.sync="showRoomHistoryModal"
+                    width="70%"
+                    :before-close="() => showRoomHistoryModal = false"
+                >
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Cantidad</th>
+                                    <th>Fecha</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(item, index) in JSON.parse(this.currentRent.historial)" :key="index">
+                                    <td>{{ index + 1 }}</td>
+                                    <td>{{ item.name }}</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>{{ item.date }}</td>
+                                    <td>{{ item.total }}</td>
+                                    <td  class="text-center">
+                                        <el-button
+                                            v-if="canDeleteHistoryItem(item) && !index == 0"
+                                            type="danger"
+                                            size="mini"
+                                            icon="el-icon-delete"
+                                            @click="confirmDeleteHistoryItem(item.unique_id)"
+                                            :loading="deletingHistoryId === item.unique_id"
+                                        ></el-button>
+                                    </td>
+                                </tr>
+                                <tr v-if="!JSON.parse(this.currentRent.historial) || JSON.parse(this.currentRent.historial).length === 0">
+                                    <td colspan="5" class="text-center">No hay registros de cambios</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <span slot="footer" class="dialog-footer">
+                        <el-button @click="showRoomHistoryModal = false">Cerrar</el-button>
+                    </span>
+                </el-dialog>
+                                
+                                <!-- Add Advance Payment Dialog -->
+                                <el-dialog
+                                    title="Agregar Adelanto de Pago"
+                                    :visible.sync="showAddAdvanceDialog"
+                                    width="50%"
+                                    :before-close="() => { showAddAdvanceDialog = false; }"
+                                >
+                                    <el-form :model="advanceForm" label-width="200px">
+                                        <el-form-item label="Método de pago" required>
+                                            <el-select
+                                                v-model="advanceForm.payment_method_type_id"
+                                                class="w-100"
+                                                placeholder="Seleccione el método de pago"
+                                                filterable
+                                            >
+                                                <el-option
+                                                    v-for="method in paymentMethodTypes"
+                                                    :key="method.id"
+                                                    :label="method.description"
+                                                    :value="method.id"
+                                                ></el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                        
+                                        <el-form-item label="Destino" required>
+                                            <el-select
+                                                v-model="advanceForm.payment_destination_id"
+                                                class="w-100"
+                                                placeholder="Seleccione el destino"
+                                                filterable
+                                            >
+                                                <el-option
+                                                    v-for="destination in paymentDestinations"
+                                                    :key="destination.id"
+                                                    :label="destination.description"
+                                                    :value="destination.id"
+                                                ></el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                        
+                                        <el-form-item label="Monto" required>
+                                            <el-input-number
+                                                v-model="advanceForm.amount"
+                                                :min="0.01"
+                                                :precision="2"
+                                                class="w-100"
+                                                placeholder="Ingrese el monto"
+                                            ></el-input-number>
+                                        </el-form-item>
+                                        
+                                        <el-form-item label="Descripción">
+                                            <el-input
+                                                v-model="advanceForm.description"
+                                                placeholder="Ingrese una descripción"
+                                            ></el-input>
+                                        </el-form-item>
+                                    </el-form>
+                                    
+                                    <span slot="footer" class="dialog-footer">
+                                        <el-button @click="showAddAdvanceDialog = false">Cancelar</el-button>
+                                        <el-button 
+                                            type="primary" 
+                                            @click="addAdvancePayment"
+                                            :disabled="!advanceForm.payment_method_type_id || !advanceForm.payment_destination_id || !advanceForm.amount"
+                                        >
+                                            Guardar
+                                        </el-button>
+                                    </span>
+                                </el-dialog>
                             </div>
                         </div>
                     </div>
@@ -241,7 +487,8 @@
                                     :clearable="false"
                                     readonly
                                     type="date"
-                                    value-format="yyyy-MM-dd"
+                                    value-format="dd-MM-yyyy"
+                                    format="dd-MM-yyyy"
                                     @change="changeDateOfIssue"
                                 ></el-date-picker>
                                 <small
@@ -253,7 +500,7 @@
                         </div>
                         <div class="col-lg-3">
                             <div
-                                :class="{ 'has-danger': errors.date_of_due }"
+                                :class="{ 'has-danger': errors.date_of_issue }"
                                 class="form-group"
                             >
                                 <label class="control-label">Fecha de vencimiento</label>
@@ -261,7 +508,8 @@
                                     v-model="document.date_of_due"
                                     :clearable="false"
                                     type="date"
-                                    value-format="yyyy-MM-dd"
+                                    value-format="dd-MM-yyyy"
+                                    format="dd-MM-yyyy"
                                 ></el-date-picker>
                                 <small
                                     v-if="errors.date_of_due"
@@ -276,27 +524,27 @@
                             <b><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-cash-register"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M21 15h-2.5c-.398 0 -.779 .158 -1.061 .439c-.281 .281 -.439 .663 -.439 1.061c0 .398 .158 .779 .439 1.061c.281 .281 .663 .439 1.061 .439h1c.398 0 .779 .158 1.061 .439c.281 .281 .439 .663 .439 1.061c0 .398 -.158 .779 -.439 1.061c-.281 .281 -.663 .439 -1.061 .439h-2.5" /><path d="M19 21v1m0 -8v1" /><path d="M13 21h-7c-.53 0 -1.039 -.211 -1.414 -.586c-.375 -.375 -.586 -.884 -.586 -1.414v-10c0 -.53 .211 -1.039 .586 -1.414c.375 -.375 .884 -.586 1.414 -.586h2m12 3.12v-1.12c0 -.53 -.211 -1.039 -.586 -1.414c-.375 -.375 -.884 -.586 -1.414 -.586h-2" /><path d="M16 10v-6c0 -.53 -.211 -1.039 -.586 -1.414c-.375 -.375 -.884 -.586 -1.414 -.586h-4c-.53 0 -1.039 .211 -1.414 .586c-.375 .375 -.586 .884 -.586 1.414v6m8 0h-8m8 0h1m-9 0h-1" /><path d="M8 14v.01" /><path d="M8 17v.01" /><path d="M12 13.99v.01" /><path d="M12 17v.01" /></svg> Registro de pagos pendientes</b>
                         </div>
                         <div class="col-12">
-                            <table class="table">
-                                <thead>
-                                <tr width="100%">
-                                    <th v-if="document.payments.length > 0">M. Pago</th>
-                                    <th v-if="document.payments.length > 0">Destino</th>
-                                    <th v-if="document.payments.length > 0">Referencia</th>
-                                    <th v-if="document.payments.length > 0">Monto</th>
+                            <table  style="display:block;" class="table">
+                                <thead style="display: table; width: 100%;">
+                                <tr style="width: 100%;" width="100%">
+                                    <th>M. Pago</th>
+                                    <th>Destino</th>
+                                    <th>Referencia</th>
+                                    <th>Monto</th>
+                                    <th>Fecha</th>
                                     <th width="15%">
                                         <a
                                             class="text-center font-weight-bold text-info"
                                             href="#"
                                             @click.prevent="clickAddPayment"
-                                        >[+ Agregar]</a
-                                        >
+                                        >[+ Agregar]</a>
                                     </th>
                                 </tr>
                                 </thead>
-                                <tbody>
-                                <tr v-for="(row, index) in document.payments"
-                                    :key="index">
-                                    <td>
+                                <tbody class="flex" style="width: 100%;">
+                                <!-- Current Payments (editable) -->
+                                <tr class="row" v-for="(row, index) in document.payments" :key="'current-' + index" :style="{display: row.display}">
+                                    <td class="col-12  col-md-2">
                                         <div class="form-group mb-2 mr-2">
                                             <el-select v-model="row.payment_method_type_id">
                                                 <el-option
@@ -308,7 +556,7 @@
                                             </el-select>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td class="col-12  col-md-2">
                                         <div class="form-group mb-2 mr-2">
                                             <el-select
                                                 v-model="row.payment_destination_id"
@@ -324,27 +572,43 @@
                                             </el-select>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td class="col-12  col-md-2">
                                         <div class="form-group mb-2 mr-2">
                                             <el-input v-model="row.reference"></el-input>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td class="col-12  col-md-2">
                                         <div class="form-group mb-2 mr-2">
                                             <el-input v-model="row.payment"></el-input>
                                         </div>
                                     </td>
-                                    <td class="series-table-actions text-center">
+                                    <td class="col-12  col-md-2" >
+                                        <div class="form-group mb-2 mr-2">
+                                            <el-input :value="new Date().toLocaleString('es-ES')" disabled></el-input>
+                                        </div>
+                                    </td>
+                                    <td class="col-12  col-md-2 series-table-actions text-center">
+                                        <button
+                                            class="btn waves-effect waves-light btn-xs btn-success mr-1"
+                                            type="button"
+                                            @click.prevent="savePayment(row, index)"
+                                            :disabled="!row.payment_method_type_id || !row.payment_destination_id || !row.payment"
+                                            title="Guardar pago"
+                                        >
+                                            <i class="fa fa-save"></i>
+                                        </button>
                                         <button
                                             class="btn waves-effect waves-light btn-xs btn-danger"
                                             type="button"
                                             @click.prevent="clickCancel(index)"
+                                            title="Eliminar"
                                         >
                                             <i class="fa fa-trash"></i>
                                         </button>
                                     </td>
-                                    <br/>
                                 </tr>
+                                
+                                
                                 </tbody>
                             </table>
                         </div>
@@ -353,12 +617,20 @@
                         <div class="col-12 pt-3 text-right">
                             <template v-if="canMakePayment && totalDebt > 0">
                                 <el-button
-                                    :disabled="loading"
+                                    :disabled="loading || calculateChange() > 0"
                                     :loading="loading"
                                     class="btn btn-primary"
-                                    @click="onGoToInvoice"
+                                    @click="showCheckoutModal"
                                 >
-                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-device-floppy"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" /><path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M14 4l0 4l-6 0l0 -4" /></svg> Guardar y Generar Comprobante
+                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-device-floppy"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" /><path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M14 4l0 4l-6 0l0 -4" /></svg> Finalizar salida
+                                </el-button>
+                                <el-button
+                                    v-if="calculateChange() > 0"
+                                    type="warning"
+                                    @click="handleReturnChange"
+                                    :loading="loading"
+                                >
+                                    <i class="fa fa-exchange"></i> Devolver Vuelto (S/. {{ calculateChange().toFixed(2) }})
                                 </el-button>
                             </template>
                             <template v-else-if="canMakePayment">
@@ -395,6 +667,112 @@
                 </div>
             </template>
         </div>
+        <!-- Modal de Resumen de Pagos -->
+        <el-dialog
+            title="Resumen de Pagos"
+            :visible.sync="showPaymentSummaryModal"
+            width="80%"
+            :close-on-click-modal="false"
+            top="5vh"
+            custom-class="payment-summary-dialog"
+        >
+            <div class="table-responsive" style="max-height: 60vh; overflow-y: auto;">
+                <table class="table table-bordered table-hover">
+                    <thead class="bg-light" style="position: sticky; top: 0; z-index: 1; background-color: #f8f9fa;">
+                        <tr>
+                            <th width="5%" class="text-center">#</th>
+                            <th class="text-left">Descripción</th>
+                            <th class="text-center" width="20%">Tipo de Pago</th>
+                            <th class="text-right" width="15%">Monto</th>
+                            <th class="text-center" width="15%">Fecha y Hora</th>
+                            <th class="text-center" width="10%">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-if="!currentRent.payment_history || currentRent.payment_history.length === 0">
+                            <td colspan="5" class="text-center py-4">
+                                <i class="el-icon-info mr-1"></i> No hay registros de pago
+                            </td>
+                        </tr>
+                        <tr v-else v-for="(item, index) in JSON.parse(currentRent.payment_history)" :key="index" class="payment-row">
+                            <td class="text-center align-middle">{{ index + 1 }}</td>
+                            <td class="align-middle">
+                                <div class="d-flex align-items-center">
+                                    <i v-if="item.amount < 0" class="el-icon-refresh-left text-warning mr-2"></i>
+                                    <i v-else class="el-icon-circle-check text-success mr-2"></i>
+                                    {{ item.description || 'Pago registrado' }}
+                                </div>
+                            </td>
+                            <td class="text-center align-middle">
+                                <span class="badge badge-pill" :class="getPaymentMethodClass(item.payment_method_type_id)">
+                                    {{ getPaymentMethodDescription(item.payment_method_type_id) }}
+                                </span>
+                            </td>
+                            <td class="text-right align-middle" :class="{ 'text-success': item.amount >= 0, 'text-danger': item.amount < 0 }">
+                                <strong>{{ (item.amount >= 0 ? '+' : '') + (item.amount | toDecimals) }}</strong>
+                            </td>
+                            <td class="text-center align-middle">
+                                <small class="text-muted">{{ item.date }}</small>
+                            </td>
+                            <td class="text-center align-middle" width="10%">
+                                <el-button 
+                                    v-if="item.amount > 0"
+                                    type="text" 
+                                    size="mini" 
+                                    @click="openChangePaymentMethodDialog(item, index)"
+                                    title="Cambiar tipo de pago"
+                                >
+                                    <i class="el-icon-edit"></i>
+                                </el-button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="showPaymentSummaryModal = false">Cerrar</el-button>
+            </span>
+        </el-dialog>
+
+        <!-- Dialogo para cambiar método de pago -->
+        <el-dialog
+            title="Cambiar Método de Pago"
+            :visible.sync="showChangePaymentMethodDialog"
+            width="400px"
+            :close-on-click-modal="false"
+        >
+            <el-form :model="paymentChangeForm" label-position="top">
+                <el-form-item label="Nuevo Método de Pago" required>
+                    <el-select v-model="paymentChangeForm.new_payment_method_type_id" class="w-100">
+                        <el-option
+                            v-for="option in paymentMethodTypes"
+                            :key="option.id"
+                            :label="option.description"
+                            :value="option.id"
+                        ></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="Observación" prop="observation">
+                    <el-input
+                        v-model="paymentChangeForm.observation"
+                        type="textarea"
+                        :rows="2"
+                        placeholder="Ingrese una observación (opcional)"
+                    ></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="showChangePaymentMethodDialog = false">Cancelar</el-button>
+                <el-button 
+                    type="primary" 
+                    @click="confirmChangePaymentMethod"
+                    :loading="loadingPaymentMethodChange"
+                >
+                    Guardar Cambios
+                </el-button>
+            </span>
+        </el-dialog>
+
         <document-options
             :isContingency="false"
             :recordId="documentNewId"
@@ -408,6 +786,49 @@
                            :showDialog.sync="showDialogSaleNoteOptions">
         </sale-note-options>
 
+            <!-- Modal de selección de ítems -->
+        <el-dialog
+            title="Seleccionar ítems para comprobante"
+            :visible.sync="showHistorySelection"
+            width="80%"
+            :close-on-click-modal="false"
+            :show-close="true"
+            :close-on-press-escape="false"
+        >
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th width="50">
+                                <el-checkbox
+                                    :value="historyItems.length > 0 && historyItems.every(i => i.selected)"
+                                    @change="toggleSelectAll"
+                                ></el-checkbox>
+                            </th>
+                            <th>Descripción</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unitario</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="item in historyItems" :key="item.id">
+                            <td>
+                                <el-checkbox v-model="item.selected" @change="updateSelectedItems"></el-checkbox>
+                            </td>
+                            <td>{{ (item.name_product_pdf || item.item.description) || 'N/A' }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.unit_price | toDecimals }}</td>
+                            <td>{{ (item.quantity * item.unit_price) | toDecimals }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="showHistorySelection = false">Cancelar</el-button>
+                <el-button type="primary" @click="confirmCheckout">Continuar con la salida</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -475,9 +896,81 @@ export default {
         },
     },
     computed: {
-        ...mapState([
-            'config',
-        ]),
+        ...mapState({
+            config: state => state.config,
+            storePaymentMethodTypes: state => state.paymentMethodTypes,
+            storePaymentDestinations: state => state.paymentDestinations,
+            payment_destinations: state => state.payment_destinations
+        }),
+        
+        paymentHistory() {
+            if (!this.currentRent || !this.currentRent.payment_history) return [];
+            try {
+                const history = JSON.parse(this.currentRent.payment_history);
+                return Array.isArray(history) ? history : [];
+            } catch (e) {
+                console.error('Error parsing payment history:', e);
+                return [];
+            }
+        },
+        
+        allPayments() {
+            // Combine current payments with history for display
+            const currentPayments = this.document.payments.map(p => ({
+                ...p,
+                isCurrent: true,
+                date: new Date().toLocaleString('es-ES')
+            }));
+            
+            const historyPayments = this.paymentHistory.map(p => ({
+                ...p,
+                isCurrent: false
+            }));
+            
+            return [...currentPayments, ...historyPayments];
+        },
+        
+        // Helper to get payment method description
+        getPaymentMethodDescription() {
+            return (paymentMethodId) => {
+                if (!paymentMethodId) return '-';
+                // Use prop first, fallback to store
+                const methods = this.paymentMethodTypes || this.storePaymentMethodTypes || [];
+                const method = methods.find(m => m.id === paymentMethodId);
+                return method ? method.description : paymentMethodId;
+            };
+        },
+        
+        // Helper to get payment destination description
+        getPaymentDestinationDescription() {
+            return (destinationId) => {
+                if (!destinationId) return '-';
+                // Use prop first, fallback to store
+                const destinations = this.paymentDestinations || this.storePaymentDestinations || [];
+                const destination = destinations.find(d => d.id === destinationId);
+                return destination ? destination.description : destinationId;
+            };
+        },
+        
+        // Format date for display
+        formatDate() {
+            return (dateString) => {
+                if (!dateString) return '-';
+                try {
+                    const date = new Date(dateString);
+                    return date.toLocaleString('es-ES', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                } catch (e) {
+                    console.error('Error formatting date:', e);
+                    return dateString;
+                }
+            };
+        },
         canMakePayment: function () {
             if (
                 this.currentRent !== undefined &&
@@ -505,13 +998,31 @@ export default {
         this.loadConfiguration();
         this.$store.commit('setConfiguration', this.configuration);
         this.currentRent = this.rent
-        this.currentRent.input_date =  moment(this.currentRent.input_date).toDate()
-        this.currentRent.output_date =  moment(this.currentRent.output_date).toDate()
+
     },
     data() {
         return {
+            showHistorySelection: false,
+            selectedHistoryItems: [],
+            showChangePaymentMethodDialog: false,
+            loadingPaymentMethodChange: false,
+            paymentChangeForm: {
+                payment_index: null,
+                payment_id: null,
+                new_payment_method_type_id: null,
+                observation: ''
+            },
+            showRoomHistoryModal: false,
+            historyItems: [],
+            showPaymentSummaryModal: false,
             title: "",
-            currentRent: {},
+            currentRent: {
+                items: [],
+                payments: [],
+                history: [],
+                payment_history: [],
+                total_without_rounding: 0
+            },
             arrears: 0,
             total: 0,
             debtRoom: 0,
@@ -535,9 +1046,36 @@ export default {
                 establishment_id: null,
                 date_of_issue: null
             },
+            deletingHistoryId: null,
+            // Advance payment dialog
+            showAddAdvanceDialog: false,
+            showEditDates: false,
+            savingDates: false,
+            editForm: {
+                input_date: null,
+                input_time: null,
+                output_date: null,
+                output_time: null
+            },
+            advanceForm: {
+                payment_method_type_id: null,
+                payment_destination_id: null,
+                type: 'advancePayment',
+                amount: 0,
+                description: ''
+            }
         };
     },
     async mounted() {
+        // Inicializar el formulario de edición con los valores actuales
+        if (this.currentRent) {
+            this.editForm = {
+                input_date: this.currentRent.input_date,
+                input_time: this.currentRent.input_time,
+                output_date: this.currentRent.output_date,
+                output_time: this.currentRent.output_time
+            };
+        }
         // console.log(this.config);
 
         this.form.establishment_id = this.config.establishment.id;
@@ -564,16 +1102,35 @@ export default {
         await this.onCalculateTotals();
         await this.onCalculatePaidAndDebts();
 
-        if(this.totalDebt > 0){
+        
             let cash = _.find(this.paymentDestinations, {id: 'cash'})
+            let groupedPayments = _.groupBy(JSON.parse(this.currentRent.payment_history), 'payment_method_type_id');
+            let payments = Object.keys(groupedPayments).map(key => {
+                let sum = groupedPayments[key].reduce((total, item) => total + item.amount, 0);
+                let first = groupedPayments[key][0];
+                return {
+                    id: null,
+                    document_id: null,
+                    date_of_payment: moment().format("YYYY-MM-DD"),
+                    payment_method_type_id: key,
+                    payment_destination_id: first.payment_destination_id,
+                    reference: first.reference,
+                    payment: sum,
+                    display: 'none'
+                }
+            });
+            this.document.payments = payments;
+        if(this.calculateTotalDebt() > 0){
+            
             this.document.payments.push({
                 id: null,
                 document_id: null,
                 date_of_payment: moment().format("YYYY-MM-DD"),
                 payment_method_type_id: "01",
                 payment_destination_id: (cash)? cash.id : null,
-                reference: null,
-                payment: this.totalDebt,
+                reference: "", 
+                payment: this.calculateTotalDebt(),
+                display: 'flex'
             });
         }
         
@@ -585,6 +1142,7 @@ export default {
     },
     watch: {
         arrears(value) {
+            console.log('arrears');
             if (isNaN(value)) {
                 return;
             }
@@ -596,6 +1154,385 @@ export default {
         },
     },
     methods: {
+            // Métodos para cambiar el método de pago
+            openChangePaymentMethodDialog(payment, index) {
+                this.paymentChangeForm = {
+                    payment_index: index,
+                    payment_id: payment.id,
+                    new_payment_method_type_id: payment.payment_method_type_id,
+                    observation: ''
+                };
+                this.showChangePaymentMethodDialog = true;
+            },
+            
+            async confirmChangePaymentMethod() {
+                if (!this.paymentChangeForm.new_payment_method_type_id) {
+                    this.$message.error('Por favor seleccione un método de pago');
+                    return;
+                }
+                
+                this.loadingPaymentMethodChange = true;
+                
+                try {
+                    const paymentHistory = JSON.parse(this.currentRent.payment_history);
+                    const paymentToUpdate = paymentHistory[this.paymentChangeForm.payment_index];
+                    
+                    // Guardar el método de pago anterior para el historial
+                    const oldPaymentMethod = paymentToUpdate.payment_method_type_id;
+                    
+                    // Actualizar el método de pago
+                    paymentToUpdate.payment_method_type_id = this.paymentChangeForm.new_payment_method_type_id;
+                    
+                    // Agregar observación si existe
+                    if (this.paymentChangeForm.observation) {
+                        paymentToUpdate.observation = this.paymentChangeForm.observation;
+                    }
+                    
+                    // Actualizar en el servidor
+                    await this.$http.post(`/hotel/rents/${this.currentRent.id}/update-payment-method`, {
+                        payment_index: this.paymentChangeForm.payment_index,
+                        new_payment_method_type_id: this.paymentChangeForm.new_payment_method_type_id,
+                        observation: this.paymentChangeForm.observation,
+                        old_payment_method_type_id: oldPaymentMethod
+                    });
+                    
+                    // Actualizar el historial local
+                    this.currentRent.payment_history = JSON.stringify(paymentHistory);
+                    window.location.reload();
+                    this.$message.success('Método de pago actualizado correctamente');
+                    this.showChangePaymentMethodDialog = false;
+                    
+                } catch (error) {
+                    console.error('Error al actualizar el método de pago:', error);
+                    this.$message.error('Ocurrió un error al actualizar el método de pago');
+                } finally {
+                    this.loadingPaymentMethodChange = false;
+                }
+            },
+
+            // Verifica si un ítem del historial puede ser eliminado
+            canDeleteHistoryItem(item) {
+                // Aquí puedes agregar lógica adicional para determinar si un ítem puede ser eliminado
+                // Por ejemplo, solo permitir eliminar ciertos tipos de registros o con ciertos estados
+                const history = JSON.parse(this.currentRent.history);
+                const found = history.find(h => h.id === item.id && h.quantity > item.quantity);
+                return (found && !item.delete) || item.is_product;
+            },
+
+            // Muestra un diálogo de confirmación antes de eliminar un registro del historial
+            confirmDeleteHistoryItem(historyId) {
+                this.$confirm('¿Está seguro de eliminar este registro del historial?', 'Confirmar eliminación', {
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar',
+                    type: 'warning',
+                    confirmButtonClass: 'el-button--danger',
+                    cancelButtonClass: 'el-button--default',
+                    showClose: true
+                }).then(() => {
+                    this.deleteHistoryRecord(historyId);
+                }).catch(() => {});
+            },
+
+            // Elimina un registro del historial mediante una petición al servidor
+            async deleteHistoryRecord(historyId) {
+                try {
+                    this.deletingHistoryId = historyId;
+                    const response = await this.$http.delete(`/hotels/reception/rents/${this.currentRent.id}/history/${historyId}`);
+                    
+                    if (response.data.success) {
+                        // Actualizar el historial en el objeto currentRent
+                        this.currentRent.historial = JSON.stringify(response.data.historial);
+                        this.$message.success('Registro eliminado correctamente');
+                    location.reload();
+                    
+                        
+                    } else {
+                        this.$message.error(response.data.message || 'Error al eliminar el registro');
+                    }
+                } catch (error) {
+                    console.error('Error al eliminar el registro del historial:', error);
+                    this.$message.error('Error al eliminar el registro del historial');
+                } finally {
+                    this.deletingHistoryId = null;
+                }
+            },
+
+            loadHistoryItems() {
+                this.historyItems = JSON.parse(this.currentRent.history || '[]').map((item, index) => ({
+                    ...item,
+                    id: index,
+                    selected: true
+                }));
+                this.selectedHistoryItems = [...this.historyItems];
+            },
+            
+            toggleSelectAll(selected) {
+                this.historyItems = this.historyItems.map(item => ({
+                    ...item,
+                    selected
+                }));
+                this.updateSelectedItems();
+            },
+            
+            updateSelectedItems() {
+                this.selectedHistoryItems = this.historyItems.filter(item => item.selected);
+                console.log(this.selectedHistoryItems);
+                
+
+            },
+            
+            confirmCheckout() {
+                if (this.selectedHistoryItems.length === 0) {
+                    this.$message.warning('Debe seleccionar al menos un ítem para generar el comprobante');
+                    return;
+                }
+                this.showHistorySelection = false;
+                this.processCheckout();
+            },
+            
+            processCheckout() {
+                // Add selected items to form data
+                this.onGoToInvoice();              
+                // Submit the form
+                this.$refs.formSubmit.submit();
+            },
+            
+            async saveDates() {
+                try {
+                    this.savingDates = true;
+                    const response = await this.$http.post(`/hotels/reception/rents/${this.currentRent.id}/update-dates`, this.editForm);
+                    
+                    if (response.data.success) {
+                        this.currentRent.input_date = this.editForm.input_date;
+                        this.currentRent.input_time = this.editForm.input_time;
+                        this.currentRent.output_date = this.editForm.output_date;
+                        this.currentRent.output_time = this.editForm.output_time;
+                        
+                        this.$message.success('Fechas actualizadas correctamente');
+                        this.showEditDates = false;
+                        
+                        // Recargar para actualizar cálculos
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    }
+                } catch (error) {
+                    console.error('Error al actualizar fechas:', error);
+                    this.$message.error('Error al actualizar las fechas');
+                } finally {
+                    this.savingDates = false;
+                }
+            },
+            
+            showCheckoutModal() {
+                this.loadHistoryItems();
+                this.showHistorySelection = true;
+            },
+        async addAdvancePayment() {
+            try {
+                // Create a new payment history array with the new payment
+                const paymentHistory = this.currentRent.payment_history ? 
+                    JSON.parse(this.currentRent.payment_history) : [];
+                
+                if(!this.advanceForm.payment_destination_id){
+                    return this.$message.error('Debe seleccionar un destino de pago');
+                }
+                
+                const newPayment = {
+                    id: paymentHistory.length + 1,
+                    description: this.advanceForm.description,
+                    amount: parseFloat(this.advanceForm.amount),
+                    date: new Date().toLocaleString('es-ES'),
+                    payment_method_type_id: this.advanceForm.payment_method_type_id,
+                    payment_destination_id: this.advanceForm.payment_destination_id
+                };
+                
+                // Add the new payment to the history
+                paymentHistory.push(newPayment);
+                
+                // Update the currentRent with the new payment history
+                this.currentRent.payment_history = JSON.stringify(paymentHistory);
+                
+                // Save the updated rent with the new payment history
+                const response = await this.$http.post(`/hotels/rents/${this.currentRent.id}/update-payment-history`, {
+                    payment_history: this.currentRent.payment_history
+                });
+                
+                // Refresh the data
+                await this.initDocument();
+                
+                // Close the dialog and reset the form
+                this.showAddAdvanceDialog = false;
+                this.advanceForm = {
+                    payment_method_type_id: null,
+                    payment_destination_id: null,
+                    amount: 0,
+                    description: 'Adelanto de pago'
+                };
+                
+                this.$message.success('Adelanto registrado correctamente');
+                
+            } catch (error) {
+                console.error('Error adding advance payment:', error);
+                this.$message.error('Error al registrar el adelanto');
+            }
+        },
+        parseJsonData(data) {
+            if (!data) return [];
+            if (typeof data === 'string') {
+                try {
+                    return JSON.parse(data) || [];
+                } catch (e) {
+                    console.error('Error parsing JSON data:', e);
+                    return [];
+                }
+            }
+            return Array.isArray(data) ? data : [];
+        },
+        calculateTotalConsumption() {
+            if (!this.currentRent) return 0;
+            const history = this.parseJsonData(this.currentRent.history);
+            if (!history.length) return 0;
+            console.log(history);
+            return history.reduce((total, item) => {
+                const amount = item.total || 0;
+                return total + (parseFloat(amount) || 0);
+            }, 0);
+        },
+        calculateTotalPaid() {
+            if (!this.currentRent) return 0;
+            const paymentHistory = this.parseJsonData(this.currentRent.payment_history);
+            if (!paymentHistory.length) return 0;
+            console.log(paymentHistory);
+                
+            
+            return paymentHistory.reduce((total, payment) => {
+                return total + (parseFloat(payment.amount) || 0);
+            }, 0);
+        },
+        calculateTotalDebt() {
+            const total = this.calculateTotalConsumption();
+            const paid = this.calculateTotalPaid();
+            const debt = total - paid;
+            return debt > 0 ? debt : 0;
+        },
+        calculateChange() {
+            const total = this.calculateTotalConsumption();
+            const paid = this.calculateTotalPaid();
+            return paid > total ? paid - total : 0;
+        },
+        async handleReturnChange() {
+            try {
+                const change = this.calculateChange();
+                if (change <= 0) return;
+                
+                // Create a payment object for the change return
+                const payment = {
+                    id: null,
+                    document_id: null,
+                    date_of_payment: moment().format("YYYY-MM-DD"),
+                    payment_method_type_id: "01", // Efectivo
+                    payment_destination_id: _.get(_.find(this.paymentDestinations, {id: 'cash'}), 'id'),
+                    reference: 'DEVOLUCIÓN DE VUELTO',
+                    payment: -change, // Negative payment for return
+                    display: ''
+                };
+                
+                // Add to document payments
+                this.document.payments.push(payment);
+                
+                // Save the payment using the same approach as addAdvancePayment
+                const paymentHistory = this.parseJsonData(this.currentRent.payment_history || '[]');
+                const newPayment = {
+                    id: Date.now().toString(),
+                    date: moment().format('YYYY-MM-DD HH:mm:ss'),
+                    amount: -change,
+                    type: 'advancePayment',
+                    description: 'Devolución de vuelto',
+                    payment_method_type_id: payment.payment_method_type_id,
+                    payment_destination_id: payment.payment_destination_id,
+                    reference: payment.reference
+                };
+                
+                paymentHistory.push(newPayment);
+                
+                // Update the currentRent with the new payment history
+                this.currentRent.payment_history = JSON.stringify(paymentHistory);
+                
+                // Save the updated rent with the new payment history
+                await this.$http.post(`/hotels/rents/${this.currentRent.id}/update-payment-history`, {
+                    payment_history: this.currentRent.payment_history
+                });
+                
+                // Refresh the data
+                await this.initDocument();
+                
+                window.location.reload();
+                this.$message.success('Vuelto registrado correctamente');
+                
+            } catch (error) {
+                console.error('Error al registrar el vuelto:', error);
+                this.$message.error('Error al registrar el vuelto');
+            }
+        },
+        getPaymentMethodDescription(paymentMethodId) {
+            if (!paymentMethodId) return '-';
+            const paymentTypes = this.paymentMethodTypes || [];
+            const method = paymentTypes.find(m => m && (m.id === paymentMethodId || m.payment_method_type_id === paymentMethodId));
+            if (method) {
+                return method.description || method.payment_method_type_description || paymentMethodId;
+            }
+            return paymentMethodId; // Return the ID if no match found
+        },
+        
+        getPaymentMethodClass(paymentMethodId) {
+            // Default class
+            let className = 'badge-light';
+            
+            // Get the payment method description to determine the class
+            const description = this.getPaymentMethodDescription(paymentMethodId).toLowerCase();
+            
+            // Map payment methods to their respective classes
+            if (description.includes('efectivo') || description.includes('cash')) {
+                className = 'badge-success';
+            } else if (description.includes('tarjeta') || description.includes('card')) {
+                className = 'badge-primary';
+            } else if (description.includes('transferencia') || description.includes('transfer')) {
+                className = 'badge-info';
+            } else if (description.includes('yape') || description.includes('plin')) {
+                className = 'badge-warning';
+            } else if (description.includes('depósito') || description.includes('deposit')) {
+                className = 'badge-secondary';
+            } else if (description.includes('crédito') || description.includes('credit')) {
+                className = 'badge-dark';
+            }
+            
+            return className;
+        },
+        
+        getPaymentDestinationDescription(destinationId) {
+            if (!destinationId) return '-';
+            const destinations = this.paymentDestinations || [];
+            const destination = destinations.find(d => d && d.id === destinationId);
+            return (destination && destination.description) || destinationId;
+        },
+        
+        formatDate(dateString) {
+            if (!dateString) return '-';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleString('es-ES', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            } catch (e) {
+                console.error('Error formatting date:', e);
+                return dateString;
+            }
+        },
         ...mapActions([
             'loadConfiguration',
         ]),
@@ -609,12 +1546,17 @@ export default {
             ) {
 
                 this.document_types = this.all_document_types.filter((row) => {
-                    return ['03', '80'].includes(row.id)
+                    return ['80', '03'].includes(row.id)
                 })
+                this.document_types = _.sortBy(this.document_types, (row) => {
+                    return row.id !== '80' ? 1 : 0;
+                });
 
                 // this.document_types = _.filter(this.all_document_types, { id: "03" });
             } else {
-                this.document_types = this.all_document_types;
+                this.document_types = _.sortBy(this.all_document_types, (row) => {
+                    return row.id !== '80' ? 1 : 0;
+                });
             }
 
             this.document.document_type_id =
@@ -638,7 +1580,7 @@ export default {
             const payment =
                 this.document.payments.length == 0 ? this.document.total : 0;
             */
-
+           console.log(this.document.payments)
             let payment = 0
 
             if(this.document.payments.length == 0)
@@ -658,6 +1600,7 @@ export default {
                 payment_destination_id: (cash)? cash.id : null,
                 reference: null,
                 payment: payment,
+                display: ''
             });
         },
         onExitPage() {
@@ -678,7 +1621,7 @@ export default {
         {
             const total_payments = _.sumBy(this.document.payments, 'payment')
 
-            if(total_payments > (this.totalDebt)) return this.getResponseValidations(false, 'El total de los pagos agregados es superior al monto.')
+            //if(total_payments > (this.totalDebt)) return this.getResponseValidations(false, 'El total de los pagos agregados es superior al monto.')
             
             return this.getResponseValidations()
         },
@@ -721,6 +1664,7 @@ export default {
             this.loading = true;
             const payloadFinalizedRent = {
                 arrears: this.arrears,
+                selected_items: this.selectedHistoryItems
             };
             this.loading = true;
             this.$http.post( `/hotels/reception/${this.currentRent.id}/rent/finalized`,
@@ -746,12 +1690,25 @@ export default {
             if (validate_payment_destination.error_by_item > 0) {
                 return this.$message.error("El destino del pago es obligatorio");
             }
-
             const validate_total_payments = this.validateTotalPayments()
             if(!validate_total_payments.success) return this.$message.error(validate_total_payments.message)
 
             this.updateDataForSend()
             this.loading = true;
+            console.log('items: ', this.document.items);
+            console.log('selectedHistoryItems: ', this.selectedHistoryItems);
+            this.document.items = this.selectedHistoryItems;
+            this.onCalculateTotals();
+            this.document.sale_notes_relateds = this.selectedHistoryItems
+                .map(item => item.sale_note_id)
+                .filter(sale_note_id => sale_note_id !== null);
+            this.document.sale_notes_relateds.push(...this.selectedHistoryItems.map(item => item.sale_note_ids).flat());
+            this.document.sale_notes_relateds = this.document.sale_notes_relateds.filter(item => item !== null && item !== undefined);
+            console.log('sale_notes_relateds: ', this.document.sale_notes_relateds);
+            if(this.document.document_type_id === '80' && this.document.items.length == 1 && this.document.sale_notes_relateds.length > 0 && !this.document.items[0].extended){
+                this.onGoToFinalizeRent();
+                return;
+            }
             this.$http
                 .post(`/${this.resource_documents}`, this.document)
                 .then((response) => {
@@ -798,12 +1755,14 @@ export default {
             this.document.items = this.document.items.map((it) => {
                 if (it.item_id === this.room.item_id) {
                     let dayQuantity = it.quantity;
-                    const name = `${it.item.name} x ${dayQuantity} noche(s)`;
+                    const rateType = this.currentRent.rate_type === 'DAY' ? 'noche(es)' : this.currentRent.rate_type === 'HOUR' ? 'hora(s)' : 'mes(es)';
+                    const name = `Habitación ${this.currentRent.room.name} x ${dayQuantity} ${rateType}`;
                     it.item.description = name;
                     it.item.full_description = name;
                     it.name_product_pdf = name;
                     it.quantity = 1;
                     const newTotal = parseFloat(it.total) + parseFloat(this.arrears);
+                    console.log(newTotal);
                     it.input_unit_price_value = parseFloat(newTotal);
                     it.item.unit_price = parseFloat(newTotal);
                     it.unit_value = parseFloat(newTotal);
@@ -862,6 +1821,7 @@ export default {
                 currency_type_id: "PEN",
                 purchase_order: null,
                 exchange_rate_sale: 0,
+                sale_notes_relateds: [],
                 total_prepayment: 0,
                 total_charge: 0,
                 total_discount: 0,
@@ -903,6 +1863,44 @@ export default {
         },
         onGotoBack() {
             window.location.href = "/hotels/reception";
+        },
+        async savePayment(payment, index) {
+            try {
+                this.loading = true;
+                
+                // Create a new payment history array with the new payment
+                const paymentHistory = this.currentRent.payment_history ? 
+                    JSON.parse(this.currentRent.payment_history) : [];
+                
+                const newPayment = {
+                    id: paymentHistory.length + 1,
+                    description: 'Pago registrado',
+                    type: 'advancePayment',
+                    amount: parseFloat(payment.payment),
+                    date: new Date().toLocaleString('es-ES'),
+                    payment_method_type_id: payment.payment_method_type_id,
+                    payment_destination_id: payment.payment_destination_id,
+                    reference: payment.reference || ''
+                };
+                
+                paymentHistory.push(newPayment);
+                
+                // Update the payment history in the rent
+                await this.$http.post(`/hotels/rents/${this.currentRent.id}/update-payment-history`, {
+                    payment_history: JSON.stringify(paymentHistory)
+                });
+                
+                // Refresh the data
+                await this.initDocument();
+                window.location.reload();
+                this.$message.success('Pago registrado correctamente');
+                
+            } catch (error) {
+                console.error('Error saving payment:', error);
+                this.$message.error('Error al registrar el pago');
+            } finally {
+                this.loading = false;
+            }
         },
         clickCancel(index) {
             this.document.payments.splice(index, 1);
@@ -980,3 +1978,97 @@ export default {
     },
 };
 </script>
+
+<style scoped>
+/* Estilos para el diálogo de resumen de pagos */
+.payment-summary-dialog .el-dialog {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.payment-summary-dialog .el-dialog__header {
+    background-color: #f8f9fa;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.payment-summary-dialog .el-dialog__title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.payment-summary-dialog .el-dialog__body {
+    padding: 0;
+}
+
+/* Estilos para la tabla de pagos */
+.payment-row {
+    transition: all 0.3s ease;
+}
+
+.payment-row:hover {
+    background-color: #f8f9fa;
+}
+
+/* Estilos para los badges de tipo de pago */
+.badge-pill {
+    padding: 0.35em 0.8em;
+    font-size: 0.85em;
+    font-weight: 500;
+    border-radius: 50rem;
+    text-transform: capitalize;
+}
+
+/* Estilos para los íconos de estado */
+.el-icon-circle-check {
+    font-size: 1.1em;
+}
+
+.el-icon-refresh-left {
+    font-size: 1.1em;
+}
+
+/* Estilos para los montos */
+.text-success {
+    color: #28a745 !important;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}
+
+/* Estilos para el encabezado fijo de la tabla */
+.table thead th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    color: #6c757d;
+    background-color: #f8f9fa !important;
+}
+
+/* Estilos para el mensaje de sin registros */
+.text-center.py-4 {
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Ajustes para dispositivos móviles */
+@media (max-width: 768px) {
+    .payment-summary-dialog .el-dialog {
+        width: 95% !important;
+        margin: 10px auto;
+    }
+    
+    .table-responsive {
+        font-size: 0.9rem;
+    }
+    
+    .badge-pill {
+        padding: 0.25em 0.6em;
+        font-size: 0.75em;
+    }
+}
+</style>

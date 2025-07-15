@@ -13,7 +13,7 @@ class TenantAddTypeClientToUsers extends Migration
      */
     public function up()
     {
-        DB::statement("ALTER TABLE users CHANGE type type ENUM('admin', 'seller','integrator', 'client') NOT NULL"); 
+        DB::statement("ALTER TABLE users CHANGE type type ENUM('admin', 'seller','integrator', 'client', 'cleaner') NOT NULL"); 
     
     }
 

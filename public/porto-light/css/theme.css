@@ -49,9 +49,11 @@ a:active {
     right: 0;
     top: 0;
     transition: all 0.15s linear;
+    background-color: #dc3545!important;
 }
 .sidebar-left-collapsed .header {
-    left: 74px !important;
+    left: 73px !important;
+
 }
 .header-floating .header {
     left: 320px;
@@ -1473,6 +1475,7 @@ html.dark .header .logo-container .topbar-links {
     font-size: 0.8rem;
 }
 .sidebar-toggle {
+    color: #fff;
     border-right: 1px solid #f3f3f3;
     height: 100%;
     padding-right: 1rem;
@@ -1489,7 +1492,7 @@ html.header-dark .sidebar-toggle {
     border-right: 1px solid #161d31;
 }
 .sidebar-toggle:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: rgba(0, 0, 0, 0.05)!important;
 }
 .sidebar-left .sidebar-header .sidebar-toggle {
     position: absolute;
@@ -7006,6 +7009,7 @@ ul.nav-main li a .not-included {
 }
 
 ul.nav-main li span {
+    color: #fff;
     vertical-align: middle;
 }
 
@@ -13108,7 +13112,7 @@ html.dark .dd-handle:hover {
 }
 
 .notifications > li .notification-icon {
-    /* background: #fff; */
+    background: #fff;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -15342,7 +15346,7 @@ html.dark .table > thead > tr > td,
 html.dark .table > tbody > tr > td,
 html.dark .table > tfoot > tr > td,
 html.dark .table-bordered {
-    border-color: transparent;
+    border-color: #262b33;
 }
 
 html.dark .table-striped > tbody > tr:nth-child(2n + 1) > td,
@@ -20932,6 +20936,7 @@ html.dark ul.nav-main li a:hover::after {
 }
 
 html.fixed .sidebar-left a svg {
+    color: #fff;
     width: 22px;
     height: 22px;
     margin-right: 0.5rem;
@@ -21122,22 +21127,6 @@ li.multi-user-content{
 tbody tr:hover,tfoot tr:hover {
     background: var(--light);
 }
-.btn-massive-actions{
-    position: absolute;
-    right: 15px;
-    z-index: 1;
-}
-html.dark .el-message--warning {
-    background-color: #E6A23C;
-    border-color: #E6A23C;
-    color: #fdf6ec;
-}
-html.dark .el-message--warning .el-message__content {
-    color: #fdf6ec;
-}
-html.dark .el-message .el-icon-warning{
-    color: #fdf6ec;
-}
 @media (min-width: 716px) {
     .card-columns {
     column-count: 2;
@@ -21155,6 +21144,6 @@ html.dark .el-message .el-icon-warning{
 }
 @media (min-width: 1440px) {
     .card-columns {
-    column-count: 5;
+    column-count: 4;
     }
 }

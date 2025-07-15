@@ -69,6 +69,69 @@ $inventory_configuration = InventoryConfiguration::getSidebarPermissions();
                             </a>
                         </li>
                     @endif
+                    {{-- @if(in_array('hotels', $vc_modules) || in_array('documentary-procedure', $vc_modules))
+                    <li class="nav-description">Módulos extras</li>
+                    @endif --}}
+                    @if(in_array('hotels', $vc_modules))
+                        <li class=" nav-parent {{ ($firstLevel === 'hotels') ? 'nav-active nav-expanded' : '' }}">
+                            <a class="nav-link" href="#">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-building-skyscraper">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M3 21l18 0" />
+                                    <path d="M5 21v-14l8 -4v18" />
+                                    <path d="M19 21v-10l-6 -4" />
+                                    <path d="M9 9l0 .01" />
+                                    <path d="M9 12l0 .01" />
+                                    <path d="M9 15l0 .01" />
+                                    <path d="M9 18l0 .01" />
+                                </svg>
+                                <span>Hoteles</span>
+                            </a>
+                            <ul class="nav nav-children">
+                                @if(in_array('hotels_reception', $vc_module_levels))
+                                    <li
+                                        class="{{ (($firstLevel === 'hotels') && ($secondLevel === 'reception')) ? 'nav-active' : '' }}">
+                                        <a class="nav-link" href="{{ url('hotels/reception') }}">Recepción</a>
+                                    </li>
+                                @endif
+                                @if(auth()->user()->type != 'cleaner')
+                                <li
+                                    class="{{ (($firstLevel === 'hotels') && ($secondLevel === 'bookings')) ? 'nav-active' : '' }}">
+                                    <a class="nav-link" href="{{ url('hotels/bookings') }}">Reservas</a>
+                                </li>
+                                @endif
+                                @if(in_array('hotels_rates', $vc_module_levels))
+                                    <li
+                                        class="{{ (($firstLevel === 'hotels') && ($secondLevel === 'rates')) ? 'nav-active' : '' }}">
+                                        <a class="nav-link" href="{{ url('hotels/rates') }}">Tarifas</a>
+                                    </li>
+                                @endif
+                                @if(in_array('hotels_floors', $vc_module_levels))
+                                    <li
+                                        class="{{ (($firstLevel === 'hotels') && ($secondLevel === 'floors')) ? 'nav-active' : '' }}">
+                                        <a class="nav-link" href="{{ url('hotels/floors') }}">Ubicaciones</a>
+                                    </li>
+                                @endif
+                                @if(in_array('hotels_cats', $vc_module_levels))
+                                    <li
+                                        class="{{ (($firstLevel === 'hotels') && ($secondLevel === 'categories')) ? 'nav-active' : '' }}">
+                                        <a class="nav-link" href="{{ url('hotels/categories') }}">Categorías</a>
+                                    </li>
+                                @endif
+                                @if(in_array('hotels_rooms', $vc_module_levels))
+                                    <li
+                                        class="{{ (($firstLevel === 'hotels') && ($secondLevel === 'rooms')) ? 'nav-active' : '' }}">
+                                        <a class="nav-link" href="{{ url('hotels/rooms') }}">Habitaciones</a>
+                                    </li>
+                                @endif
+                                
+
+                            </ul>
+                        </li>
+                    @endif
 
                     {{-- Preventas --}}
                     @if(in_array('preventa', $vc_modules))
@@ -1054,61 +1117,6 @@ $inventory_configuration = InventoryConfiguration::getSidebarPermissions();
                         </ul>
                     </li>
                     @endif --}}
-                    {{-- @if(in_array('hotels', $vc_modules) || in_array('documentary-procedure', $vc_modules))
-                    <li class="nav-description">Módulos extras</li>
-                    @endif --}}
-                    @if(in_array('hotels', $vc_modules))
-                        <li class=" nav-parent {{ ($firstLevel === 'hotels') ? 'nav-active nav-expanded' : '' }}">
-                            <a class="nav-link" href="#">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    class="icon icon-tabler icons-tabler-outline icon-tabler-building-skyscraper">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M3 21l18 0" />
-                                    <path d="M5 21v-14l8 -4v18" />
-                                    <path d="M19 21v-10l-6 -4" />
-                                    <path d="M9 9l0 .01" />
-                                    <path d="M9 12l0 .01" />
-                                    <path d="M9 15l0 .01" />
-                                    <path d="M9 18l0 .01" />
-                                </svg>
-                                <span>Hoteles</span>
-                            </a>
-                            <ul class="nav nav-children">
-                                @if(in_array('hotels_reception', $vc_module_levels))
-                                    <li
-                                        class="{{ (($firstLevel === 'hotels') && ($secondLevel === 'reception')) ? 'nav-active' : '' }}">
-                                        <a class="nav-link" href="{{ url('hotels/reception') }}">Recepción</a>
-                                    </li>
-                                @endif
-                                @if(in_array('hotels_rates', $vc_module_levels))
-                                    <li
-                                        class="{{ (($firstLevel === 'hotels') && ($secondLevel === 'rates')) ? 'nav-active' : '' }}">
-                                        <a class="nav-link" href="{{ url('hotels/rates') }}">Tarifas</a>
-                                    </li>
-                                @endif
-                                @if(in_array('hotels_floors', $vc_module_levels))
-                                    <li
-                                        class="{{ (($firstLevel === 'hotels') && ($secondLevel === 'floors')) ? 'nav-active' : '' }}">
-                                        <a class="nav-link" href="{{ url('hotels/floors') }}">Ubicaciones</a>
-                                    </li>
-                                @endif
-                                @if(in_array('hotels_cats', $vc_module_levels))
-                                    <li
-                                        class="{{ (($firstLevel === 'hotels') && ($secondLevel === 'categories')) ? 'nav-active' : '' }}">
-                                        <a class="nav-link" href="{{ url('hotels/categories') }}">Categorías</a>
-                                    </li>
-                                @endif
-                                @if(in_array('hotels_rooms', $vc_module_levels))
-                                    <li
-                                        class="{{ (($firstLevel === 'hotels') && ($secondLevel === 'rooms')) ? 'nav-active' : '' }}">
-                                        <a class="nav-link" href="{{ url('hotels/rooms') }}">Habitaciones</a>
-                                    </li>
-                                @endif
-                            </ul>
-                        </li>
-                    @endif
                     {{-- Suscription --}}
                     @if(in_array('suscription_app', $vc_modules))
                         <li class=" nav-parent {{ ($firstLevel === 'full_suscription') ? 'nav-active nav-expanded' : '' }}">
@@ -1570,9 +1578,9 @@ $inventory_configuration = InventoryConfiguration::getSidebarPermissions();
         position: absolute;
         z-index: 1;
         display: none;
-        background-color: #fff;
+        background-color: #343a40 ;
         min-width: 230px;
-        border: 1px solid #e0e6f8;
+        border: 1px solidrgb(74, 83, 92) !important;
         box-shadow: 0 0 16px 0px rgb(0 36 96 / 12%);
         bottom: 105px;
         left: 15px;
@@ -1591,7 +1599,7 @@ $inventory_configuration = InventoryConfiguration::getSidebarPermissions();
     }
 
     ul.nav.list-config li:hover {
-        background: #f3f4fb;
+        background:rgb(44, 47, 49) !important;
         border-radius: 5px;
     }
 

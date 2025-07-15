@@ -172,21 +172,19 @@
                                     }"
                                 >
                                     <label class="control-label">
-                                        Condición de pago
+                                        Término de pago
                                     </label>
                                     <el-select
-                                        v-model="payment_condition"
+                                        v-model="form.payment_method_type_id"
                                         filterable
-                                        @change="changePaymentCondition"
+                                        @change="changePaymentMethodType"
                                     >
                                         <el-option
-                                            label="Crédito"
-                                            value="02"
-                                            ></el-option>
-                                        <el-option
-                                            label="Contado"
-                                            value="01"
-                                            ></el-option>
+                                            v-for="option in payment_method_types"
+                                            :key="option.id"
+                                            :value="option.id"
+                                            :label="option.description"
+                                        ></el-option>
                                     </el-select>
                                     <small
                                         class="form-control-feedback"
@@ -261,7 +259,6 @@
                                 class="toggle-button toggle-button-quotations"
                                 :class="{ shift: isVisible }"
                                 @click="toggleInformation"
-                                :title="isVisible ? 'Cerrar Información Adicional' : 'Abrir Información Adicional'"
                             >
                                 <span class="toggle-button-text">
                                     {{
@@ -1256,14 +1253,10 @@
                                 </h3>
                             </div>
 
-                            <template
-                                v-if="showPayments && form.items.length > 0"
-                            >
-
                             <div
                                 class="p-2 payments-div"
                                 style="margin-left: auto;"
-                                v-if="payment_condition == '01'"
+                                v-if="showPayments"
                             >
                                 <h4>Pagos:</h4>
                                 <table>
@@ -1307,7 +1300,7 @@
                                                 <a
                                                     href="#"
                                                     @click.prevent="
-                                                        clickAddPayment(false)
+                                                        clickAddPayment
                                                     "
                                                     class="text-center font-weight-bold text-info"
                                                     >[+ Agregar]</a
@@ -1329,10 +1322,9 @@
                                                         v-model="
                                                             row.payment_method_type_id
                                                         "
-                                                        @change="changePaymentMethodType(index)"
                                                     >
                                                         <el-option
-                                                            v-for="option in payment_method_types_filter"
+                                                            v-for="option in payment_method_types"
                                                             :key="option.id"
                                                             :value="option.id"
                                                             :label="
@@ -1399,127 +1391,6 @@
                                     </tbody>
                                 </table>
                             </div>
-                            
-                            <div class="row">
-                            <div class="col-md-6 mt-3"></div>
-                            <div
-                                v-if="
-                                    payment_condition === '02'"
-                                    class="col-md-6 payments-div"
-                                                            >
-                                                                <table
-                                                                    class="text-left table"
-                                                                    width="100%"
-                                                                >
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th
-                                                                                style="width: 120px"
-                                                                            >
-                                                                                Método
-                                                                                de
-                                                                                pago
-                                                                            </th>
-                                                                            <th
-                                                                                class="text-left"
-                                                                                style="width: 100px"
-                                                                            >
-                                                                                Fecha
-                                                                            </th>
-                                                                            <th
-                                                                                class="text-left"
-                                                                                style="width: 100px"
-                                                                            >
-                                                                                Monto
-                                                                            </th>
-                                                                            <th
-                                                                                style="width: 30px"
-                                                                            ></th>
-                                                                            <th width="15%">
-                                                                            <a
-                                                                                v-if="payment_condition == '02' && form.payments.length === 0"
-                                                                                href="#"
-                                                                                @click.prevent="
-                                                                                    clickAddPayment(true)
-                                                                                "
-                                                                                class="text-center font-weight-bold text-info"
-                                                                                >[+ Agregar]</a
-                                                                            >
-                                                                        </th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                        <tr
-                                                                            v-for="(row,
-                                                                            index) in form.payments"
-                                                                            
-                                                                            :key="
-                                                                                index
-                                                                            "
-                                                                        >
-                                                                            <td>
-                                                                                <el-select
-                                                                                    v-model="
-                                                                                        row.payment_method_type_id
-                                                                                    "
-                                                                                    @change="
-                                                                                        changePaymentMethodType(
-                                                                                            index
-                                                                                        )
-                                                                                    "
-                                                                                >
-                                                                                    <el-option
-                                                                                        v-for="option in payment_method_types_filter"
-                                                                                        :key="
-                                                                                            option.id
-                                                                                        "
-                                                                                        :label="
-                                                                                            option.description
-                                                                                        "
-                                                                                        :value="
-                                                                                            option.id
-                                                                                        "
-                                                                                    ></el-option>
-                                                                                </el-select>
-                                                                            </td>
-                                                                            <td>
-                                                                                <el-date-picker
-                                                                                    v-model="
-                                                                                        row.date_of_payment
-                                                                                    "
-                                                                                    :clearable="
-                                                                                        false
-                                                                                    "
-                                                                                    format="dd/MM/yyyy"
-                                                                                    type="date"
-                                                                                    value-format="yyyy-MM-dd"
-                                                                                    :readonly="
-                                                                                        row.payment_method_type_id !==
-                                                                                            '09'
-                                                                                    "
-                                                                                >
-                                                                                </el-date-picker>
-                                                                            </td>
-                                                                            <td>
-                                                                                <el-input
-                                                                                    v-model="
-                                                                                        row.payment
-                                                                                    "
-                                                                                    :readonly="
-                                                                                        true
-                                                                                    "
-                                                                                ></el-input>
-                                                                            </td>
-                                                                        </tr>
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-
-
-                            </div>
-
-
-                            </template>
                         </div>
                     </div>
 
@@ -1713,7 +1584,6 @@ export default {
             charges_types: [],
             all_customers: [],
             payment_method_types: [],
-            payment_method_types_filter: [],
             customers: [],
             company: null,
             establishments: [],
@@ -1750,8 +1620,7 @@ export default {
             is_amount: true,
             total_global_discount: 0,
             global_discount_types: [],
-            global_discount_type: {},
-            payment_condition: '01',
+            global_discount_type: {}
         };
     },
     async created() {
@@ -1789,7 +1658,6 @@ export default {
             this.allCustomers();
             this.selectDestinationSale();
             this.setConfigGlobalDiscountType();
-            this.changePaymentCondition()
         });
         await this.getPercentageIgv();
         this.loading_form = true;
@@ -1858,59 +1726,6 @@ export default {
                 this.form.discounts.splice(index, 1);
                 this.form.total_discount = 0;
             }
-        },
-        changePaymentCondition() {
-
-            this.form.payments = []
-            if (this.payment_condition == "01") {
-                this.payment_method_types_filter = this.payment_method_types.filter(element => element.is_credit == 0)
-            } else if (this.payment_condition == "02") {
-                this.payment_method_types_filter = this.payment_method_types.filter(element => element.is_credit == 1)
-                this.clickAddPayment(true)
-            } 
-
-            this.changePaymentMethodType()
-        },
-        // Index 0 para Pagos en credito o solo un unico pago en contado
-        changePaymentMethodType(index = 0) {
-            let id = "01";
-            if (
-                this.form.payments[index] !== undefined &&
-                this.form.payments[index].payment_method_type_id !== undefined
-            ) {
-                id = this.form.payments[index].payment_method_type_id;
-            } 
-            let payment_method_type = _.find(this.payment_method_types_filter, {
-                id: id
-            });
-
-            
-            let date = moment(this.form.date_of_issue)
-                    .add(payment_method_type.number_days, "days")
-                    .format("YYYY-MM-DD");
-
-
-            this.form.payment_method_type_id = payment_method_type.id            
-
-            if (payment_method_type.number_days) {
-                this.form.payments[index].date_of_payment = date
-                this.form.date_of_due =  payment_method_type.number_days
-
-            } else if (
-                payment_method_type.id == "09" ||
-                payment_method_type.is_credit
-            ) {
-                this.form.payments[index].date_of_payment = date
-                // this.form.payments = []
-                this.enabled_payments = false;
-            } else {
-                if (this.form.payments[index]) {
-                    this.form.payments[index].date_of_payment = date
-                    this.readonly_date_of_due = false;
-                    this.enabled_payments = true;
-                }
-            }
-
         },
         discountGlobal(ctx) {
             this.deleteDiscountGlobal();
@@ -2046,12 +1861,12 @@ export default {
                     : this.payment_destinations[0].id;
             }
         },
-        clickAddPayment(isCredit = false) {
+        clickAddPayment() {
             this.form.payments.push({
                 id: null,
                 document_id: null,
                 date_of_payment: moment().format("YYYY-MM-DD"),
-                payment_method_type_id: isCredit ? '09' : '01',
+                payment_method_type_id: "01",
                 reference: null,
                 payment_destination_id: this.getPaymentDestinationId(),
                 payment: 0
@@ -2059,7 +1874,6 @@ export default {
             this.showPayments = true; // Asegurar que la tabla se muestre
 
             this.setTotalDefaultPayment();
-            
         },
         getPaymentDestinationId() {
             if (
@@ -2123,6 +1937,15 @@ export default {
         //     console.log(this.form.seller_name);
         //     this.form.label = this.form.seller_name;
         // },
+        async changePaymentMethodType(flag_submit = true) {
+            // let payment_method_type = await _.find(this.payment_method_types, {'id':this.form.payment_method_type_id})
+            // if(payment_method_type){
+            //     if(payment_method_type.number_days){
+            //         this.form.date_of_issue =  moment().add(payment_method_type.number_days,'days').format('YYYY-MM-DD');
+            //         this.changeDateOfIssue()
+            //     }
+            // }
+        },
         searchRemoteCustomers(input) {
             if (input.length > 0) {
                 this.loading_search = true;
@@ -2421,7 +2244,6 @@ export default {
             };
         },
         async submit() {
-
             let validate = await this.validate_payments();
             if (
                 validate.acum_total > parseFloat(this.form.total) ||

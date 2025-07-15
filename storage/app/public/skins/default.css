@@ -72,9 +72,6 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6{
     background-color: var(--light-color);
     border: 1px solid var(--accent-color);
 }
-.btn-theme-white{
-    background-color: rgb(144, 218, 217);
-}
 .row.card-header.no-gutters.align-items-start div {
     align-self: center;
 }
@@ -243,7 +240,7 @@ ul.nav-main li .nav-children li a:after {
 ul.nav-main li.nav-active:not(.nav-parent) > a, ul.nav-main li .nav-children li.nav-active:not(.nav-parent) > a {
     box-shadow: none;
     border-radius: 12px !important;
-    background: linear-gradient(118deg, var(--primary-color), var(--primary-color));
+    background: rgb(0, 0, 0, 0.1);
 }
 ul.nav-main li li a:hover {
     padding-left: 35px !important;
@@ -264,11 +261,11 @@ ul.nav-main li .nav-children li a:after {
 }
 ul.nav-main li.nav-expanded > a,
 ul.nav-main li.nav-parent > ul.nav-children {
-    background-color: var(--accent-color);
+    background-color: #dc3545;
     border-radius: 0 0 12px 12px
 }
 .nav-parent.nav-active a{
-  background-color: var(--accent-color);
+  /*background-color: var(--accent-color);*/
 }
 ul.nav-main li .nav-children li.nav-active:not(.nav-parent) > a{
     color: #fff !important;
@@ -282,7 +279,7 @@ ul.nav-main li .nav-children li a:hover,
 ul.nav-main li .nav-children li a:focus,
 .card-footer-btn-group a,
 .note-editor .note-toolbar {
-    background-color: #fff;
+    background-color: rgb(0, 0, 0, 0.1);
 }
 
 td.text-right {
@@ -747,7 +744,7 @@ html.sidebar-left-collapsed .sidebar-left .nav-main > li > a {
     color: var(--primary-color);
 }
 html.fixed.sidebar-white:not(.dark) .sidebar-left a {
-    color: var(--dark-color) !important;
+    color: white !important;
     font-size: 15px;
 }
 .toggle-button.shift {
@@ -811,6 +808,15 @@ html.fixed.sidebar-white:not(.dark) .sidebar-left a {
     }
     .nav-main-mobile li a{
         color: var(--dark-color) !important;
+    }
+    .nav-main-mobile li a {
+        color: var(--dark-color) !important;
+    }
+    #menu > ul > li > a > span {
+        color: var(--dark-color) !important;
+    }
+    .list-config {
+        background-color: #fff !important;
     }
     html.dark .nav-main-mobile li a{
         color: var(--accent-color) !important;
@@ -906,7 +912,7 @@ ul.nav-main li .nav-children li a:before {
     left: 18px;
     width: 7px;
     height: 7px;
-    border: 1px solid var(--dark-color);
+    border: 1px solid white;
 }
 .badge {
     padding: 0.7em;
@@ -1095,7 +1101,7 @@ html.sidebar-light ul.nav-main > li a:has( + .nav-children) {
 }
 html.fixed.sidebar-white:not(.dark) .sidebar-left, html.fixed.sidebar-white:not(.dark) .sidebar-header, html.fixed.sidebar-white:not(.dark) .sidebar-left .nano,
 .card-footer.configuration-options{
-    background-color: var(--light-color) !important;
+    background-color: #343a40 !important;
 }
 .card:hover .card-footer.configuration-options {
     background: var(--highlight-color) !important;
@@ -1163,6 +1169,7 @@ html.sidebar-blue:not(.dark) .style-switcher .style-switcher-open {
 }
 ul.nav-main li.nav-parent > a:after {
     padding: 15px 25px;
+    color: white !important;
 }
 .page-header .breadcrumbs li {
     color: var(--light-color);
@@ -1822,7 +1829,7 @@ html.fixed.sidebar-dark .sidebar-left .nano {
 html.dark .header,
 html.header-dark .header,
 html.dark .header .logo-container, html.header-dark .header .logo-container {
-    background: var(--background-dark);
+    background-color: var(--background-dark) !important;
     border-bottom-color: var(--background-dark);
     border-top-color: var(--background-dark);
 }
@@ -1845,7 +1852,7 @@ html.dark .sidebar-toggle {
 html.dark ul.nav-main li.nav-active:not(.nav-parent) > a, ul.nav-main li .nav-children li.nav-active:not(.nav-parent) > a {
     box-shadow: none;
     border-radius: 12px !important;
-    background: var(--primary-color);
+    background: #343a40 !important;
     color: var(--light-color) !important;
 }
 html.dark .header .logo-container .topbar-links {
@@ -2780,8 +2787,5 @@ html.dark .el-input.el-input--small.el-input-group.el-input-group--append .el-in
     transform: translate(0px, 0px);
     height: 42px;
     border-radius: 0 8px 8px 0;
-}
-html.dark .table-hover > tbody > tr:hover > td, html.dark .table-hover > tbody > tr:hover > th{
-    background-color: var(--contents-dark);
 }
 /* end */

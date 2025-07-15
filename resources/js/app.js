@@ -312,7 +312,8 @@ Vue.component('system-accounting-index', require('@viewsModuleAccount/system/acc
 
 
 Vue.component('system-multi-users-index', require('@viewsModuleMultiUser/system/multi-users/index.vue'));
-Vue.component('system-massive-invoice-index', require('./views/system/massive_invoice/index.vue'));
+
+
 
 // Hoteles :: Tarifas
 Vue.component('tenant-hotel-rates', require('@viewsModuleHotel/rates/List.vue'));
@@ -332,6 +333,8 @@ Vue.component('tenant-hotel-rent', require('@viewsModuleHotel/rooms/Rent.vue'));
 Vue.component('tenant-hotel-rent-add-product', require('@viewsModuleHotel/rooms/AddProductToRoom.vue'));
 // Hoteles :: Checkout
 Vue.component('tenant-hotel-rent-checkout', require('@viewsModuleHotel/rooms/Checkout.vue'));
+// Hoteles :: Reservas
+Vue.component('tenant-hotel-bookings', require('@viewsModuleHotel/bookings/List.vue'));
 
 // Trámite documentario
 Vue.component('tenant-documentary-offices', require('@viewsModuleDocumentary/offices/Offices.vue'));

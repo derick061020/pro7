@@ -294,6 +294,7 @@
                             </div>
                         </div>
                         <hr>
+                        <!--<h4>Datos modo de traslado</h4>
                         <div class="row" v-if="form.transport_mode_type_id === '01'">
                             <div class="col-lg-4">
                                 <div class="form-comtrol">
@@ -302,7 +303,7 @@
                                     </el-checkbox>
                                 </div>
                             </div>
-                        </div>
+                        </div>-->
                         <div class="row align-items-center">
                             <div class="col-lg-3">
                                 <h4 class="mb-0" >Datos modo de traslado</h4>
@@ -1034,6 +1035,37 @@ export default {
             this.initInputPerson()
         });
 
+        this.initSupplierData()
+        if (this.parentId) {
+            this.form = Object.assign({}, this.form, this.document);
+            this.calculatePackagesFromItems();
+            await this.form.customer_id && this.reloadDataCustomers(this.form.customer_id);
+            await this.form.customer_id && this.getDeliveryAddresses(this.form.customer_id);
+            await this.changeEstablishment()
+            if (this.parentTable !== 'dispatches') {
+                this.setDefaults();
+            }
+            if (this.parentTable == 'purchases') {
+                this.form.transfer_reason_type_id = '02'
+            }
+            if(this.document.document_data.length) {
+                this.form.reference_documents = this.document.document_data;
+            }
+        } else {
+            this.searchRemoteCustomers('')
+            if (this.establishments.length > 0) {
+                this.form.establishment_id = _.head(this.establishments).id;
+            }
+            await this.changeEstablishment()
+            this.changeSeries();
+            this.setDefaults();
+        }
+        this.$eventHub.$on('reloadDataPersons', (customer_id) => {
+            this.reloadDataCustomers(customer_id)
+        })
+        this.$eventHub.$on('initInputPerson', () => {
+            this.initInputPerson()
+        });
     },
     methods: {
         addReferenceDocument(row) {

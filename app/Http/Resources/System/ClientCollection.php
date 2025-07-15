@@ -29,6 +29,7 @@ class ClientCollection extends ResourceCollection
                 'hostname' => $row->hostname->fqdn,
                 'name' => $row->name,
                 'email' => $row->email,
+                'api_preference' => $row->api_preference,
                 'token' => $row->token,
                 'number' => $row->number,
                 'plan' => $row->plan->name,

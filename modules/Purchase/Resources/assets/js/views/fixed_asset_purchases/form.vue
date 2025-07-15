@@ -12,7 +12,7 @@
             <!-- <div class="card-header bg-info">
                 <h3 class="my-0">{{ title_form }}</h3>
             </div> -->
-            <div class="tab-content tab-content-default card-body">
+            <div class="tab-content tab-content-default">
                 <form autocomplete="off" @submit.prevent="submit">
                     <div class="form-body">
     

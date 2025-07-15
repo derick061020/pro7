@@ -1569,9 +1569,9 @@
                             <div class="col-6 mt-4">
                                 <div class="form-group">
                                     <label>
-                                        Activar servicios
+                                        Listar servicios al inicio de Pos
                                         <el-tooltip class="item"
-                                            content="Muestra los servicios en el punto de venta. Si está desactivado, no se podrán vender."
+                                            content="Normalmente, los servicios necesitan ser buscados, en este caso, se podran listar al inicio"
                                             effect="dark" placement="top-start">
                                             <i class="fa fa-info-circle"></i>
                                         </el-tooltip>
@@ -2135,6 +2135,20 @@
                         </div>
                     </el-tab-pane>
 
+                    <el-tab-pane class="mb-3" name="api">
+                        <span slot="label">API</span>
+                        <div class="row">
+                            <div class="col-md-6 mt-4">
+                                <label class="control-label">Clave API</label>
+                                <div :class="{ 'has-danger': errors.api_custom_key }" class="form-group">
+                                    <el-input v-model="form.api_custom_key" type="password" placeholder="Tu clave API"
+                                        @change="updateApiCustomKey"></el-input>
+                                    <small v-if="errors.api_custom_key" class="form-control-feedback"
+                                        v-text="errors.api_custom_key[0]"></small>
+                                </div>
+                            </div>
+                        </div>
+                    </el-tab-pane>
                     <el-tab-pane class="mb-3" name="twelve">
                         <span slot="label">Usuario</span>
                         <div class="row">
@@ -2263,43 +2277,63 @@ export default {
     },
     data() {
         return {
-            headers: headers_token,
-            showDialogTermsCondition: false,
-            showDialogTermsConditionSales: false,
-            showDialogLegendFooterSales: false,
-            showDialogPdfFooterImages: false,
-            showDialogAllowanceCharge: false,
+
             loading_submit: false,
             resource: 'configurations',
+            configuration: {},
             errors: {},
             form: {
+                api_custom_key: null,
                 finances: {},
                 visual: {},
-                dispatches_address_text: false,
+                dispatches_address_text: false
             },
+            showDialogAllowanceCharge: false,
+            showDialogSkins: false,
+            showDialogHeaderMenu: false,
+            showDialogTermsCondition: false,
+            showDialogTermsConditionSales: false,
+            showDialogPdfFooterImages: false,
+            showDialogPdfTemplates: false,
+            showDialogPdfTicketTemplates: false,
+            showDialogPdfGuideTemplates: false,
+            showDialogPdfPreprintedTemplates: false,
+            showDialogPurchases: false,
+            showDialogSaleNotes: false,
+            showDialogVisual: false,
+            showDialogVisualPos: false,
+            showDialogVisualPedidos: false,
+            showDialogVisualDashboard: false,
+            showDialogVisualPointSystem: false,
+            showDialogVisualUser: false,
+            activeName: 'first',
             affectation_igv_types: [],
             global_discount_types: [],
-            placeholder: '',
-            activeName: 'first'
+            placeholder: ''
         }
     },
     created() {
         this.$store.commit('setConfiguration', this.configuration)
         this.$store.commit('setTypeUser', this.typeUser)
         this.loadConfiguration()
-        this.form = this.config;
+        // Inicializar el formulario con la configuración actual
+        if (this.configuration) {
+            this.form = { ...this.configuration }
+        }
     },
     mounted() {
         this.loadTables()
-        this.initForm();
+        this.initForm()
         this.$http.get(`/${this.resource}/record`).then(response => {
-            if (response.data !== '') {
-                this.form = response.data.data;
-                this.$store.commit('setConfiguration', this.form)
-
+            if (response.data && response.data.data) {
+                const configData = response.data.data
+                this.form = { ...configData }
+                this.$store.commit('setConfiguration', configData)
             }
-            // console.log(this.placeholder)
-        });
+        })
+        .catch(error => {
+            console.error('Error al cargar la configuración:', error)
+        })
 
         this.events()
     },
@@ -2525,6 +2559,24 @@ export default {
             }).then(() => {
                 this.loading_submit = false;
             });
+        },
+        updateApiCustomKey() {
+            this.$http.post(`/${this.resource}/api-custom-key`, {
+                api_custom_key: this.form.api_custom_key
+            }).then(response => {
+                if (response.data.success) {
+                    this.$message.success(response.data.message)
+                    this.$store.commit('setConfiguration', response.data.configuration)
+                } else {
+                    this.$message.error(response.data.message)
+                }
+            }).catch(error => {
+                if (error.response.status === 422) {
+                    this.errors = error.response.data
+                } else {
+                    console.log(error)
+                }
+            })
         },
         errorUpload(error) {
             this.$message({ message: 'Error al subir el archivo', type: 'error' })

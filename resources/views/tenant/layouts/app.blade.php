@@ -38,8 +38,18 @@
 
     <link async href="{{ mix('css/app.css') }}" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="
+https://cdn.jsdelivr.net/npm/dhtmlx-gantt@9.0.11/codebase/dhtmlxgantt.min.js
+"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/gantt-schedule-timeline-calendar/dist/gstc.wasm.umd.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/gantt-schedule-timeline-calendar/dist/style.css" rel="stylesheet">
+<link href="
+https://cdn.jsdelivr.net/npm/dhtmlx-gantt@9.0.11/codebase/dhtmlxgantt.min.css
+" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>  
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js" ></script>
     <link rel="stylesheet" href="{{ asset('porto-light/vendor/bootstrap/css/bootstrap.css') }}" />
     <link rel="stylesheet" href="{{ asset('porto-light/vendor/animate/animate.css') }}" />
     <link rel="stylesheet" href="{{ asset('porto-light/vendor/font-awesome/5.11/css/all.min.css') }}" />
@@ -65,8 +75,8 @@
 
     <link rel="stylesheet" type="text/css" href="{{ asset('porto-light/master/style-switcher/style-switcher.css')}}">
 
-    <link rel="stylesheet" href="{{ asset('porto-light/css/theme.css') }}" />
-    <link rel="stylesheet" href="{{ asset('porto-light/css/custom.css') }}" />
+    <link rel="stylesheet" href="{{ asset('porto-light/css/theme.css') }}?v=106" />
+    <link rel="stylesheet" href="{{ asset('porto-light/css/custom.css') }}?v=106" />
 
     @if (file_exists(public_path('theme/custom_styles.css')))
         <link rel="stylesheet" href="{{ asset('theme/custom_styles.css') }}" />
@@ -74,7 +84,7 @@
 
     @if($vc_compact_sidebar->skin)
         @if (file_exists(storage_path('app/public/skins/' . $vc_compact_sidebar->skin->filename)))
-            <link rel="stylesheet" href="{{ asset('storage/skins/' . $vc_compact_sidebar->skin->filename) }}" />
+            <link rel="stylesheet" href="{{ asset('storage/skins/' . $vc_compact_sidebar->skin->filename) }}?v=112" />
         @endif
     @endif
 
@@ -269,10 +279,17 @@
     {{--
     <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>--}}
 
+    <!-- Cargar Vue y dependencias primero -->
+    <script src="{{ mix('js/manifest.js') }}"></script>
+    <script src="{{ mix('js/vendor.js') }}"></script>
+    
+    <!-- Cargar módulo de Hoteles -->
+    @if(file_exists(public_path('js/hotel.js')))
+    <script src="{{ mix('js/hotel.js') }}" defer></script>
+    @endif
+    
+    <!-- Otros scripts -->
     @stack('scripts')
-
-    <script src="{{ asset('js/manifest.js') }}"></script>
-    <script src="{{ asset('js/vendor.js') }}"></script>
     <!-- Theme Base, Components and Settings -->
     <script src="{{asset('porto-light/js/theme.js')}}"></script>
 

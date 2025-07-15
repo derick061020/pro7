@@ -56,36 +56,36 @@
                     </div>
                 </div> -->
 
-                <div class="mt-3 theme-color-selector">
+                <div class="mt-3">
                     <h5>Selecciona un color de tema:</h5>
                     <div class="color-selector">
                         <button
                             type="button"
                             class="btn-theme-white"
-                            :class="{ 'theme-selected': visuals.sidebar_theme === 'white' }"
                             @click="onChangeTheme('white')"
+                            style="background-color: #90dad9;"
                         ></button>
                         <button
                             type="button"
-                            :class="{ 'theme-selected': visuals.sidebar_theme === 'acid' }"
+                            class="btn-theme-acid"
                             @click="onChangeTheme('acid')"
                             style="background-color: #c1b1f1;"
                         ></button>
                         <button
                             type="button"
-                            :class="{ 'theme-selected': visuals.sidebar_theme === 'cupcake' }"
+                            class="btn-theme-cupcake"
                             @click="onChangeTheme('cupcake')"
                             style="background-color: #e7dad0;"
                         ></button>
                         <button
                             type="button"
-                            :class="{ 'theme-selected': visuals.sidebar_theme === 'retro' }"
+                            class="btn-theme-retro"
                             @click="onChangeTheme('retro')"
                             style="background-color: #ebddb7;"
                         ></button>
                         <button
                             type="button"
-                            :class="{ 'theme-selected': visuals.sidebar_theme === 'lemonade' }"
+                            class="btn-theme-lemonade"
                             @click="onChangeTheme('lemonade')"
                             style="background-color: #cddfae;"
                         ></button>
@@ -162,28 +162,6 @@
                     </div>
                 </div>
                 <div class="pt-3 form-modern">
-                    <label class="control-label">Imagen predeterminada de productos
-                        <el-tooltip class="item" content="Para un mejor resultado visual, sube una imagen cuadrada (ej. 215x215 px). Formatos permitidos: PNG o JPG."
-                            effect="dark" placement="top-start">
-                            <i class="fas fa-info-circle"></i>
-                        </el-tooltip>
-                    </label>
-                    <el-input v-model="fileName" :readonly="true" placeholder="Ninguna imagen subida">
-                        <el-upload
-                            slot="append"
-                            :headers="headers"
-                            :on-success="successUploadDefaultImage"
-                            :on-error="errorUpload"
-                            :show-file-list="false"
-                            :action="`/api/configurations/default-image`"
-                            :with-credentials="true"
-                            name="image"
-                        >
-                            <el-button icon="el-icon-upload" type="primary"></el-button>
-                        </el-upload>
-                    </el-input>
-                </div>
-                <div class="pt-3 form-modern">
                     <label class="control-label">Cambiar tema</label>
                     <div :class="{ 'has-danger': errors.compact_sidebar }">
                         <el-select
@@ -240,8 +218,7 @@ export default {
             form: {},
             visuals: {},
             skins: {},
-            dialogSkinsVisible: false,
-            fileName: '',
+            dialogSkinsVisible: false
         };
     },
     async created() {
@@ -250,18 +227,6 @@ export default {
         await this.getRecords();
     },
     methods: {
-        successUploadDefaultImage(response, file) {
-            if (response.message) {
-                this.$message.success(response.message);
-                this.form.default_image = response.file;
-                this.fileName = response.file;
-            }   
-        },
-    
-        errorUpload(err) {
-          this.$message.error("Error al subir la imagen");
-          console.error("Error upload:", err);
-        },
         async loadThemes() {
             try {
                 const response = await fetch("/json/themes/themes.json");
@@ -333,11 +298,6 @@ export default {
                     this.visuals = response.data.data.visual;
                     this.form = response.data.data;
                     this.skins = response.data.data.skins;
-
-                    if (this.form.default_image) {
-                        this.fileName = this.form.default_image;
-                    }
-
                     if (this.visual.sidebar_theme) {
                         this.applyTheme(this.visual.sidebar_theme);
                     }
@@ -470,10 +430,5 @@ export default {
     border-radius: 6px;
     cursor: pointer;
     outline: none;
-    transition: border 0.2s ease;
-}
-
-.color-selector button.theme-selected {
-   box-shadow: 0 0 0 4px var(--highlight-color);
 }
 </style>

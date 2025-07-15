@@ -203,7 +203,7 @@
                                 slot="append"
                                 @click.prevent="showDialogNewItem = true"
                                 class="btn-add-product-pos"
-                                >Nuevo Producto</el-button
+                                >Nuevo Productoss</el-button
                             >
                         </template>
                     </el-input>

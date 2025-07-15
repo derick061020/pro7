@@ -2079,7 +2079,6 @@ export default {
 
             this.row.IdLoteSelected = IdLoteSelected;
             this.row.document_item_id = document_item_id;
-            this.row.various_item = this.various_item
 
             this.showMessageDetraction();
 

@@ -19,6 +19,7 @@ class Configuration extends Model
         'soap_url',
         'token_public_culqui',
         'token_private_culqui',
+        'api_custom_key',
         'url_apiruc',
         'token_apiruc',
         'apk_url',

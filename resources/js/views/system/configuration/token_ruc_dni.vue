@@ -37,6 +37,17 @@
                   ></small>
                 </div>
               </div>
+              <div class="col-md-12" v-if="form.token_false == false">
+                <div class="form-group" :class="{'has-danger': errors.api_custom_key}">
+                  <label class="control-label">Clave API Personalizada</label>
+                  <el-input v-model="form.api_custom_key" type="text"></el-input>
+                  <small
+                    class="form-control-feedback"
+                    v-if="errors.api_custom_key"
+                    v-text="errors.api_custom_key[0]"
+                  ></small>
+                </div>
+              </div>
             </div>
           </div>
           <div class="form-actions text-right pt-2">
@@ -65,6 +76,7 @@ export default {
     await this.$http.get(`/${this.resource}/apiruc`).then(response => {
         this.form.url_apiruc = response.data.url_apiruc;
         this.form.token_apiruc = response.data.token_apiruc;
+        this.form.api_custom_key = response.data.api_custom_key;
 
         if (this.form.token_apiruc == 'false') {
           this.form.token_false = true;
@@ -77,7 +89,8 @@ export default {
       this.form = {
         url_apiruc: null,
         token_apiruc: null,
-        token_false: false
+        token_false: false,
+        api_custom_key: null,
       };
     },
     submit() {

@@ -26,6 +26,8 @@
         protected $table = 'hotel_rooms';
         protected $fillable = [
             'name',
+            'is_clean',
+            'cleaner_id',
             'hotel_category_id',
             'hotel_floor_id',
             'active',
@@ -50,6 +52,11 @@
             return $this->hasMany(HotelRoomRate::class);
         }
 
+
+        public function hotelRents()
+        {
+            return $this->hasMany(HotelRent::class, 'hotel_room_id');
+        }
         /**
          * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
          */

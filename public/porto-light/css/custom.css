@@ -767,7 +767,7 @@ background-color: #08c;
 color: #fff;
 }
 .userbox .name {
-color: #4b4b4b !important;
+color: white !important;
 }
 
 html:not(.sidebar-left-collapsed) .sidebar-toggle .fa-angle-right {

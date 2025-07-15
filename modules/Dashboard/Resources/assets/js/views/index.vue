@@ -636,9 +636,6 @@ export default {
       this.form.establishment_id =
         this.establishments.length > 0 ? this.establishments[0].id : null;
     });
-
-    this.$eventHub.$on('establishmentChanged', this.updateEstablishment);
-
     await this.loadAll();
     await this.filterItems();
   },
@@ -647,13 +644,6 @@ export default {
     ...mapActions([
             'loadConfiguration',
         ]),
-    updateEstablishment(establishmentId) {
-      console.log('Cambiando a sucursal ID:', establishmentId);
-      
-      this.form.establishment_id = establishmentId;
-      
-      this.loadAll();
-    },
     changeFilterItem() {
       this.form.item_id = null;
       this.loadDataUtilities();

@@ -43,6 +43,10 @@
         : string {
             return $this->value;
         }
+        public function getMenuLabel()
+        : string {
+            return 'nina';
+        }
 
         /**
          * @param string $value

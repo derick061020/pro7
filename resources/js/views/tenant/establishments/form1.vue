@@ -375,8 +375,8 @@
             },
             submit() {
 
-                if (this.form.telephone && !/^[\d\-]+$/.test(this.form.telephone)) {
-                    this.$message.error('El teléfono solo debe contener números y guiones');
+                if (this.form.telephone && !/^\d+$/.test(this.form.telephone)) {
+                    this.$message.error('El campo teléfono solo debe contener números');
                     return;
                 }
 
@@ -473,7 +473,7 @@
             validateNumericInput(field) {
                 
                 if (this.form[field]) {
-                    this.form[field] = this.form[field].replace(/[^\d-]/g, '');
+                    this.form[field] = this.form[field].replace(/\D/g, '');
                 }
             },
 

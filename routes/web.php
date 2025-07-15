@@ -1,9 +1,20 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
+
 
 $hostname = app(Hyn\Tenancy\Contracts\CurrentHostname::class);
+Route::get('/migrate', function () {
+    Artisan::call('migrate', ['--force' => true]);
+    return 'Migraciones ejecutadas';
+});
+Route::get('/storage-link', function () {
+    Artisan::call('storage:link');
+    return 'Enlace simbólico de storage creado';
+});
 
+Route::put('system/clients/{id}', 'System\ClientController@updateApiPreference');
 if ($hostname) {
     Route::domain($hostname->fqdn)->group(function () {
         Auth::routes([
@@ -15,6 +26,7 @@ if ($hostname) {
         Route::get('buscar', 'Tenant\SearchController@index')->name('search.index');
         Route::get('search/tables', 'Tenant\SearchController@tables');
         Route::post('search', 'Tenant\SearchController@store');
+
 
 
 
@@ -109,6 +121,7 @@ if ($hostname) {
             Route::get('configurations/create', 'Tenant\ConfigurationController@create')->name('tenant.configurations.create');
             Route::get('configurations/record', 'Tenant\ConfigurationController@record');
             Route::post('configurations', 'Tenant\ConfigurationController@store');
+            Route::post('configurations/api-custom-key', 'Tenant\ConfigurationController@updateApiCustomKey');
             Route::post('configurations/apiruc', 'Tenant\ConfigurationController@storeApiRuc');
             Route::post('configurations/icbper', 'Tenant\ConfigurationController@icbper');
             Route::post('configurations/changeFormat', 'Tenant\ConfigurationController@changeFormat');
@@ -309,7 +322,7 @@ if ($hostname) {
             Route::delete('document_payments/{document_payment}', 'Tenant\DocumentPaymentController@destroy');
             Route::get('document_payments/initialize_balance', 'Tenant\DocumentPaymentController@initialize_balance');
             Route::get('document_payments/report/{start}/{end}/{report}', 'Tenant\DocumentPaymentController@report');
-
+            
 
             Route::get('documents/send_server/{document}/{query?}', 'Tenant\DocumentController@sendServer');
             Route::get('documents/check_server/{document}', 'Tenant\DocumentController@checkServer');
@@ -848,15 +861,6 @@ if ($hostname) {
             Route::post('plans', 'System\PlanController@store');
             Route::delete('plans/{plan}', 'System\PlanController@destroy');
 
-            //Massive Invoice
-            Route::get('massive-invoice', 'System\MassiveInvoiceController@index')->name('system.massive-invoice.index');
-            Route::get('massive-invoice/download-format', 'System\MassiveInvoiceController@downloadFormat')->name('system.massive-invoice.download');
-            Route::post('massive-invoice/upload', 'System\MassiveInvoiceController@upload')->name('system.massive-invoice.upload');
-            Route::post('massive-invoice/process', 'System\MassiveInvoiceController@process')->name('system.massive-invoice.process');
-            Route::get('massive-invoice/config', 'System\MassiveInvoiceController@config');
-            Route::get('massive-invoice/records', 'System\MassiveInvoiceController@records');
-            Route::get('massive-invoice/download/{id}/{type}', 'System\MassiveInvoiceController@downloadFile');
-
             //Users
             Route::get('users/create', 'System\UserController@create')->name('system.users.create');
             Route::get('users/record', 'System\UserController@record');
@@ -940,6 +944,7 @@ if ($hostname) {
                 }
             });
             */
+
 
 
         });

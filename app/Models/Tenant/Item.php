@@ -1149,10 +1149,6 @@ class Item extends ModelTenant
 
         $show_sale_unit_price = "{$currency->symbol} {$this->getFormatSaleUnitPrice()}";
 
-        $defaultImage = $configuration->product_default_image ?? 'imagen-no-disponible.jpg';
-        $defaultImagePath = $defaultImage === 'imagen-no-disponible.jpg'
-            ? asset('logo/imagen-no-disponible.jpg')
-            : asset('storage/defaults/' . $defaultImage); 
         return [
             'name_disa' => $name_disa,
             'laboratory' => $laboratory,
@@ -1200,18 +1196,16 @@ class Item extends ModelTenant
                 ];
             }),
             'apply_store' => (bool)$this->apply_store,
-            'apply_restaurant' => (bool)$this->apply_restaurant,        
+            'apply_restaurant' => (bool)$this->apply_restaurant,
             'image_url' => ($this->image !== 'imagen-no-disponible.jpg')
-                ? asset('storage/uploads/items/' . $this->image)
-                : $defaultImagePath,
-                    
+                ? asset('storage' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'items' . DIRECTORY_SEPARATOR . $this->image)
+                : asset("/logo/{$this->image}"),
             'image_url_medium' => ($this->image_medium !== 'imagen-no-disponible.jpg')
-                ? asset('storage/uploads/items/' . $this->image_medium)
-                : $defaultImagePath,
-                    
+                ? asset('storage' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'items' . DIRECTORY_SEPARATOR . $this->image_medium)
+                : asset("/logo/{$this->image_medium}"),
             'image_url_small' => ($this->image_small !== 'imagen-no-disponible.jpg')
-                ? asset('storage/uploads/items/' . $this->image_small)
-                : $defaultImagePath,
+                ? asset('storage' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'items' . DIRECTORY_SEPARATOR . $this->image_small)
+                : asset("/logo/{$this->image_small}"),
             'tags' => $this->tags,
             'tags_id' => $this->tags->pluck('tag_id'),
             'item_unit_types' => $this->item_unit_types->transform(function ($row) use ($decimal_units) {
@@ -2617,21 +2611,15 @@ class Item extends ModelTenant
     public function scopeFilterRecordsSaleApi($query, $request)
     {
 
-        $configuration = Configuration::first();
         $category_id = $request->category_id ??  null;
         $favorite = $request->has('favorite') && (bool) $request->favorite;
-        $record =  $query->whereFilterWithOutRelations()
+
+        return $query->whereFilterWithOutRelations()
                     ->with(['category', 'brand', 'currency_type'])
                     ->whereFilterRecordsApi($request->input,$request->search_by_barcode)
                     ->filterByCategory($category_id)
                     ->filterFavorite($favorite)
                     ->whereIsActive();
-
-        if ($configuration->isShowServiceOnPos() !== true) {
-            $record->where('unit_type_id', '!=', 'ZZ');
-        }
-
-        return $record;
     }
 
 

@@ -1,4 +1,4 @@
-<header class="header">
+<header style="border-radius: 0px!important;" class="header">
     <div class="logo-container">
         <div class="sidebar-toggle" data-toggle-class="sidebar-left-collapsed" data-target="html"
             data-fire-event="sidebar-left-toggle">
@@ -25,7 +25,24 @@
             </div>
             <h2>Modulos</h2>
         </div>
-        <tenant-dialog-header-menu></tenant-dialog-header-menu>
+        <!-- <tenant-dialog-header-menu></tenant-dialog-header-menu>-->
+        <ul class="notifications">
+            <li>
+                <a href="{{ route('tenant_orders_index') }}" class="notification-icon text-secondary"
+                    data-toggle="tooltip" data-placement="bottom" title="Pedidos pendientes">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="icon icon-tabler icons-tabler-outline icon-tabler-shopping-cart">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                        <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                        <path d="M17 17h-11v-14h-2" />
+                        <path d="M6 5l14 1l-1 7h-13" />
+                    </svg>
+                    <span class="badge badge-pill badge-info badge-up cart-item-count">{{ $vc_orders }}</span>
+                </a>
+            </li>
+        </ul>
 
         @if ($tenant_show_ads && $url_tenant_image_ads)
             <div class="ml-3 mr-3">
@@ -288,7 +305,7 @@
             </ul>
 
             <ul class="log-out-container">
-                <li class="btn-primary" role="menuitem" href="{{ route('logout') }}"
+                <li role="menuitem" href="{{ route('logout') }}"
                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                     {{--<a role="menuitem" href="#"><i class="fas fa-user"></i> Perfil</a>--}}
                     <a>
@@ -353,25 +370,6 @@
                     </a>
                 </li>
             @endif
-        </ul>
-
-        <span class="separator"></span>
-        <ul class="notifications">
-            <li>
-                <a href="{{ route('tenant_orders_index') }}" class="notification-icon text-secondary"
-                    data-toggle="tooltip" data-placement="bottom" title="Pedidos pendientes">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                        class="icon icon-tabler icons-tabler-outline icon-tabler-shopping-cart">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                        <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                        <path d="M17 17h-11v-14h-2" />
-                        <path d="M6 5l14 1l-1 7h-13" />
-                    </svg>
-                    <span class="badge badge-pill badge-info badge-up cart-item-count">{{ $vc_orders }}</span>
-                </a>
-            </li>
         </ul>
 
         @if($vc_document > 0)

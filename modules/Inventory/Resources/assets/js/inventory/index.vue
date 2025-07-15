@@ -109,26 +109,6 @@
                 <h3 class="my-0">Listado de {{ title }}</h3>
             </div> -->
             <div class="card-body">
-                <el-dropdown v-if="hasSelectedItems" class="btn-massive-actions">
-                    <span class="el-dropdown-link">
-                        <el-button aria-expanded="false"
-                            class="btn btn-custom btn-sm dropdown-toggle"
-                            data-toggle="dropdown"
-                            type="button">
-                            Acciones masivas
-                        </el-button>
-                    </span>
-                    <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item
-                            @click.native="onOpenModalMoveGlobal"
-                            >Trasladar</el-dropdown-item
-                        >
-                        <el-dropdown-item
-                            @click.native="onOpenModalStockGlobal"
-                            >Ajustar stock</el-dropdown-item
-                        >
-                    </el-dropdown-menu>
-                </el-dropdown> 
                 <data-table :resource="resource" ref="datatable">
                     <tr slot="heading">
                         <th>
@@ -146,6 +126,14 @@
                                     <el-dropdown-item
                                         @click.native="onUnCheckAll"
                                         >Deseleccionar todo</el-dropdown-item
+                                    >
+                                    <el-dropdown-item
+                                        @click.native="onOpenModalMoveGlobal"
+                                        >Trasladar</el-dropdown-item
+                                    >
+                                    <el-dropdown-item
+                                        @click.native="onOpenModalStockGlobal"
+                                        >Ajustar stock</el-dropdown-item
                                     >
                                 </el-dropdown-menu>
                             </el-dropdown>
@@ -352,21 +340,22 @@ export default {
         },
         async onChangeSelectedStatus(row) {
             this.$forceUpdate();
-            this.selectedItems = this.$refs.datatable.records.filter(item => item.selected);
         },
         onChecktAll() {
-            this.$refs.datatable.records = this.$refs.datatable.records.map(r => {
-                r.selected = true;
-                return r;
-            });
-            this.selectedItems = this.$refs.datatable.records.filter(r => r.selected);
+            this.$refs.datatable.records = this.$refs.datatable.records.map(
+                r => {
+                    r.selected = true;
+                    return r;
+                }
+            );
         },
         onUnCheckAll() {
-            this.$refs.datatable.records = this.$refs.datatable.records.map(r => {
-                r.selected = false;
-                return r;
-            });
-            this.selectedItems = [];
+            this.$refs.datatable.records = this.$refs.datatable.records.map(
+                r => {
+                    r.selected = false;
+                    return r;
+                }
+            );
         },
         clickMove(recordId) {
             this.recordId = recordId;
@@ -408,11 +397,6 @@ export default {
         },
         clickReportStock() {
             this.showDialogStockReport = true;
-        }
-    },
-    computed: {
-        hasSelectedItems() {
-            return this.selectedItems.length > 0;
         }
     }
 };

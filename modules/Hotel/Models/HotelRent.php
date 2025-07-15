@@ -58,14 +58,20 @@
             'hotel_rate_id',
             'duration',
             'quantity_persons',
+            'matricula',
             'data_persons',
+			'travel_purpose',
             'payment_status',
+            'observations',
+            'payment_history',
+            'rate_type',
             'output_date',
             'output_time',
             'input_date',
             'input_time',
             'arrears',
             'status',
+            'is_booking',
             'establishment_id',
         ];
 
@@ -75,7 +81,7 @@
             'hotel_room_id' => 'int',
             'duration' => 'int',
             'quantity_persons' => 'int',
-            'arrears' => 'int'
+            'arrears' => 'int',
         ];
 
         public function getCustomerAttribute($value)

@@ -291,7 +291,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card-body no-gutters">
+                    <div class="card-body border-top no-gutters">
                         <div class="">
                             <div
                                 :class="{ 'has-danger': errors.customer_id }"
@@ -390,7 +390,7 @@
                             <!-- sistema por puntos -->
                         </div>
                     </div>
-                    <div class="card-body no-gutters">
+                    <div class="card-body border-top no-gutters">
                         <template v-if="showSearchItemsMainForm">
                             <div class="row">
                                 <div
@@ -440,10 +440,9 @@
                         <div>
                             <!-- Botón para mostrar/ocultar el componente -->
                             <span
-                                class="toggle-button toggle-button-orders"
+                                class="toggle-button toggle-button-invoice"
                                 :class="{ shift: isVisible }"
                                 @click="toggleInformation"
-                                :title="isVisible ? 'Cerrar Información Adicional' : 'Abrir Información Adicional'"
                             >
                                 <span class="toggle-button-text">
                                     {{
@@ -3387,7 +3386,7 @@
                             Vista Previa
                         </button>
                         <button
-                            class="btn btn-default second-buton"
+                            class="btn btn-default"
                             style="min-width: 180px"
                             @click.prevent="close()"
                         >
@@ -3905,8 +3904,7 @@ export default {
             ],
             showDialogPreview: false,
             value_taxed_without_rounded: 0,
-            total_without_rounded: 0,
-            recordDiscountsGlobal: null
+            total_without_rounded: 0
         };
     },
     computed: {
@@ -3934,10 +3932,7 @@ export default {
             );
         },
         isGlobalDiscountBase: function() {
-            if (this.recordDiscountsGlobal) {
-               return  this.recordDiscountsGlobal.discount_type_id === "02";
-            }
-            return this.configuration.global_discount_type_id === "02" ;
+            return this.configuration.global_discount_type_id === "02";
         },
         ...mapState(["config", "series", "all_series"]),
         credit_payment_metod: function() {
@@ -4604,7 +4599,7 @@ export default {
                 data.pending_amount_prepayment || 0;
             this.form.payment_method_type_id = data.payment_method_type_id;
             this.form.charges = data.charges || [];
-            // this.form.discounts = this.prepareDataGlobalDiscount(data); 
+            this.form.discounts = this.prepareDataGlobalDiscount(data);
             // this.form.discounts = data.discounts || [];
             this.form.seller_id = data.seller_id;
             this.form.items = this.onPrepareItems(data.items);
@@ -4676,14 +4671,6 @@ export default {
 
             this.form.quotation_id = data.quotation_id;
 
-            if (data.discounts[0]) {
-                this.recordDiscountsGlobal = data.discounts[0]
-                let discount_type_id = data.discounts[0].discount_type_id
-                this.total_global_discount = discount_type_id !== "02" ? data.total_discount : 
-                    _.round(Number(data.total_discount * 1.18).toFixed(3), 2);
-            }
-            
-
             this.form.additional_information = this.onPrepareAdditionalInformation(
                 data.additional_information
             );
@@ -4725,7 +4712,6 @@ export default {
 
             this.prepareDataCustomer();
 
-            this.regenerateItems();
             this.calculateTotal();
             // this.currency_type = _.find(this.currency_types, {'id': this.form.currency_type_id})
 
@@ -4735,20 +4721,6 @@ export default {
             if (this.table) {
                 this.filterSeries();
             }
-        },
-        regenerateItems(){
-            let items = [];
-            this.form.items.forEach(row => {
-                items.push(
-                    calculateRowItem(
-                        row,
-                        this.form.currency_type_id,
-                        this.form.exchange_rate_sale,
-                        this.percentage_igv
-                    )
-                );
-            });
-            this.form.items = items;
         },
         preparePaymentsFee(data) {
             if (this.isCreditPaymentCondition) {
@@ -5805,9 +5777,7 @@ export default {
         async changeDateOfIssue() {
             this.validateDateOfIssue();
 
-            if (!this.form.quotation_id) {
-                this.form.date_of_due = this.form.date_of_issue;
-            }
+            this.form.date_of_due = this.form.date_of_issue;
             // if (! this.isUpdate) {
             await this.searchExchangeRateByDate(this.form.date_of_issue).then(
                 response => {
@@ -6359,8 +6329,8 @@ export default {
         },
         setGlobalDiscount(factor, amount, base) {
             this.form.discounts.push({
-                discount_type_id: this.recordDiscountsGlobal ? this.recordDiscountsGlobal.discount_type_id : this.global_discount_type.id,
-                description: this.recordDiscountsGlobal ? this.recordDiscountsGlobal.description : this.global_discount_type.description,
+                discount_type_id: this.global_discount_type.id,
+                description: this.global_discount_type.description,
                 factor: factor,
                 amount: amount,
                 base: base,
@@ -6371,21 +6341,13 @@ export default {
         discountGlobal(ctx) {
             this.deleteDiscountGlobal();
 
-            let amount_discount = this.tota_global_discount;
+            let amount_discount = this.total_global_discount;
             if (this.is_amount) {
-                if (this.recordDiscountsGlobal) {
-                    if (this.recordDiscountsGlobal.discount_type_id === "02") {
-                        amount_discount =  this.total_global_discount / (1 + this.percentage_igv)
-                    } else {
-                        amount_discount = this.total_global_discount
-                    }
-                }  else {
-                        amount_discount =
-                            (this.configuration.global_discount_type_id === "02" &&
-                            this.configuration.exact_discount ) 
-                                ? this.total_global_discount / (1 + this.percentage_igv)
-                                : this.total_global_discount;
-                }   
+                amount_discount =
+                    this.configuration.global_discount_type_id === "02" &&
+                    this.configuration.exact_discount
+                        ? this.total_global_discount / (1 + this.percentage_igv)
+                        : this.total_global_discount;
             }
 
             let input_global_discount = parseFloat(amount_discount);
@@ -6968,6 +6930,7 @@ export default {
             }
         },
         openDialogLots(item) {
+            console.log(item);
             this.recordItem = item;
             this.showDialogItemSeriesIndex = true;
         },

@@ -109,6 +109,9 @@ class HotelRoomController extends Controller
 	public function update(HotelFloorRequest $request, $id)
 	{
 		$room = HotelRoom::findOrFail($id);
+		if(!$request->description){
+			$request->description = ' ';
+		}
 		$room = $room->fill($request->only('description', 'active', 'name', 'hotel_category_id', 'hotel_floor_id','establishment_id'));
 		$room->save();
 
@@ -143,10 +146,46 @@ class HotelRoomController extends Controller
 
 	public function changeRoomStatus($roomId)
 	{
+		$room = HotelRoom::where('id', $roomId)->first();
+		if(request('status') == 'MANTENIMIENTO') {
+			HotelRoom::where('id', $roomId)
+				->update([
+					'status' => request('status')
+				]);
+			return response()->json([
+				'success' => true,
+				'status' => request('status'),
+				'message' => 'Se cambió el estado de la habitación a MANTENIMIENTO',
+			], 200);
+		}
+		if($room->status == 'MANTENIMIENTO') {
+			$room->status = 'DISPONIBLE';
+			$room->save();
+			return response()->json([
+				'success' => true,
+				'status' => $room->status,
+				'message' => 'La habitación cambió su estado a DISPONIBLE',
+			], 200);
+		}
+		if($room->status != 'LIMPIEZA') {
+			HotelRoom::where('id', $roomId)
+				->update([
+					'is_clean' => false,
+					'cleaner_id' => null,
+				]);
+			return response()->json([
+				'success' => true,
+				'status' => $room->status,
+				'message' => 'Se finalizó la limpieza',
+			], 200);
+		}
 		HotelRoom::where('id', $roomId)
 			->update([
+				'is_clean' => false,
+				'cleaner_id' => null,
 				'status' => request('status')
 			]);
+		
 
 		return response()->json([
 			'success' => true,

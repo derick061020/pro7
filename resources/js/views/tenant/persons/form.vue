@@ -531,8 +531,6 @@
                                     <el-select v-model="row.country_id"
                                                filterable
                                                @change="handleCountryChange(row, index)">
-                                               filterable
-                                               @change="handleCountryChange(row, index)">
                                         <el-option v-for="option in countries"
                                                    :key="option.id"
                                                    :label="option.description"
@@ -1099,6 +1097,10 @@ export default {
                } 
             }
 
+            if (this.form.country_id === 'PEPO' && (!this.form.location_id || this.form.location_id.length !== 3)) {
+                return this.$message.error('Falta registrar el ubigeo principal');
+            }
+
             let hasErrorInAdditionalAddresses = false;
             let addressWithError = null;
 
@@ -1126,7 +1128,7 @@ export default {
             //     }
             // }
 
-            if( this.form.location_id.every(lid => lid !== null ) &&  this.form.addresses.length==0 && this.form.location_id.length===3 && this.form.address!=null ){
+            if(this.form.addresses.length==0 && this.form.location_id.length===3 && this.form.address!=null ){
                 this.form.addresses.push({
                     'id': null,
                     'country_id': 'PE',
@@ -1204,6 +1206,8 @@ export default {
             // this.filterProvinces()
             // this.filterDistricts()
 //                this.form.addresses[0].telephone = data.telefono;
+
+            console.log(this.form);
         },
         clickRemoveAddress(index) {
             this.form.addresses.splice(index, 1);

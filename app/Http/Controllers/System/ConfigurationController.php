@@ -56,6 +56,11 @@ class ConfigurationController extends Controller
             $configuration->token_apiruc = $request->token_apiruc;
         }
 
+        if($request->api_custom_key)
+        {
+            $configuration->api_custom_key = $request->api_custom_key;
+        }
+
         if($request->apk_url)
         {
             $configuration->apk_url = $request->apk_url;
@@ -78,6 +83,7 @@ class ConfigurationController extends Controller
         return [
             'url_apiruc' => $configuration->url_apiruc,
             'token_apiruc' => $configuration->token_apiruc,
+            'api_custom_key' => $configuration->api_custom_key,
         ];
     }
 

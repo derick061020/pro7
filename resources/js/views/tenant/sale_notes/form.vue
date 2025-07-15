@@ -286,10 +286,9 @@
                             <div>
                                 <!-- Botón para mostrar/ocultar el componente -->
                                 <span
-                                    class="toggle-button toggle-button-orders"
+                                    class="toggle-button toggle-button-invoice"
                                     :class="{ shift: isVisible }"
                                     @click="toggleInformation"
-                                    :title="isVisible ? 'Cerrar Información Adicional' : 'Abrir Información Adicional'"
                                 >
                                     <span class="toggle-button-text">
                                         {{
@@ -2384,12 +2383,11 @@ export default {
             });
             this.form.items = items;
             
-            /*
             if (this.form.currency_type_id === 'PEN') {
                 this.total_global_discount = _.round(this.total_global_discount * this.form.exchange_rate_sale, 2)
             } else {
                 this.total_global_discount = _.round(this.total_global_discount / this.form.exchange_rate_sale, 2)
-            }*/
+            }
             
             this.calculateTotal();
         },

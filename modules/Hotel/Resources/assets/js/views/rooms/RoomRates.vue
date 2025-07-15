@@ -193,7 +193,7 @@ export default {
       this.onFetchRates();
     },
     onFetchRates() {
-      this.$http.get(`/hotels/rooms/tables/${this.room.establishment.id}`).then((response) => {
+      this.$http.get(`/hotels/rooms/tables/${this.room.establishment_id}`).then((response) => {
         const existingRateIds = this.roomRates.map(item => item.rate.id);
         this.rates = response.data.rates.filter(rate => !existingRateIds.includes(rate.id));
       });

@@ -2299,6 +2299,24 @@
         }
 
         /**
+         * @return string|null
+         */
+        public function getApiCustomKey()
+        {
+            return $this->api_custom_key;
+        }
+
+        /**
+         * @param string|null $api_custom_key
+         * @return Configuration
+         */
+        public function setApiCustomKey(?string $api_custom_key)
+        {
+            $this->api_custom_key = $api_custom_key;
+            return $this;
+        }
+
+        /**
          * @param bool $show_service_on_pos
          *
          * @return Configuration

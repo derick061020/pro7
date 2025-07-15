@@ -109,10 +109,10 @@
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="card-body bg-accent-color ">
                         <h4 class="px-3 my-0">
                             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-user-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h3.5" /><path d="M18.42 15.61a2.1 2.1 0 0 1 2.97 2.97l-3.39 3.42h-3v-3l3.42 -3.39z" /></svg> Datos del cliente y huéspedes</h4>
-                            <div class="card-body py-0">
+                            <div class=" py-0">
                             <div class="row">
                                 <div
                                     class="form-group col-12 col-md-5"
@@ -189,7 +189,7 @@
                                 </div>
                                 
                             </div>
-                            <!-- <div class="row">
+                            <div class="row">
                                 <div
                                     class="form-group col-12 col-md-2"
                                     :class="{ 'has-danger': errors.towels }"
@@ -202,12 +202,52 @@
                                         v-text="errors.towels[0]"
                                     ></small>
                                 </div>
-                            </div> -->
+                                <div
+                                    class="form-group col-12 col-md-2"
+                                    :class="{ 'has-danger': errors.matricula }"
+                                >
+                                    <label class="control-label" for="matricula">Matricula</label>
+                                    <el-input v-model="form.matricula"></el-input>
+                                    <small
+                                        class="form-control-feedback"
+                                        v-if="errors.matricula"
+                                        v-text="errors.matricula[0]"
+                                    ></small>
+                                </div>
+                                <div
+                                    class="form-group col-12 col-md-3"
+                                    :class="{ 'has-danger': errors.travel_purpose }"
+                                >
+                                    <label class="control-label" for="travel_purpose">Motivo de viaje</label>
+                                    <el-select v-model="form.travel_purpose" class="w-100" clearable placeholder="Seleccionar">
+                                        <el-option label="Visita" value="visita"></el-option>
+                                        <el-option label="Trabajo" value="trabajo"></el-option>
+                                        <el-option label="Estudio" value="estudio"></el-option>
+                                        <el-option label="Religión" value="religion"></el-option>
+                                        <el-option label="Salud" value="salud"></el-option>
+                                        <el-option label="Compras" value="compras"></el-option>
+                                        <el-option label="Otros" value="otros"></el-option>
+                                    </el-select>
+                                    <small
+                                        class="form-control-feedback"
+                                        v-if="errors.travel_purpose"
+                                        v-text="errors.travel_purpose[0]"
+                                    ></small>
+                                </div>
+                            </div> 
                         </div>
                     </div>
 
                     <div class="card my-0" v-if="Number(rate_unit_value) > 0">
                         <div class="card-body py-0">
+                            <el-button 
+                                type="text"
+                                @click="showRentHistoryDialog = true"
+                                v-if="room.rents && room.rents.length > 0"
+                                title="Ver historial de rentas"
+                            >
+                                <i class="fa fa-history"></i>
+                            </el-button>
                     <div class="row">
                         <div class="col-12 col-lg-4" >
                             <div class="row"> 
@@ -227,11 +267,12 @@
                                 >
                                     <label class="control-label m-0">Fecha de entrada</label>
                                     <el-date-picker
-                                        :disabled="true"
                                         v-model="form.input_date"
                                         type="date"
-                                        value-format="yyyy-MM-dd"
                                         placeholder="Seleccione una fecha"
+                                        value-format="yyyy-MM-dd"
+                                        format="yyyy-MM-dd"
+                                        @change="onUpdateTotalToPay"
                                     ></el-date-picker>
                                     <small
                                         class="form-control-feedback"
@@ -254,6 +295,7 @@
                                 </div>
                             </div>
                         </div>
+                        
                             <div class="col-12 col-lg-4" >
                                 <div class="row"> 
                                     <h4 class="col-12 my-0">
@@ -268,6 +310,8 @@
                                         type="date"
                                         placeholder="Seleccione una fecha"
                                         value-format="yyyy-MM-dd"
+                                        @change="onUpdateTotalToStay"
+                                        format="yyyy-MM-dd"
                                     ></el-date-picker>
                                     <small
                                         class="form-control-feedback"
@@ -280,10 +324,11 @@
                                     :class="{ 'has-danger': errors.output_time }"
                                 >
                                     <label class="control-label m-0">Hora de salida</label>
-                                    <el-input v-model="form.output_time" placeholder="HH:MM">
+                                    <el-input v-model="form.output_time"  placeholder="HH:MM">
                                     </el-input>
                                     <small
                                         class="form-control-feedback"
+                                        @change="onUpdateTotalToStay"
                                         v-if="errors.output_time"
                                         v-text="errors.output_time[0]"
                                     ></small>
@@ -315,12 +360,20 @@
                                 </div>
 
 
+                                <div class="col-12 col-md-4 form-group">
+                                    <label class="control-label m-0">Tarifa por</label>
+                                    <el-select v-model="form.rate_type" @change="onUpdateTotalToPay">
+                                        <el-option label="Hora" value="HOUR"></el-option>
+                                        <el-option label="Noche" value="DAY"></el-option>
+                                        <el-option label="Mes" value="MONTH"></el-option>
+                                    </el-select>
+                                </div>
                                 <div
                                     class="col-12 col-md-4 form-group"
                                     :class="{ 'has-danger': errors.duration }"
                                     v-if="rate"
                                 >
-                                    <label class="control-label m-0" for="rate">Cant. noches</label>
+                                    <label class="control-label m-0" for="rate">Cantidad</label>
                                     <el-input-number
                                         v-model="form.duration"
                                         controls-position="right"
@@ -354,7 +407,7 @@
                             </div>
                         </div>
 
-                            <div class="row pt-3">
+                            <div class="card-body bg-accent-color row pt-3">
                                 <h4 class="col-12 my-0">
                                     <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-cash-register"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M21 15h-2.5c-.398 0 -.779 .158 -1.061 .439c-.281 .281 -.439 .663 -.439 1.061c0 .398 .158 .779 .439 1.061c.281 .281 .663 .439 1.061 .439h1c.398 0 .779 .158 1.061 .439c.281 .281 .439 .663 .439 1.061c0 .398 -.158 .779 -.439 1.061c-.281 .281 -.663 .439 -1.061 .439h-2.5" /><path d="M19 21v1m0 -8v1" /><path d="M13 21h-7c-.53 0 -1.039 -.211 -1.414 -.586c-.375 -.375 -.586 -.884 -.586 -1.414v-10c0 -.53 .211 -1.039 .586 -1.414c.375 -.375 .884 -.586 1.414 -.586h2m12 3.12v-1.12c0 -.53 -.211 -1.039 -.586 -1.414c-.375 -.375 -.884 -.586 -1.414 -.586h-2" /><path d="M16 10v-6c0 -.53 -.211 -1.039 -.586 -1.414c-.375 -.375 -.884 -.586 -1.414 -.586h-4c-.53 0 -1.039 .211 -1.414 .586c-.375 .375 -.586 .884 -.586 1.414v6m8 0h-8m8 0h1m-9 0h-1" /><path d="M8 14v.01" /><path d="M8 17v.01" /><path d="M12 13.99v.01" /><path d="M12 17v.01" /></svg> Opciones de pago</h4>
                                 
@@ -368,7 +421,7 @@
                                         @change="onChangeStatusPayment"
                                     >
                                         <el-option value="PAID" label="Pagado"></el-option>
-                                        <!-- <el-option value="ACCOUNT" label="A cuenta"></el-option> -->
+                                        <el-option value="ADELANTO" label="Adelanto"></el-option>
                                         <el-option value="DEBT" label="Falta pagar"></el-option>
                                     </el-select>
                                     <small
@@ -378,8 +431,8 @@
                                     ></small>
                                 </div>
                                                                 
-                                <!-- mostrar campos adicionales para pago, si tiene estado pagado -->
-                                <template v-if="isPaid">
+                                <!-- mostrar campos adicionales para pago, si tiene estado pagado o adelanto -->
+                                <template v-if="isPaid || form.payment_status === 'ADELANTO'">
                                     <div class="col-12 col-md-2 form-group">
                                         <div :class="{ 'has-danger': errors.series_id }"
                                             class="form-group">
@@ -447,6 +500,25 @@
                                             v-text="errors['rent_payment.payment_destination_id'][0]"
                                         ></small>
                                     </div>
+
+                                    <!-- Monto de adelanto -->
+                                    <div 
+                                        v-if="form.payment_status === 'ADELANTO'"
+                                        class="col-12 col-md-2 form-group"
+                                        :class="{ 'has-danger': errors['rent_payment.amount'] }"
+                                    >
+                                        <label class="control-label mt-0">Monto</label>
+                                        <el-input-number
+                                            v-model="form.rent_payment.amount"
+                                            :min="1"
+                                            :step="1"
+                                        ></el-input-number>
+                                        <small
+                                            class="form-control-feedback"
+                                            v-if="errors['rent_payment.amount']"
+                                            v-text="errors['rent_payment.amount'][0]"
+                                        ></small>
+                                    </div>
                                     
                                     <div class="col-12 col-md-2 form-group">
                                         <label class="control-label mt-0" for="rate">Referencia</label>
@@ -483,14 +555,26 @@
                         <div class="d-flex justify-content-between">
                             <template v-if="canMakePayment">
                                 <el-button class="btn btn-default" @click="onToBackPage">Cancelar</el-button>
-                                <el-button v-if="Number(rate_unit_value) > 0"
-                                    type="primary"
-                                    :loading="loading"
-                                    :disabled="loading"
-                                    @click="onSubmit"
-                                    class="btn btn-primary"
-                                >Guardar y registrar Check-in
-                                </el-button>
+                                <div>
+                                    <el-button 
+                                        v-if="rentData"
+                                        type="danger"
+                                        @click="onDelete"
+                                        class="btn btn-danger mr-2"
+                                    >
+                                        <i class="fas fa-trash"></i> Eliminar
+                                    </el-button>
+                                    <el-button 
+                                        v-if="Number(rate_unit_value) > 0"
+                                        type="primary"
+                                        :loading="loading"
+                                        :disabled="loading"
+                                        @click="onSubmit"
+                                        class="btn btn-primary"
+                                    >
+                                        {{ isCheckin ? 'Guardar y registrar Check-in' : 'Guardar cambios' }}
+                                    </el-button>
+                                </div>
                             </template>
                         </div>
                     </div>
@@ -535,6 +619,63 @@
                            :showDialog.sync="showDialogSaleNoteOptions">
         </sale-note-options>
 
+        <!-- Rent History Dialog -->
+        <el-dialog
+            title="Historial de Rentas"
+            :visible.sync="showRentHistoryDialog"
+            width="70%"
+            :before-close="() => showRentHistoryDialog = false"
+        >
+            <el-table
+                :data="room.rents || []"
+                border
+                style="width: 100%"
+                v-loading="loading"
+            >
+                <el-table-column
+                    prop="id"
+                    label="#"
+                    width="80"
+                >
+                    <template slot-scope="scope">
+                        {{ scope.$index + 1 }}
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    prop="input_date"
+                    label="Check-in"
+                    width="180"
+                >
+                    <template slot-scope="scope">
+                        {{ scope.row.input_date }} {{ scope.row.input_time || '' }}
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    prop="output_date"
+                    label="Check-out"
+                    width="180"
+                >
+                    <template slot-scope="scope">
+                        {{ scope.row.output_date }} {{ scope.row.output_time || '' }}
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    prop="status"
+                    label="Estado"
+                >
+                    <template slot-scope="scope">
+                        <el-tag :type="scope.row.status === 'finalizado' ? 'success' : 'info'">
+                            {{ scope.row.status }}
+                        </el-tag>
+                    </template>
+                </el-table-column>
+            </el-table>
+
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="showRentHistoryDialog = false">Cerrar</el-button>
+            </span>
+        </el-dialog>
+
     </div>
 </template>
 
@@ -572,6 +713,18 @@ export default {
             type: Array,
             required: true,
         },
+        is_modal: {
+            type: Boolean,
+            required:true,
+        },
+        rentData: {
+            type: Object,
+            default: null
+        },
+        rentPayments: {
+            type: Array,
+            default: () => []
+        }
     },
     data() {
         return {
@@ -579,25 +732,33 @@ export default {
             customer: {},
             customerId: null,
             customer_barcode: null,
+            showRentHistoryDialog: false,
             form: {
+                id: null,
                 customer: {},
+                customer_id: null,
                 towels: 1,
                 rate: {},
+                hotel_rate_id: null,
+                matricula: '',
                 duration: 1,
+                travel_purpose: null,
                 total_to_pay: 0,
-                input_time: "12:00",
-                input_date: moment().format('YYYY-MM-DD'),
-                output_time: "12:00",
-                output_date: null,
+                rate_type: 'DAY',
+                input_time: moment().format("HH:mm"),
+                input_date: moment().format("YYYY-MM-DD"),
+                output_time: '12:00',
+                output_date: moment().add(1, 'days').format("YYYY-MM-DD"),
                 payment_status: 'PAID',
                 quantity_persons: 1,
-                data_persons:[],
+                data_persons: [],
+                notes: null,
                 affectation_igv_type_id: null,
-                date_of_issue: moment().format('YYYY-MM-DD'),
+                date_of_issue: moment().format("YYYY-MM-DD"),
                 establishment_id: null,
                 sale_note_id: null,
                 rent_payment: {
-                    payment_method_type_id: null,
+                    payment_method_type_id: '01',
                     payment_destination_id: null,
                     reference: null,
                     payment: 0,
@@ -605,6 +766,7 @@ export default {
             },
             rate: null,
             rate_unit_value: 0,
+            isCheckin: false,
             loading: false,
             showDialogNewPerson: false,
             showDialogPersons: false,
@@ -631,6 +793,22 @@ export default {
         await this.onFetchTables();
         this.onUpdateOutputDate();
         await this.initDocument();
+        
+        // Check if this is a check-in from a booking
+        const urlParams = new URLSearchParams(window.location.search);
+        this.isCheckin = urlParams.get('checkin') === 'true';
+        
+        // Initialize form with rent data if in edit mode
+        if (this.rentData) {
+            this.initializeRentForm();
+            
+            // If this is a check-in, update the form title
+            if (isCheckin) {
+                // You can update the page title or show a message indicating this is a check-in
+                document.title = 'Check-in - ' + document.title;
+                // You can also update any other UI elements to indicate this is a check-in flow
+            }
+        }
     },
     async created() {
         await this.$eventHub.$on("reloadDataPersons", (customerId) => {
@@ -651,18 +829,141 @@ export default {
             })
         },
         canMakePayment: function () {
-            if (this.form.sale_note_id!=null || this.room.status=== 'OCUPADO') {
+            console.log(this.is_modal); 
+            if ((this.form.sale_note_id!=null || this.room.status=== 'OCUPADO' )&& (this.is_modal !== true)) {
                 return false;
             }
             return true;
+
         },
     },
     methods: {
+        getRentHistoryTooltip() {
+            // This method is no longer used but kept for compatibility
+            return 'Ver historial de rentas';
+        },
+        onDelete() {
+            if (!this.rentData || !this.rentData.id) return;
+            
+            this.$confirm('¿Está seguro de eliminar esta reserva?', 'Eliminar Reserva', {
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar',
+                type: 'warning'
+            }).then(() => {
+                this.loading = true;
+                const url = "/hotels/bookings/destroy" + '/' + this.rentData.id;
+                
+                this.$http.delete(url)
+                    .then(response => {
+                        this.$message.success(response.data.message);
+                        window.location.href = '/hotels/reception';
+                    })
+                    .catch(error => {
+                        this.loading = false;
+                        const errorMessage = (error.response && error.response.data && error.response.data.message) 
+                            ? error.response.data.message 
+                            : 'Error al eliminar la reserva';
+                        this.$message.error(errorMessage);
+                    });
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: 'Operación cancelada'
+                });          
+            });
+        },
+        
+        initializeRentForm() {
+            try {
+                console.log(this.rentData);
+                const rent = this.rentData;
+
+                
+                console.log(JSON.parse(rent.history));
+
+                
+                // Update form with rent data
+                this.form.id = rent.id;
+                this.form.customer_id = rent.customer_id;
+                this.form.customer = rent.customer || {};
+                this.form.room_id = rent.hotel_room_id;
+                this.form.rate = rent.rate || {};
+                this.form.hotel_rate_id = rent.hotel_rate_id || null;
+                this.form.duration = rent.duration || 1;
+                this.form.travel_purpose = rent.travel_purpose || null;
+                this.form.total_to_pay = rent.total_to_pay || 0;
+                this.form.input_time = rent.input_time;
+                this.form.rate_type = rent.rate_type;
+                this.form.input_date = moment(rent.input_date).format('YYYY-MM-DD');
+                this.form.output_time =rent.output_time;
+                this.form.output_date = moment(rent.output_date).format('YYYY-MM-DD');
+                this.form.payment_status = rent.payment_status || 'PAID';
+                this.form.quantity_persons = rent.quantity_persons || 1;
+                this.form.data_persons = rent.data_persons || [];
+                this.form.towels = rent.towels || 1;
+                this.form.matricula = rent.matricula || '';
+                this.form.notes = rent.notes || '';
+
+                
+                // Set payment data
+                if (JSON.parse(rent.payment_history) && JSON.parse(rent.payment_history).length > 0) {
+                    this.form.payment_status = 'ADELANTO';
+                    const payment = JSON.parse(rent.payment_history)[0];
+                    this.form.rent_payment = {
+                        payment_method_type_id: payment.payment_method_type_id || '01',
+                        payment_destination_id: payment.payment_destination_id || null,
+                        reference: payment.reference || null,
+                        payment: payment.payment || 0,
+                        amount: payment.amount
+                    };
+                }
+                this.onSelectedRate();
+                
+                // Update rate and other related data
+                if (rent.rate) {
+                    this.rate = rent.rate;
+                    this.rate_unit_value = rent.rate.amount || 0;
+                }
+                for (const item of JSON.parse(rent.history)) {
+                    //this.rate_unit_value = item.unit_price;
+                    this.form.rate_price = item.unit_price;
+                    console.log(this.form.rate_price);
+                    console.log(item.unit_price);
+                    break;
+                }
+                
+                // Update customer data
+                if (rent.customer) {
+                    this.customer = rent.customer;
+                    this.customerId = rent.customer_id;
+                }
+                
+                // Recalculate totals
+                this.onUpdateTotalToPay();
+                this.onUpdateTotalToStay();
+                
+            } catch (error) {
+                console.error('Error initializing rent form:', error);
+                this.$eventHub.$emit('receive_error', 'Error al cargar los datos de la recepción');
+            }
+        },
         async onSubmit() {
             try {
                 this.loading = true;
+                const hasConflict = this.checkDateConflicts();
+                if (hasConflict) {
+                    return this.$message.error("La habitación ya está reservada para las fechas seleccionadas. Por favor, verifique el historial de rentas.");
+                }
+                if(!this.form.rent_payment.payment_destination_id && this.form.payment_status !== 'DEBT'){
+                    return this.$message.error('Debe seleccionar un destino de pago');
+                }
+
+                // Check if this is a check-in from the URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const isCheckin = urlParams.get('checkin') === 'true';
 
                 const response = await this.$http.get(`/documents/search/item/${this.room.item_id}`);
+                console.log(response.data.items[0]);
                 const payload = {};
                 const item = response.data.items[0];
 
@@ -680,14 +981,15 @@ export default {
                     id: payload.affectation_igv_type_id,
                 });
 
-                payload.quantity = this.form.duration;
+                payload.quantity = this.form.duration ;
                 const unit_price = item.has_igv
                     ? payload.unit_price_value
                     : payload.unit_price_value * (1 + this.percentage_igv);
 
+
                 payload.input_unit_price_value = payload.unit_price_value;
                 payload.unit_price = unit_price;
-                payload.item.unit_price = unit_price;
+                payload.item.unit_price = this.form.rate_price;
 
                 const currencyTypeIdActive = "PEN";
                 const exchangeRateSale = 0;
@@ -700,6 +1002,18 @@ export default {
 
                 this.form.product = product;
                 
+                // Set is_booking to false if this is a check-in
+                this.form.is_booking = this.is_modal && !isCheckin;
+                
+                // Set status to INICIADO if this is a check-in
+                if (isCheckin) {
+                    this.form.status = 'INICIADO';
+                    this.form.is_booking = 0; // Ensure is_booking is set to 0 for check-ins
+                }
+                
+                // Add is_checkin to the form data to be sent to the server
+                this.form.is_checkin = isCheckin;
+
                 if (this.isPaid) {
                     this.document.items.push(product);
                     console.log("PAYMENTS")
@@ -707,16 +1021,31 @@ export default {
                 }
 
                 this.form.product.quantity = this.form.duration;
-                const response_reception = await this.$http.post(`/hotels/reception/${this.room.id}/rent/store`, this.form);
-                if(response_reception){
+                this.form.payment_status = this.form.payment_status === 'ADELANTO' ? 'DEBT' : this.form.payment_status;
+                let response_reception;
+                this.form.product.item.unit_price = this.form.product.unit_price;
+                if (this.rentData) {
+                    // Update existing rent
+                    response_reception = await this.$http.put(`/hotels/reception/${this.rentData.id}/rent/update`, this.form);
+                } else {
+                    // Create new rent
+
+                    response_reception = await this.$http.post(`/hotels/reception/${this.room.id}/rent/store`, this.form);
+                }
+                
+                if (response_reception && response_reception.data) {
                     this.$message({
                         message: response_reception.data.message,
                         type: "success",
                     });
 
-                    if (!this.isPaid) {
-                        this.onToBackPage();
+                    if (this.is_modal) {
+                        window.location.href = "about:blank";
                     }
+                    if (!this.isPaid || this.form.rent_payment.amount ) {
+                            this.onToBackPage();
+                    }
+                    
                 }
                 
 
@@ -732,20 +1061,68 @@ export default {
         onChangeStatusPayment() {
             if (this.form.payment_status === "DEBT") {
                 this.form.payment_type = "CASH";
+                // Limpiar el monto cuando se cambia el estado de pago
+                if (this.form.rent_payment) {
+                    this.form.rent_payment.amount = 0;
+                }
+            } else if (this.form.rent_payment) {
+                // Si se cambia a otro estado que no sea DEUDA, establecer el monto al total a pagar
+                this.form.rent_payment.amount = this.form.total_to_pay || 0;
             }
+            // Forzar la actualización del componente
+            this.$forceUpdate();
         },
+        /**
+         * Actualiza el total a pagar y llama a onUpdateOutputDate y setTotalPayment
+         * cuando cambia la duraci n o el precio de la tarifa.
+         */
         onUpdateTotalToPay() {
             this.form.total_to_pay = this.form.rate_price * this.form.duration;
+            if (this.form.duration < 1) {
+                this.form.total_to_pay = this.form.rate_price;
+            }
             this.onUpdateOutputDate();
+            if (this.form.duration < 1) {
+                this.form.duration = 1;
+            }
             this.setTotalPayment()
+        },
+        onUpdateTotalToStay() {
+            let inputDate = moment(`${this.form.input_date} ${this.form.input_time}`);
+            let outputDate = moment(`${this.form.output_date} ${this.form.output_time}`);
+            let output = moment(`${this.form.output_date}`);
+            let input = moment(`${this.form.input_date}`);
+            
+            
+            if (this.form.rate_type === "DAY") {
+                this.form.duration = output.diff(input, "days");
+            } else if (this.form.rate_type === "MONTH") {
+                this.form.duration = output.diff(input, "months");
+            } else if (this.form.rate_type === "HOUR") {
+                this.form.duration = outputDate.diff(inputDate, "hours");
+            }
+            
+            this.onUpdateTotalToPay();
         },
         setTotalPayment()
         {
             this.form.rent_payment.payment = this.form.total_to_pay
         },
         onUpdateOutputDate() {
-            const newDate = moment().add(this.form.duration, "days");
-            this.form.output_date = newDate.format('YYYY-MM-DD');
+            let outputDate;
+            if (this.form.rate_type === "DAY") {
+                outputDate = moment(this.form.input_date).add(this.form.duration, "days");
+            } else if (this.form.rate_type === "MONTH") {
+                outputDate = moment(this.form.input_date).add(this.form.duration, "months");
+            } else if (this.form.rate_type === "HOUR") {
+                outputDate = moment(`${this.form.input_date} ${this.form.input_time}`).add(this.form.duration, "hours");
+            }
+            this.form.output_date = outputDate.format("YYYY-MM-DD");
+            if(this.form.rate_type === "HOUR"){
+                this.form.output_time = outputDate.format("HH:mm");
+            }else{
+                this.form.output_time = '12:00';
+            }
         },
         onSelectedRate() {
             const rate = this.room.rates
@@ -935,8 +1312,32 @@ export default {
                 hotel_rent_id: null
             };
         },
+        checkDateConflicts() {
+            if (!this.room.rents || this.room.rents.length === 0) return false;
+            
+            const inputDate = new Date(this.form.input_date);
+            const outputDate = new Date(this.form.output_date);
+            
+            // Check if the room is already booked for the selected dates
+            return this.room.rents.some(rent => {
+                if (rent.status === 'finalizado') return false;
+                
+                const rentInput = new Date(rent.input_date);
+                const rentOutput = new Date(rent.output_date);
+                
+                // Check for date overlap
+                return (
+                    (inputDate >= rentInput && inputDate < rentOutput) ||
+                    (outputDate > rentInput && outputDate <= rentOutput) ||
+                    (inputDate <= rentInput && outputDate >= rentOutput)
+                );
+            });
+        },
+        
         async onGoToInvoice() {
             try {
+                // Check for date conflicts before proceeding
+                
                 await this.onUpdateItemsWithExtras();
                 await this.onCalculateTotals();
                 await this.setDataPayments();
@@ -945,10 +1346,10 @@ export default {
                 if (validate_payment_destination.error_by_item > 0) {
                     return this.$message.error("El destino del pago es obligatorio");
                 }
-
-                this.document.customer_id = this.form.customer_id
-                this.document.customer = this.form.customer
-                this.document.hotel_data_persons = this.form.data_persons
+                
+                this.document.customer_id = this.form.customer_id;
+                this.document.customer = this.form.customer;
+                this.document.hotel_data_persons = this.form.data_persons;
                 this.loading = true;
 
                 const response = await this.$http.post(`/${this.resource_documents}`, this.document);
@@ -983,17 +1384,38 @@ export default {
                         throw new Error("Elemento en items no tiene la propiedad 'item'");
                     }
 
-                    const name = `${it.item.description} x ${this.form.duration} noche(s)`;
-                    it.item.description = name;
-                    it.item.full_description = name;
-                    it.name_product_pdf = name;
-                    it.quantity = 1;
+                    let name = it.item.description;
+                    switch (this.form.rate_type) {
+                        case 'DAY':
+                            name = `${it.item.description} x ${this.form.duration} noche(s)`;
+                            it.item.description = name;
+                            it.item.full_description = name;
+                            it.name_product_pdf = name;
+                            it.quantity = this.form.duration;
+                            break;
+                        case 'HOUR':
+                            name = `${it.item.description} x ${this.form.duration} hora(s)`;
+                            it.item.description = name;
+                            it.item.full_description = name;
+                            it.name_product_pdf = name;
+                            it.quantity = this.form.duration;
+                            break;
+                        case 'MONTH':
+                            name = `${it.item.description} x ${this.form.duration} mes(es)`;
+                            it.item.description = name;
+                            it.item.full_description = name;
+                            it.name_product_pdf = name;
+                            it.quantity = this.form.duration;
+                            break;
+                        default:
+                            break;
+                    }
 
                     const newTotal = parseFloat(this.form.total_to_pay);
 
                     it.input_unit_price_value = newTotal;
-                    it.item.unit_price = newTotal;
-                    it.unit_value = newTotal;
+                    it.item.unit_price = this.form.rate_price;
+                    it.unit_value = this.form.rate_price;
 
                     const newItem = calculateRowItem(it, "PEN", 3, this.percentage_igv);
                     return newItem;

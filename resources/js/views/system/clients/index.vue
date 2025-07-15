@@ -241,6 +241,7 @@
                         <tr>
                             <th>#</th>
                             <th class="sticky-column">Hostname</th>
+                            <th class="sticky-column">API</th>
                             <th>Nombre</th>
                             <th>RUC</th>
                             <th>Plan</th>
@@ -292,10 +293,18 @@
                             <tr v-for="(row, index) in filteredRecords" :key="index">
                             <td>{{ index + 1 }}</td>
                             <td class="sticky-column">
-                                <!-- {{ row.hostname }} -->
-                                <a :href="`http://${row.hostname}`"
-                                   style="color:black"
-                                   target="_blank">{{ row.hostname }}</a>
+                                <span class="text-primary">{{ row.hostname }}</span>
+                            </td>
+                            <td class="sticky-column">
+                                <div class="d-flex align-items-center">
+                                    <span class="mr-2">{{ getApiText(row.api_preference) }}</span>
+                                    <el-button
+                                        size="mini"
+                                        type="primary"
+                                        @click="handleApiConfig(row)">
+                                        Configurar
+                                    </el-button>
+                                </div>
                             </td>
                             <td>{{ row.name }}</td>
                             <td>{{ row.number }}</td>
@@ -588,6 +597,45 @@
         <system-clients-form :recordId="recordId"
                              :showDialog.sync="showDialog"></system-clients-form>
 
+        <el-dialog
+            title="Configuración de API"
+            :visible.sync="dialogApiVisible"
+            :width="isMobile ? '90%' : '30%'"
+            class="api-dialog">
+            <el-form :model="apiForm" label-position="top" class="api-form">
+                <el-form-item label="API Preferida">
+                    <el-radio-group style="width: 100%;display: flex;flex-direction: column;gap: 10px;" v-model="apiForm.api_preference">
+                        <el-radio :label="1" class="api-option">
+                            <div class="api-option-content" style="width: 100%;">
+                                <div class="api-option-text">
+                                    <h4>API Perú</h4>
+                                    <p>Servicio oficial de AQPFact</p>
+                                </div>
+                            </div>
+                        </el-radio>
+                        <el-radio :label="2" class="api-option">
+                            <div class="api-option-content">
+                                <div class="api-option-text">
+                                    <h4>API Personalizada</h4>
+                                    <p>Servicio oficial de AQPFact</p>
+                                </div>
+                            </div>
+                        </el-radio>
+                    </el-radio-group>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogApiVisible = false" class="dialog-btn">
+                    <i class="fas fa-times"></i>
+                    Cancelar
+                </el-button>
+                <el-button type="primary" @click="updateApiPreference" class="dialog-btn">
+                    <i class="fas fa-save"></i>
+                    Guardar
+                </el-button>
+            </span>
+        </el-dialog>
+
         <!--<system-clients-form-edit :showDialog.sync="showDialogEdit"
         :recordId="recordId"></system-clients-form-edit>-->
 
@@ -609,6 +657,66 @@
 .table td {
     white-space: nowrap;
 }
+
+/* API Dialog Styles */
+.api-option-content {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid #ebeef5;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.api-option-content:hover {
+    background-color: #f5f7fa;
+    border-color: #409EFF;
+}
+
+.api-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #409EFF;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+}
+
+.api-icon i {
+    font-size: 1.2em;
+}
+
+.api-option-text {
+    flex: 1;
+}
+
+.api-option-text h4 {
+    margin: 0;
+    font-size: 1em;
+    color: #303133;
+}
+
+.api-option-text p {
+    margin: 5px 0 0;
+    color: #606266;
+    font-size: 0.9em;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .api-option-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .api-icon {
+        margin: 0 auto 15px;
+    }
+}
+
 th.sticky-column,
 td.sticky-column {
     position: sticky;
@@ -616,6 +724,7 @@ td.sticky-column {
     background-color: #fff;
     z-index: 1;
 }
+
 th.sticky-column {
     z-index: 2;
 }
@@ -659,30 +768,38 @@ export default {
             selectBillingDate: "",
             showDialogEdit: false,
             showDialog: false,
+            showDialogEdit: false,
+            showDialogEditPassword: false,
             showDialogPayments: false,
             showDialogAccountStatus: false,
-            resource: "clients",
+            showDialogEditAccountStatus: false,
+            showDialogEditDemoConfiguration: false,
+            dialogApiVisible: false,
             recordId: null,
-            records: [],
+            apiForm: {
+                client_id: null,
+                api_preference: 1
+            },
+            loading: false,
+            loaded: false,
             text_limit_doc: null,
             text_limit_users: null,
-            loaded: false,
+            pagination: {},
+            search: '',
+            records: [],
+            resource: 'clients',
             year: moment().format('YYYY'),
-            total_documents: 0,
             dataChartLine: {
-                labels: null,
-                datasets: [
-                    {
-                        // label: 'Data One',
-                        // backgroundColor: '#f87979',
-                        data: null
-                    }
-                ]
+                labels: [],
+                datasets: []
             },
+            loaded: false,
+            columns: [],
             showDialogDelete: false,
             record: {},
-            showDemoConfiguration:false,
-        };
+            showDemoConfiguration: false,
+            total_documents: 0
+        }
     },
     async mounted() {
         this.loaded = false;
@@ -724,6 +841,29 @@ export default {
         },
     },
     methods: {
+        getApiText(api_preference) {
+            return api_preference === 1 ? 'API Perú' : 'API Personalizada';
+        },
+        handleApiConfig(row) {
+            this.apiForm.client_id = row.id;
+            this.apiForm.api_preference = row.api_preference;
+            this.dialogApiVisible = true;
+        },
+        async updateApiPreference() {
+            try {
+                await this.$http.put(`/system/clients/${this.apiForm.client_id}`, {
+                    api_preference: this.apiForm.api_preference
+                });
+                this.$message.success('Configuración de API actualizada con éxito');
+                this.dialogApiVisible = false;
+                this.getData();
+            } catch (error) {
+                this.$message.error('Error al actualizar la configuración de API');
+            }
+        },
+        changeLockedTenant(row) {
+            this.changeLockedByColumn(row, 'locked_tenant');
+        },
         changeLockedTenant(row) {
             this.$http
                 .post(`${this.resource}/locked_tenant`, row)

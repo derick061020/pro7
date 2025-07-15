@@ -26,6 +26,14 @@ class CreateHotelRentsTable extends Migration
 			$table->string('payment_number_operation', 20)->nullable();
 			$table->string('payment_status', 10);
 			$table->date('output_date');
+			$table->string('matricula', 20)->nullable();
+			$table->string('observations', 250)->nullable();
+			$table->json('payment_history')->default('[]');
+			$table->tinyInteger('is_booking')->default(0);
+			$table->json('history')->default('[]');
+			$table->string('travel_purpose', 255)->nullable();
+			$table->json('historial')->default('[]');
+			$table->string('rate_type', 10)->default('DAY');
 			$table->string('output_time', 8);
 			$table->timestamps();
 		});

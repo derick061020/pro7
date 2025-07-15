@@ -4,14 +4,14 @@ div#styleSwitcher * {
 
 .style-switcher {
     background: #283046;
-    width: 285px;
+    width: 260px;
     position: fixed;
     top: 0px;
     bottom: 0;
     height: 100%;
     z-index: 1020;
     border-radius: 0;
-    right: -285px;
+    right: -260px;
 }
 
 .style-switcher .style-switcher-wrap {
@@ -156,7 +156,7 @@ html.boxed .style-switcher {
 }*/
 
 html.sidebar-light:not(.dark) .style-switcher {
-    background: #fff
+    background: #f6f6f6
 }
 
 html.sidebar-light:not(.dark) .style-switcher:before {

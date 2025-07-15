@@ -998,6 +998,28 @@
             ];
         }
 
+        public function updateApiPreference(Request $request)
+        {
+            $client = Client::findOrFail($request->id);
+            $client->fill($request->all());
+            
+            // Validar y actualizar el campo api_preference
+            if ($request->has('api_preference')) {
+                $api_preference = $request->input('api_preference');
+                if (!in_array($api_preference, [1, 2])) {
+                    throw new \InvalidArgumentException('El valor de api_preference debe ser 1 (API Perú) o 2 (Custom)');
+                }
+                $client->api_preference = $api_preference;
+            }
+            
+            $client->save();
+            
+            return [
+                'success' => true,
+                'message' => 'Cliente actualizado con éxito'
+            ];
+        }
+
         public function upload(Request $request)
         {
             if ($request->hasFile('file')) {
