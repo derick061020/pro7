@@ -258,11 +258,11 @@ class CashController extends Controller
                         $query->where('cash_id', $cash_id);
                     })
                     ->sum('payment');
-                if (is_array($cash_document->sale_note->related)) {
+                if (is_array($sale_note->related)) {
                     die('hola');
-                        foreach ($cash_document->sale_note->related as $sale_note) {
-                            if($sale_note){
-                               $sale = SaleNote::where('id', $sale_note)->first(); 
+                        foreach ($sale_note->related as $related) {
+                            if($related){
+                               $sale = SaleNote::where('id', $related)->first(); 
                                if($sale && strtotime($sale->date_of_issue . ' ' . $sale->time_of_issue) <= strtotime($cash->date_opening.' '.$cash->time_opening)){
                                 $totalPayments -= ($sale->currency_type_id == 'PEN') 
                                    ? $sale->total 
