@@ -250,6 +250,7 @@ class CashController extends Controller
                         $date_payment=$value->date_of_payment->format('Y-m-d');
                     }
                 }
+               
                 $totalPayments = (!in_array($sale_note->state_type_id, $status_type_id))
                     ? 0
                     : $sale_note->payments()
@@ -257,6 +258,18 @@ class CashController extends Controller
                         $query->where('cash_id', $cash_id);
                     })
                     ->sum('payment');
+                if ($cash_document->sale_note->related) {
+                        foreach ($cash_document->sale_note->related as $sale_note) {
+                            if($sale_note){
+                               $sale = SaleNote::where('id', $sale_note)->first(); 
+                               if($sale && strtotime($sale->date_of_issue . ' ' . $sale->time_of_issue) <= strtotime($cash->date_opening.' '.$cash->time_opening)){
+                                $totalPayments -= ($sale->currency_type_id == 'PEN') 
+                                   ? $sale->total 
+                                   : ($sale->total * $sale->exchange_rate_sale);
+                               }
+                            }
+                        }
+                    }
 
                 $temp = [
                     'type_transaction'          => 'Venta',
@@ -271,7 +284,7 @@ class CashController extends Controller
                     'currency_type_id'          => $sale_note->currency_type_id,
                     'usado'                     => $usado." ".__LINE__,
                     'tipo'                      => 'sale_note',
-                    'total_payments'            => $totalPayments + 10,
+                    'total_payments'            => $totalPayments ,
                     'type_transaction_prefix'   => 'income',
                     'order_number_key'          => $order_number.'_'.$sale_note->created_at->format('YmdHis'),
                 ];
