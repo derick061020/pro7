@@ -260,8 +260,8 @@ class CashController extends Controller
                     ->sum('payment');
                 $ale = SaleNote::where('id', $sale_note->id)->first();
                 var_dump(json_encode($ale));
-                if (is_array($sale_note->related)) {
-                    die('hola');
+
+                if ($sale_note->related != null) {
                         foreach ($sale_note->related as $related) {
                             if($related){
                                $sale = SaleNote::where('id', $related)->first(); 
@@ -269,6 +269,7 @@ class CashController extends Controller
                                 $totalPayments -= ($sale->currency_type_id == 'PEN') 
                                    ? $sale->total 
                                    : ($sale->total * $sale->exchange_rate_sale);
+                                   echo($totalPayments);
                                }
                             }
                         }
