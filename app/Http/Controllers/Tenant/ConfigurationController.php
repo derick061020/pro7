@@ -311,12 +311,7 @@ class ConfigurationController extends Controller
     public function record()
     {
         $configuration = Configuration::first();
-        return [
-            'data' => array_merge(
-                $configuration->getCollectionData(),
-                ['default_image' => $configuration->product_default_image]
-            )
-        ];
+        return ['data'=>$configuration->getCollectionData()];
         $record = new ConfigurationResource($configuration);
 
         return  $record;
@@ -527,11 +522,30 @@ class ConfigurationController extends Controller
 
     public function visualGetMenu()
     {
-        $modules = ModuleLevel::where([['route_name', '!=', null],['label_menu', '!=', null]])->get();
+        $menu = ModuleLevel::getMenu();
+        return $menu;
+    }
+
+    /**
+     * Actualiza la clave API personalizada
+     *
+     * @param Request $request
+     * @return array
+     */
+    public function updateApiCustomKey(Request $request)
+    {
+        $configuration = Configuration::first();
+        if (empty($configuration)) {
+            $configuration = new Configuration();
+        }
+        
+        $configuration->api_custom_key = $request->api_custom_key;
+        $configuration->save();
 
         return [
-            'modules' => $modules,
-            'menu' => $this->getMenu()
+            'success' => true,
+            'configuration' => $configuration->getCollectionData(),
+            'message' => 'Clave API personalizada actualizada correctamente',
         ];
     }
 

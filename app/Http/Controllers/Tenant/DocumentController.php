@@ -593,8 +593,11 @@ class DocumentController extends Controller
             if (!$validate['success']) return $validate;
 
             if(!$this->validationOpenCash($request)) return $this->generalResponse(false, 'Ocurrió un error: Caja seleccionada en métodos de pago se encuentra cerrada');
-
-            $res = $this->storeWithData($request->all());
+            $dat = $request->all();
+            if ($request->sale_notes_relateds){
+                $dat['sale_note_id'] = $request->sale_notes_relateds[0];
+            }
+            $res = $this->storeWithData($dat);
             $document_id = $res['data']['id'];
             $this->associateDispatchesToDocument($request, $document_id);
             $this->associateSaleNoteToDocument($request, $document_id);
@@ -666,10 +669,17 @@ class DocumentController extends Controller
         $request = request();
         if (
             $request != null &&
+            ((
             $request->has('sale_note_id') &&
-            $request->sale_note_id
+            $request->sale_note_id ) || $request->has('sale_notes_relateds') && $request->sale_notes_relateds)
         ) {
-            $saleNote = SaleNote::find($request->sale_note_id);
+            if($request->has('sale_notes_relateds') && $request->sale_notes_relateds){
+                $saleNoteId = $request->sale_notes_relateds[0];
+            }else{
+                $saleNoteId = $request->sale_note_id;
+            }
+            
+            $saleNote = SaleNote::find($saleNoteId);
             if ($saleNote != null && isset($data['customer'])) {
                 $customer = $data['customer'];
                 $customerNote = (array)$saleNote->customer;
@@ -724,6 +734,19 @@ class DocumentController extends Controller
         if ($request->sale_note_id) {
             SaleNote::where('id', $request->sale_note_id)
                 ->update(['document_id' => $documentId]);
+        }
+        if ($request->sale_notes_relateds) {
+            foreach ($request->sale_notes_relateds as $saleNote) {
+                if($saleNote){
+                    $sale_note = SaleNote::find($saleNote);
+
+                    if (!empty($sale_note)) {
+                        $sale_note->document_id = $documentId;
+                        $sale_note->changed = 1;
+                        $sale_note->push();
+                    }
+                }
+            }
         }
 
         //notas de venta relacionadas cuando se genera cpe desde multiples nv

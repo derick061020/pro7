@@ -98,7 +98,6 @@
         public function dni($number)
         {
             $res = Dni::search($number);
-
             return $res;
         }
 

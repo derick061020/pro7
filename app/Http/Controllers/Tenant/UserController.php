@@ -79,6 +79,7 @@ class UserController extends Controller
         $types = [
             ['type' => 'admin', 'description' => 'Administrador'],
             ['type' => 'seller', 'description' => 'Vendedor'],
+            ['type' => 'cleaner', 'description' => 'Limpieza'],
         ];
 
         $configuration = Configuration::select(['permission_to_edit_cpe', 'regex_password_user'])->first();

@@ -611,6 +611,13 @@ class SaleNoteController extends Controller
 
     public function store(SaleNoteRequest $request)
     {
+        if($request->sale_notes_relateds){
+            foreach ($request->sale_notes_relateds as $saleNote) {
+                if($saleNote){
+                    $this->anulate($saleNote);
+                }
+            }
+        }
         return $this->storeWithData($request->all());
     }
 
@@ -625,6 +632,9 @@ class SaleNoteController extends Controller
                 $isUpdate = false;
             }
             $data = $this->mergeData($inputs);
+            if(isset($inputs['sale_notes_relateds'])){
+                $data['related'] = $inputs['sale_notes_relateds'];
+            }
             $this->sale_note =  SaleNote::query()->updateOrCreate(['id' => $inputs['id']], $data);
 
             $this->deleteAllPayments($this->sale_note->payments);
@@ -1651,8 +1661,10 @@ class SaleNoteController extends Controller
         DB::connection('tenant')->transaction(function () use ($id) {
 
             $obj =  SaleNote::find($id);
-            $obj->state_type_id = 11;
-            $obj->save();
+            if($obj){
+                $obj->state_type_id = 11;
+                $obj->save();
+            }
 
             // $establishment = Establishment::where('id', auth()->user()->establishment_id)->first();
             $warehouse = Warehouse::where('establishment_id',$obj->establishment_id)->first();
