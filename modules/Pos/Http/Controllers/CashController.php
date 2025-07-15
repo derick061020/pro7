@@ -258,6 +258,8 @@ class CashController extends Controller
                         $query->where('cash_id', $cash_id);
                     })
                     ->sum('payment');
+                var_dump($sale_note->related);
+                exit;
                 if (is_array($sale_note->related)) {
                     die('hola');
                         foreach ($sale_note->related as $related) {
