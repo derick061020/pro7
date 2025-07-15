@@ -9,6 +9,7 @@ $cash_final_balance = 0;
 
 
 $cash_documents = $cash->cash_documents;
+exit();
 
 
 
