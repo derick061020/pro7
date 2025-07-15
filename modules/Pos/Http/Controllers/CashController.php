@@ -258,7 +258,8 @@ class CashController extends Controller
                         $query->where('cash_id', $cash_id);
                     })
                     ->sum('payment');
-                var_dump(json_encode($sale_note));
+                $ale = SaleNote::where('id', $sale_note->id)->first();
+                var_dump(json_encode($ale));
                 exit;
                 if (is_array($sale_note->related)) {
                     die('hola');
