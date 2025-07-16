@@ -13,6 +13,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Mail;
 use Modules\Pos\Exports\ReportCashExport;
 use Modules\Pos\Mail\CashEmail;
+Use Modules\Hotel\Models\HotelRent;
 use Mpdf\Mpdf;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -210,6 +211,7 @@ class CashController extends Controller
             $currency_type_id = null;
             $temp = [];
             $notes = [];
+            $totalPaymentsDiff = 0;
             $usado = '';
 
             /** Documentos de Tipo Nota de venta */
@@ -698,16 +700,19 @@ class CashController extends Controller
             }
             
             /** Notas de credito o debito */
-            $rents = HotelRent::where('status', '!=', 'FINALIZADO')->where('status', '!=', 'ELIMINADO')->get();
+            
 
+        }
+
+
+        $rents = HotelRent::get();
             if($rents->count() > 0){
                 foreach ($rents as $rent) {
                     if ($rent->payment_history) {
                         $payments = json_decode($rent->payment_history, true);
                         foreach ($payments as $payment) {
                             $paymentDate = date('Y-m-d H:i:s', strtotime(str_replace('/', '-', $payment['date'])));
-                            if (strtotime($paymentDate) > strtotime($cash->date_opening . ' ' . $cash->time_opening) && isset($payment['type']) && $payment['type'] === 'advancePayment') {
-                                $final_balance += $payment['amount'];
+                            if (strtotime($paymentDate) > strtotime($cash->date_opening . ' ' . $cash->time_opening) && isset($payment['type']) && strtotime($paymentDate) < strtotime($cash->date_closed . ' ' . $cash->time_closed)  && $payment['type'] === 'advancePayment') {
                                 $temp = [
                                     'type_transaction'          => 'ADELANDO',
                                     'document_type_description' => $rent->room->name,
@@ -717,6 +722,7 @@ class CashController extends Controller
                                     'customer_name'             => $rent->customer->name,
                                     'customer_number'           => $rent->customer->number,
                                     'total'                     => $payment['amount'],
+                                    'total_payments'            => $payment['amount'],
                                     'currency_type_id'          => '',
                                     'usado'                     => ' '.__LINE__,
                                     'tipo'                      => 'document',
@@ -727,15 +733,13 @@ class CashController extends Controller
                                 $temp['usado'] =  '--';
                                 $temp['total_string'] = self::FormatNumber($temp['total']);
                                 $all_documents[] = $temp;
+                                $cash_income += $payment['amount'];
+                                $data['cash_documents_total'] += 1;
                             }
                         }
                     }
                 }
             }
-
-        }
-
-
 //Inicio: Deyvis: pendiente revisar para que funke
         // finanzas ingresos
         $id_income=$cash->user_id;

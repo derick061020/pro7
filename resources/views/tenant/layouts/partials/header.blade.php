@@ -4,6 +4,23 @@
             data-fire-event="sidebar-left-toggle">
             <i class="fas fa-angle-left" aria-label="Toggle sidebar"></i>
             <i class="fas fa-angle-right" aria-label="Toggle sidebar"></i>
+            <ul class="notifications" style="margin-left:10px">
+            <li>
+                <a href="{{ route('tenant_orders_index') }}" class="notification-icon text-secondary"
+                    data-toggle="tooltip" data-placement="bottom" title="Pedidos pendientes">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="icon icon-tabler icons-tabler-outline icon-tabler-shopping-cart">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                        <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                        <path d="M17 17h-11v-14h-2" />
+                        <path d="M6 5l14 1l-1 7h-13" />
+                    </svg>
+                    <span class="badge badge-pill badge-info badge-up cart-item-count">{{ $vc_orders }}</span>
+                </a>
+            </li>
+        </ul>
         </div>
         <div class="d-md-none toggle-sidebar-left" data-toggle-class="sidebar-left-opened" data-target="html"
             data-fire-event="sidebar-left-opened">
@@ -26,23 +43,7 @@
             <h2>Modulos</h2>
         </div>
         <!-- <tenant-dialog-header-menu></tenant-dialog-header-menu>-->
-        <ul class="notifications">
-            <li>
-                <a href="{{ route('tenant_orders_index') }}" class="notification-icon text-secondary"
-                    data-toggle="tooltip" data-placement="bottom" title="Pedidos pendientes">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                        class="icon icon-tabler icons-tabler-outline icon-tabler-shopping-cart">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                        <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                        <path d="M17 17h-11v-14h-2" />
-                        <path d="M6 5l14 1l-1 7h-13" />
-                    </svg>
-                    <span class="badge badge-pill badge-info badge-up cart-item-count">{{ $vc_orders }}</span>
-                </a>
-            </li>
-        </ul>
+        
 
         @if ($tenant_show_ads && $url_tenant_image_ads)
             <div class="ml-3 mr-3">
