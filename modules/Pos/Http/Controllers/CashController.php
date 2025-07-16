@@ -223,8 +223,7 @@ class CashController extends Controller
                         $sale_note->currency_type_id,
                         $sale_note->exchange_rate_sale
                     );
-                    $ale = SaleNote::where('id', $sale_note->id)->first();
-                if ($sale_note->related != null) {
+                    if ($sale_note->related != null) {
                         foreach ($sale_note->related as $related) {
                             if($related){
                                $sale = SaleNote::where('id', $related)->first(); 
@@ -232,13 +231,10 @@ class CashController extends Controller
                                 $totalPayments -= ($sale->currency_type_id == 'PEN') 
                                    ? $sale->total 
                                    : ($sale->total * $sale->exchange_rate_sale);
-                                $total -= ($sale->currency_type_id == 'PEN') 
-                                ? $sale->total 
-                                : ($sale->total * $sale->exchange_rate_sale);
                                }
                             }
                         }
-                    }
+                    };
                     $cash_income += $total;
                     $final_balance += $total;
                     if (count($sale_note->payments) > 0) {
