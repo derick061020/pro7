@@ -384,7 +384,7 @@ class CashController extends Controller
                     }
 
                     $data['total_tips'] += $document->tip ? $document->tip->total : 0;
-                    $data['total_cash_income_pmt_01'] += $this->getIncomeEgressCashDocumentPayments($document->payments,$cash_id);
+                    $data['total_cash_income_pmt_01'] += $this->getIncomeEgressCashDocumentPayments($document->payments,$cash_id) - $totalPaymentsDiff;
 
                 }
                 if ($record_total != $document->total) {
@@ -694,6 +694,42 @@ class CashController extends Controller
                         $all_documents[] = $temp;
                     }
 
+                }
+            }
+            
+            /** Notas de credito o debito */
+            $rents = HotelRent::where('status', '!=', 'FINALIZADO')->where('status', '!=', 'ELIMINADO')->get();
+
+            if($rents->count() > 0){
+                foreach ($rents as $rent) {
+                    if ($rent->payment_history) {
+                        $payments = json_decode($rent->payment_history, true);
+                        foreach ($payments as $payment) {
+                            $paymentDate = date('Y-m-d H:i:s', strtotime(str_replace('/', '-', $payment['date'])));
+                            if (strtotime($paymentDate) > strtotime($cash->date_opening . ' ' . $cash->time_opening) && isset($payment['type']) && $payment['type'] === 'advancePayment') {
+                                $final_balance += $payment['amount'];
+                                $temp = [
+                                    'type_transaction'          => 'ADELANDO',
+                                    'document_type_description' => $rent->room->name,
+                                    'number'                    => $rent->id,
+                                    'date_of_issue'             => $paymentDate,
+                                    'date_sort'                 => $paymentDate,
+                                    'customer_name'             => $rent->customer->name,
+                                    'customer_number'           => $rent->customer->number,
+                                    'total'                     => $payment['amount'],
+                                    'currency_type_id'          => '',
+                                    'usado'                     => ' '.__LINE__,
+                                    'tipo'                      => 'document',
+                                    'type_transaction_prefix'   => 'income',
+                                    'order_number_key'          => $rent->created_at->format('YmdHis'),
+                                ];
+        
+                                $temp['usado'] =  '--';
+                                $temp['total_string'] = self::FormatNumber($temp['total']);
+                                $all_documents[] = $temp;
+                            }
+                        }
+                    }
                 }
             }
 
