@@ -267,6 +267,12 @@ class CashController extends Controller
                                 $totalPayments -= ($sale->currency_type_id == 'PEN') 
                                    ? $sale->total 
                                    : ($sale->total * $sale->exchange_rate_sale);
+                                $cash_income -= ($sale->currency_type_id == 'PEN') 
+                                   ? $sale->total 
+                                   : ($sale->total * $sale->exchange_rate_sale);
+                                if($record->id === '01') $data['total_payment_cash_01_sale_note'] -= ($sale->currency_type_id == 'PEN') 
+                                   ? $sale->total 
+                                   : ($sale->total * $sale->exchange_rate_sale);
                                }
                             }
                         }
