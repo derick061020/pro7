@@ -263,14 +263,14 @@ class CashController extends Controller
                 if ($sale_note->related != null) {
                         foreach ($sale_note->related as $related) {
                             if($related){
-                               $sale = SaleNote::where('id', $related)->first();
+                               $sale = SaleNote::where('id', $related)->first(); 
+                               die(json_encode($sale));
                                if($sale && strtotime($sale->date_of_issue . ' ' . $sale->time_of_issue) <= strtotime($cash->date_opening.' '.$cash->time_opening)){
                                 $totalPayments -= ($sale->currency_type_id == 'PEN') 
                                    ? $sale->total 
                                    : ($sale->total * $sale->exchange_rate_sale);
                                    echo($totalPayments);
                                }
-                               die(json_encode($totalPayments));
                             }
                         }
                     }
