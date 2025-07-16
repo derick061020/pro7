@@ -228,13 +228,16 @@ class CashController extends Controller
                             if($related){
                                $sale = SaleNote::where('id', $related)->first(); 
                                if($sale && strtotime($sale->date_of_issue . ' ' . $sale->time_of_issue) <= strtotime($cash->date_opening.' '.$cash->time_opening)){
-                                $totalPayments -= ($sale->currency_type_id == 'PEN') 
+                                $totalPaymentsDiff = ($sale->currency_type_id == 'PEN') 
                                    ? $sale->total 
                                    : ($sale->total * $sale->exchange_rate_sale);
+                                $total -= ($sale->currency_type_id == 'PEN') 
+                                ? $sale->total 
+                                : ($sale->total * $sale->exchange_rate_sale);
                                }
                             }
                         }
-                    };
+                    }
                     $cash_income += $total;
                     $final_balance += $total;
                     if (count($sale_note->payments) > 0) {
@@ -270,7 +273,9 @@ class CashController extends Controller
                         $query->where('cash_id', $cash_id);
                     })
                     ->sum('payment');
+                $totalPayments -= $totalPaymentsDiff;
                 
+
                 $temp = [
                     'type_transaction'          => 'Venta',
                     'document_type_description' => 'NOTA DE VENTA',
