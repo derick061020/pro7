@@ -735,6 +735,7 @@ class CashController extends Controller
                                 $all_documents[] = $temp;
                                 $cash_income += $payment['amount'];
                                 $data['cash_documents_total'] += 1;
+                                $data['total_cash_income_pmt_01'] += $payment['amount'];
                             }
                         }
                     }
