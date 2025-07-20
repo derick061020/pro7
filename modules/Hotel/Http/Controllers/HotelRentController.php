@@ -257,8 +257,10 @@ class HotelRentController extends Controller
 				'rate_type' => $request->rate_type,
             ];
             
-            // If this is a check-in, update status and is_booking
-            if ($isCheckin) {
+
+            // Update the rent data
+            $rent->update($updateData);
+			if ($isCheckin) {
                 $updateData['status'] = 'INICIADO';
                 $updateData['is_booking'] = 0;
                 
@@ -272,9 +274,6 @@ class HotelRentController extends Controller
                     $room->save();
                 }
             }
-            
-            // Update the rent data
-            $rent->update($updateData);
 			
 			$item = $rent->items->where('type', 'HAB')->where('payment_status', 'DEBT')->first();
 			switch ($rent->rate_type) {
