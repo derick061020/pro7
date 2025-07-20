@@ -317,6 +317,7 @@ class CashController extends Controller
                     return $payment->cashDocumentPayments->contains('cash_id', $cash_id);
                 });
                 $pagado = 0;
+                $diffID = collect();
                 if (in_array($document->state_type_id, $status_type_id)) {
                     if ($payment_condition_id == '01') {
                         $total = self::CalculeTotalOfCurency(
@@ -325,6 +326,22 @@ class CashController extends Controller
                             $document->exchange_rate_sale
                         );
                         $usado .= '<br>Tomado para income<br>';
+                        if ($document->sale_notes_relateds != null) {
+                            foreach ($document->sale_notes_relateds as $related) {
+                                if($related){
+                                   $sale = SaleNote::where('id', $related)->first(); 
+                                   if($sale && strtotime($sale->date_of_issue . ' ' . $sale->time_of_issue) <= strtotime($cash->date_opening.' '.$cash->time_opening)){
+                                    $totalPaymentsDiff = ($sale->currency_type_id == 'PEN') 
+                                       ? $sale->total 
+                                       : ($sale->total * $sale->exchange_rate_sale);
+                                    $diffID->push(['document_id'=>$document->id, 'totalPaymentsDiff'=>$totalPaymentsDiff]);
+                                    $total -= ($sale->currency_type_id == 'PEN') 
+                                    ? $sale->total 
+                                    : ($sale->total * $sale->exchange_rate_sale);
+                                   }
+                                }
+                            }
+                        }
                         $cash_income += $total;
                         $final_balance += $total;
                         if (count($pays) > 0) {
@@ -334,7 +351,16 @@ class CashController extends Controller
                                     ->where('payment_method_type_id', $record->id)
                                     ->whereIn('document.state_type_id', $status_type_id)
                                     ->sum('payment');
-                                $record->sum = ($record->sum + $record_total);
+                                $record_payment = $pays
+                                ->where('payment_method_type_id', $record->id)
+                                ->whereIn('document.state_type_id', $status_type_id);
+                                $record_payment->each(function ($payment) use ($diffID) {
+                                    $diff = $diffID->where('document_id', $payment->document_id)->first();
+                                    if($diff){
+                                        $payment->sum = ($payment->sum + $payment->payment) - $diff['totalPaymentsDiff'];
+                                    }
+                                });
+                                $record->sum = $record_payment->sum('sum');
                                 if (!empty($record_total)) {
                                     $usado .= self::getStringPaymentMethod($record->id).'<br>Se usan los pagos Tipo '.$record->id.'<br>';
                                 }
@@ -408,6 +434,7 @@ class CashController extends Controller
                     })
                     ->sum('payment');
 
+                $totalPayments -= $totalPaymentsDiff;
                 $temp = [
                     'type_transaction'          => 'Venta',
                     'document_type_description' => $document->document_type->description,
@@ -714,8 +741,8 @@ class CashController extends Controller
                             $paymentDate = date('Y-m-d H:i:s', strtotime(str_replace('/', '-', $payment['date'])));
                             if (strtotime($paymentDate) > strtotime($cash->date_opening . ' ' . $cash->time_opening) && isset($payment['type']) && strtotime($paymentDate) < strtotime($cash->date_closed . ' ' . $cash->time_closed)  && $payment['type'] === 'advancePayment') {
                                 $temp = [
-                                    'type_transaction'          => 'ADELANDO',
-                                    'document_type_description' => $rent->room->name,
+                                    'type_transaction'          => 'ADELANTO',
+                                    'document_type_description' => 'HABITACION '.$rent->room->name,
                                     'number'                    => $rent->id,
                                     'date_of_issue'             => $paymentDate,
                                     'date_sort'                 => $paymentDate,
@@ -723,7 +750,7 @@ class CashController extends Controller
                                     'customer_number'           => $rent->customer->number,
                                     'total'                     => $payment['amount'],
                                     'total_payments'            => $payment['amount'],
-                                    'currency_type_id'          => '',
+                                    'currency_type_id'          => 'PEN',
                                     'usado'                     => ' '.__LINE__,
                                     'tipo'                      => 'document',
                                     'type_transaction_prefix'   => 'income',
@@ -734,8 +761,14 @@ class CashController extends Controller
                                 $temp['total_string'] = self::FormatNumber($temp['total']);
                                 $all_documents[] = $temp;
                                 $cash_income += $payment['amount'];
-                                $data['cash_documents_total'] += 1;
                                 $data['total_cash_income_pmt_01'] += $payment['amount'];
+                                $final_balance += $payment['amount'];
+                                $data['cash_documents_total'] += 1;
+                                foreach ($methods_payment as $record) {
+                                    if($record->id == $payment['payment_method_type_id']){
+                                        $record->sum = ($record->sum + $payment['amount']);
+                                    }
+                                }
                             }
                         }
                     }

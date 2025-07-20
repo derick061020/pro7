@@ -49,6 +49,7 @@
                             <tr>
                                 <th class="">#</th>
                                 <th class="">Habitación</th>
+                                <th class="">Tipo Habitación</th>
                                 <th class="">Cliente</th>
                                 <th class="">Tipo Comprobante</th>
                                 <th class="">Motivo del viaje</th>
@@ -58,7 +59,6 @@
                                 <th class="">Fecha de Salida</th>
                                 <th class="">Estadia</th>
                                 <th class="">Cant Personas</th>
-                                <th class="">Tipo Habitación</th>
                                 <th class="">Pers Alojadas</th>
                             </tr>
                         </thead>
@@ -73,6 +73,9 @@
                                 </td>
                                 <td class="celda">
                                     {{$value["room_name"]}}
+                                </td>
+                                <td class="celda">
+                                    {{$value["category"]}}
                                 </td>
                                 <td class="celda">
                                     {{$value["customer"]}}
@@ -100,9 +103,6 @@
                                 </td>
                                 <td class="celda">
                                     {{$value["quantity_persons"]}}
-                                </td>
-                                <td class="celda">
-                                    {{$value["category"]}}
                                 </td>
                                 <td class="celda">
                                     {{$value["data_persons"]}}

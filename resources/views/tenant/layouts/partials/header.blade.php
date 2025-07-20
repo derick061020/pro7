@@ -4,7 +4,8 @@
             data-fire-event="sidebar-left-toggle">
             <i class="fas fa-angle-left" aria-label="Toggle sidebar"></i>
             <i class="fas fa-angle-right" aria-label="Toggle sidebar"></i>
-            <ul class="notifications" style="margin-left:10px">
+        </div>
+        <ul class="notifications d-none d-md-block" style="margin-left:10px">
             <li>
                 <a href="{{ route('tenant_orders_index') }}" class="notification-icon text-secondary"
                     data-toggle="tooltip" data-placement="bottom" title="Pedidos pendientes">
@@ -21,7 +22,6 @@
                 </a>
             </li>
         </ul>
-        </div>
         <div class="d-md-none toggle-sidebar-left" data-toggle-class="sidebar-left-opened" data-target="html"
             data-fire-event="sidebar-left-opened">
             <div style="width: 24px; height: 24px; display: flex; align-items: center;">

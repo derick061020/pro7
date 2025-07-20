@@ -264,6 +264,9 @@ class HotelRentController extends Controller
                 
                 // Update room status to OCUPADO
                 $room = $rent->room;
+				$rent->input_date = now()->format('Y-m-d');
+				$rent->input_time = now()->format('H:i');
+				$rent->update();
                 if ($room) {
                     $room->status = 'OCUPADO';
                     $room->save();

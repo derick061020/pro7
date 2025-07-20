@@ -164,39 +164,41 @@
   
   /* Estilos modernos para los items */
   .vis-item {
-    border-radius: 6px;
-    padding: 8px 12px !important;
+    border-radius: 0 !important;
+    padding: 8px 4px !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     font-size: 14px;
     font-weight: 500;
+    min-width: 4px !important; /* Ancho mínimo para elementos cortos */
+    overflow: visible !important;
+    white-space: nowrap;
   }
   
   .vis-item.green { 
     background-color:rgb(238, 41, 41); 
-
     border: none !important;  
     color:rgb(255, 255, 255);
-    border-radius: 10px !important;
+    border-radius: 0 !important;
   }
   
   .vis-item.blue { 
     background-color:rgb(49, 140, 224); 
     border: none !important;  
     color:rgb(255, 255, 255);
-    border-radius: 10px !important;
+    border-radius: 0 !important;
   }
   
   .vis-item.orange { 
     background-color:rgb(255, 206, 47); 
     border: none !important;  
     color:rgb(255, 255, 255);
-    border-radius: 10px !important;
+    border-radius: 0 !important;
   }
   .vis-item.gray { 
     background-color:rgb(163, 163, 163); 
     border: none !important;  
     color:rgb(255, 255, 255);
-    border-radius: 10px !important;
+    border-radius: 0 !important;
   }
   
   /* Estilos para el botón de eliminar */
@@ -898,7 +900,7 @@
             $inputDateTime = \Carbon\Carbon::parse($rent->input_date ?? $booking['start_date'])->format('Y-m-d') . ' ' . ($rent->input_time ?? '14:00');
             $outputDateTime = \Carbon\Carbon::parse($rent->output_date ?? $booking['end_date'])->format('Y-m-d') . ' ' . ($rent->output_time ?? '12:00');
         @endphp
-        title: 'Reserva #{{ $booking['id'] }}: Check-in: {{ \Carbon\Carbon::parse($inputDateTime)->format('d/m H:i') }}, Check-out: {{ \Carbon\Carbon::parse($outputDateTime)->format('d/m H:i') }}',
+        title: '{{ $booking['customer_name'] }} -Reserva #{{ $booking['id'] }}: Check-in: {{ \Carbon\Carbon::parse($inputDateTime)->format('d/m H:i') }}, Check-out: {{ \Carbon\Carbon::parse($outputDateTime)->format('d/m H:i') }}',
         start: '{{ $inputDateTime }}',
         end: '{{ $outputDateTime }}',
         className: '{{ $booking['className'] }}',
@@ -929,6 +931,11 @@
     maxDate.setFullYear(maxDate.getFullYear() + 1); // 1 año en el futuro
 
     var options = {
+      // Configuración para manejar elementos cortos
+      min: 1000 * 60 * 60, // 1 hora en milisegundos
+      minHeight: 30, // Altura mínima para los elementos
+      // Forzar un ancho mínimo para los elementos
+      minItemWidth: 4, // Ancho mínimo de 4px para elementos cortos
       // Ordenar por categoría y luego por ID de habitación
       groupOrder: function (a, b) {
         // Si ambos tienen orden definido, usarlo
@@ -948,6 +955,22 @@
         }
         return group.content;
       },
+      // Configuración para mostrar elementos cortos
+      margin: {
+        item: {
+          horizontal: 0, // Sin margen horizontal entre elementos
+          vertical: 2    // Margen vertical mínimo
+        }
+      },
+      // Configuración de zoom para mejor visualización de elementos cortos
+      zoomMin: 1000 * 60 * 60 * 0.5, // 30 minutos como zoom mínimo
+      zoomMax: 1000 * 60 * 60 * 24 * 31 * 3, // 3 meses como zoom máximo
+      // Asegurar que los elementos cortos sean visibles
+      stack: false, // Desactivar apilamiento para mejor visualización de elementos cortos
+      // Ajustar cómo se muestran los elementos cortos
+      showCurrentTime: true,
+      showMajorLabels: true,
+      showMinorLabels: true,
       editable: {
         add: false,           // Deshabilitar la adición de nuevos items
         updateTime: true,     // Permitir cambiar el tiempo (arrastrar)
