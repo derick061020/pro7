@@ -258,22 +258,21 @@ class HotelRentController extends Controller
             ];
             
 
-            // Update the rent data
-            $rent->update($updateData);
 			if ($isCheckin) {
                 $updateData['status'] = 'INICIADO';
                 $updateData['is_booking'] = 0;
                 
                 // Update room status to OCUPADO
                 $room = $rent->room;
-				$rent->input_date = now()->format('Y-m-d');
-				$rent->input_time = now()->format('H:i');
-				$rent->update();
+				$updateData['input_date'] = now()->format('Y-m-d');
+				$updateData['input_time'] = now()->format('H:i');
                 if ($room) {
                     $room->status = 'OCUPADO';
                     $room->save();
                 }
             }
+            // Update the rent data
+            $rent->update($updateData);
 			
 			$item = $rent->items->where('type', 'HAB')->where('payment_status', 'DEBT')->first();
 			switch ($rent->rate_type) {
