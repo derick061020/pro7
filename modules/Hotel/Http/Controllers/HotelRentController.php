@@ -359,7 +359,7 @@ class HotelRentController extends Controller
             
             return response()->json([
                 'success' => true,
-                'message' => 'Recepción actualizada correctamente',
+                'message' => 'Recepción actualizada correctamente '.$isCheckin,
                 'data' => $rent->fresh() // Return the updated rent data without trying to load relationships
             ]);
             
