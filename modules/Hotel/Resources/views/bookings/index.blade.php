@@ -116,7 +116,7 @@
         </div>
       </div>
       <div class="col-12 col-lg-4" style="margin-top:35px;margin-bottom:35px">
-        <div class="card booking-info-panel d-none" id="bookingInfoPanelContainer">
+        <div class="card booking-info-panel d-none slide-panel" id="bookingInfoPanelContainer">
           <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Información de Reserva</h5>
             <button class="btn-close" onclick="closeBookingPanel()"></button>
@@ -140,8 +140,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <style type="text/css">
-  /* Estilos para el select de habitaciones */
-  #roomFilter {
+  /* Animación para el panel */
+  .slide-panel {
     border-color: #e0e0e0;
     transition: all 0.3s ease;
     background-color: #fff;
@@ -787,12 +787,19 @@
     
     function closeBookingPanel() {
       const panelContainer = document.getElementById('bookingInfoPanelContainer');
-
       const hola = document.getElementById('hola');
+      
       if (panelContainer) {
-        panelContainer.classList.add('d-none');
-        hola.classList.remove('col-lg-8');
-        hola.classList.add('col-lg-12');
+        // Agregar la clase de animación de salida
+        panelContainer.classList.add('slide-out');
+        
+        // Esperar la duración de la animación (0.3s) antes de ocultar
+        setTimeout(() => {
+          panelContainer.classList.add('d-none');
+          panelContainer.classList.remove('slide-out');
+          hola.classList.remove('col-lg-8');
+          hola.classList.add('col-lg-12');
+        }, 300);
       }
     }
   document.addEventListener('DOMContentLoaded', function() {
@@ -1335,13 +1342,22 @@
     function showBookingInfo(itemData) {
       const panelContainer = document.getElementById('bookingInfoPanelContainer');
       const panel = document.querySelector('.booking-info-panel');
+      const hola = document.getElementById('hola');
       
       if (!panel || !panelContainer) return;
+      
+      // Agregar la clase de animación de entrada
+      panelContainer.classList.add('slide-in');
       
       // Mostrar el contenedor del panel
       panelContainer.classList.remove('d-none');
       hola.classList.remove('col-lg-12');
       hola.classList.add('col-lg-8');
+      
+      // Esperar la duración de la animación (0.3s) antes de remover la clase
+      setTimeout(() => {
+        panelContainer.classList.remove('slide-in');
+      }, 300);
       
       // Limpiar contenido anterior
       const content = panel.querySelector('.booking-info-content');
