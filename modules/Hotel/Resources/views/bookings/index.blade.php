@@ -94,11 +94,11 @@
           </div>
         </div>
             <!-- Modal de Edición de Reserva con iframe -->
-    <div id="editBookingModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 40px; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+    <div id="editBookingModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
       <div class="modal-content" style="background-color: #fefefe; margin: 2% auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 1200px; height: 90%; border-radius: 5px; display: flex; flex-direction: column;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
           <h2 style="margin: 0;">Editar Reserva</h2>
-          <span class="close" onclick="closeEditModal()" style="color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+          <span class="close" style="color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
         </div>
         <div style="flex: 1; position: relative;">
           <iframe id="editBookingFrame" style="width: 100%; height: 100%; border: none; border-radius: 4px;"></iframe>
@@ -1357,23 +1357,11 @@
     timeline.on('click', function (properties) {
       if (properties.item) {
         const item = items.get(properties.item);
-        if (item && item.is_booking === 1) {
-          showBookingInfo(item);
-        }
+        console.log(item);
+        showBookingInfo(item);
       }
     });
 
-    // Evento para ocultar información cuando se hace clic fuera del panel
-    document.addEventListener('click', function(event) {
-      const panel = document.querySelector('.booking-info-panel');
-      const panelContainer = document.getElementById('bookingInfoPanelContainer');
-      
-      if (panel && panelContainer) {
-        if (!panel.contains(event.target) && !panelContainer.contains(event.target)) {
-          hideBookingInfo();
-        }
-      }
-    });
     
     // Evento para ajustar las fechas cuando se redimensiona un elemento
     timeline.on('changing', function (item, callback) {
