@@ -11,15 +11,17 @@
     </div>
   </div>
   <div class="card-body">
-    <!-- Panel lateral deslizante -->
+    <!-- Panel de información de reserva -->
     <div id="bookingInfoPanel" class="booking-info-panel">
-      <div class="booking-info-header">
-        <h5 class="panel-title">Información de Reserva</h5>
-        <button class="close-panel-btn" onclick="closeBookingPanel()">&times;</button>
-      </div>
-      <div class="booking-info-content">
-        <div class="booking-info-placeholder">
-          Haga clic en una reserva para ver sus detalles
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Información de Reserva</h5>
+          <button class="btn-close" onclick="closeBookingPanel()"></button>
+        </div>
+        <div class="card-body booking-info-content">
+          <div class="booking-info-placeholder">
+            Haga clic en una reserva para ver sus detalles
+          </div>
         </div>
       </div>
     </div>
@@ -133,23 +135,18 @@
     background-color: #fff;
   }
 
-  /* Estilos para el panel lateral deslizante */
+  /* Estilos para el panel de información de reserva */
   .booking-info-panel {
     position: fixed;
     top: 0;
-    right: -350px;
+    right: 0;
     width: 350px;
     height: 100vh;
     background: #fff;
     box-shadow: -2px 0 5px rgba(0,0,0,0.1);
     z-index: 1000;
-    transition: right 0.3s ease;
-    padding: 20px;
+    padding: 15px;
     overflow-y: auto;
-  }
-
-  .booking-info-panel.open {
-    right: 0;
   }
 
   .booking-info-header {
@@ -1243,10 +1240,9 @@
       filterRooms(this.value);
     });
 
-    // Función para abrir el panel de información
-    function openBookingPanel(itemData) {
+    // Función para actualizar el panel de información
+    function updateBookingPanel(itemData) {
       const panel = document.getElementById('bookingInfoPanel');
-      panel.classList.add('open');
       
       // Limpiar contenido anterior
       const content = panel.querySelector('.booking-info-content');
@@ -1279,21 +1275,17 @@
     // Función para cerrar el panel
     function closeBookingPanel() {
       const panel = document.getElementById('bookingInfoPanel');
-      panel.classList.remove('open');
+      panel.style.display = 'none';
     }
 
-    // Evento para abrir el panel cuando se hace clic en un ítem
+    // Evento para actualizar el panel cuando se hace clic en un ítem
     timeline.on('click', function (properties) {
-      console.log(properties);
       if (properties.item) {
         const item = items.get(properties.item);
-        console.log(item);
-        openBookingPanel(item);
+        updateBookingPanel(item);
+        document.getElementById('bookingInfoPanel').style.display = 'block';
       }
     });
-    
-    // Evento para ajustar las fechas cuando se redimensiona un elemento
-    timeline.on('changing', function (item, callback) {
       // Verificar si el elemento tiene is_booking en 0
       var itemData = items.get(item.id);
       if (itemData && itemData.is_booking === 0) {
