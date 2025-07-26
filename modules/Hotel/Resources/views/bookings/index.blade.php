@@ -1142,7 +1142,54 @@
     
     // Evento para el select de filtro
     document.getElementById('roomFilter').addEventListener('change', function() {
-      filterRooms(this.value);
+      var roomId = this.value;
+      filterRooms(roomId);
+      
+      // Mostrar timeline vertical solo para una habitación
+      if (roomId) {
+        document.getElementById('visualization').style.display = 'none';
+        document.getElementById('verticalTimeline').style.display = 'block';
+        
+        // Obtener los datos de la habitación seleccionada
+        var room = groups.get(roomId);
+        var roomItems = items.get({ filter: function(item) {
+          return item.group === roomId;
+        }});
+        
+        // Actualizar el nombre de la habitación
+        document.querySelector('.timeline-room-name').textContent = room.content;
+        
+        // Limpiar y actualizar el timeline vertical
+        document.querySelector('.time-labels').innerHTML = '';
+        document.querySelector('.timeline-items').innerHTML = '';
+        
+        // Generar etiquetas de tiempo
+        var startDate = new Date();
+        var endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 7); // Mostrar 7 días
+        
+        for (var date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
+          var label = document.createElement('div');
+          label.className = 'time-label';
+          label.textContent = date.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
+          document.querySelector('.time-labels').appendChild(label);
+        }
+        
+        // Agregar los items de la habitación
+        roomItems.forEach(function(item) {
+          var itemDiv = document.createElement('div');
+          itemDiv.className = 'timeline-item ' + (item.className || '');
+          itemDiv.textContent = item.content;
+          itemDiv.title = item.title || '';
+          itemDiv.style.height = '100px';
+          itemDiv.style.marginBottom = '10px';
+          document.querySelector('.timeline-items').appendChild(itemDiv);
+        });
+      } else {
+        // Mostrar timeline horizontal cuando se seleccionan todas las habitaciones
+        document.getElementById('visualization').style.display = 'block';
+        document.getElementById('verticalTimeline').style.display = 'none';
+      }
     });
     
     // Evento para ajustar las fechas cuando se redimensiona un elemento
