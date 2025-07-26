@@ -12,7 +12,7 @@
   </div>
   <div class="card-body">
     <div class="row">
-      <div class="col-12 col-lg-8">
+      <div class="col-12" id="timelineContainer">
         <!-- Leyenda de colores -->
     <div class="row mb-3">
       <div class="col-12">
@@ -108,9 +108,9 @@
     
 
   </div>
-</div>
-<div class="col-12 col-lg-4">
-  <!-- Panel de información de reserva -->
+    </div>
+    <div class="col-12 col-lg-4 d-none" id="bookingInfoPanelContainer">
+      <!-- Panel de información de reserva -->
   <div class="card booking-info-panel">
     <div class="card-header d-flex justify-content-between align-items-center">
       <h5 class="mb-0">Información de Reserva</h5>
@@ -1309,7 +1309,13 @@
 
     // Función para mostrar información de reserva
     function showBookingInfo(itemData) {
-      const panel = document.getElementById('bookingInfoPanel');
+      const panelContainer = document.getElementById('bookingInfoPanelContainer');
+      const panel = document.querySelector('.booking-info-panel');
+      
+      if (!panel || !panelContainer) return;
+      
+      // Mostrar el contenedor del panel
+      panelContainer.classList.remove('d-none');
       
       // Limpiar contenido anterior
       const content = panel.querySelector('.booking-info-content');
@@ -1341,21 +1347,31 @@
 
     // Función para ocultar información de reserva
     function hideBookingInfo() {
-      const panel = document.getElementById('bookingInfoPanel');
-      const content = panel.querySelector('.booking-info-content');
-      content.innerHTML = '';
-      content.innerHTML = `
-        <div class="booking-info-placeholder">
-          Haga clic en una reserva para ver sus detalles
-        </div>
-      `;
+      const panelContainer = document.getElementById('bookingInfoPanelContainer');
+      if (panelContainer) {
+        panelContainer.classList.add('d-none');
+      }
     }
 
     // Evento para mostrar información de reserva
     timeline.on('click', function (properties) {
       if (properties.item) {
         const item = items.get(properties.item);
-        showBookingInfo(item);
+        if (item && item.is_booking === 1) {
+          showBookingInfo(item);
+        }
+      }
+    });
+
+    // Evento para ocultar información cuando se hace clic fuera del panel
+    document.addEventListener('click', function(event) {
+      const panel = document.querySelector('.booking-info-panel');
+      const panelContainer = document.getElementById('bookingInfoPanelContainer');
+      
+      if (panel && panelContainer) {
+        if (!panel.contains(event.target) && !panelContainer.contains(event.target)) {
+          hideBookingInfo();
+        }
       }
     });
     
