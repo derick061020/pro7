@@ -12,7 +12,7 @@
   </div>
   <div class="container-fluid">
     <div class="row">
-      <div class="col-12 col-lg-8"  id="hola">
+      <div class="col-12 col-lg-12"  id="hola">
         <div class="card">
           <div class="card-header">
             <h5 class="card-title mb-0">Gestión de Reservas</h5>
@@ -116,7 +116,7 @@
         </div>
       </div>
       <div class="col-12 col-lg-4">
-        <div class="card booking-info-panel" id="bookingInfoPanelContainer">
+        <div class="card booking-info-panel d-none" id="bookingInfoPanelContainer">
           <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Información de Reserva</h5>
             <button class="btn-close" onclick="closeBookingPanel()"></button>
@@ -1340,6 +1340,8 @@
       
       // Mostrar el contenedor del panel
       panelContainer.classList.remove('d-none');
+      hola.classList.remove('col-lg-12');
+      hola.classList.add('col-lg-8');
       
       // Limpiar contenido anterior
       const content = panel.querySelector('.booking-info-content');
