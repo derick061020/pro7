@@ -1284,6 +1284,7 @@
 
     // Evento para abrir el panel cuando se hace clic en un ítem
     timeline.on('click', function (properties) {
+      console.log(properties);
       if (properties.item) {
         const item = items.get(properties.item);
         if (item && item.is_booking === 1) {
