@@ -119,7 +119,7 @@
         <div class="card booking-info-panel" id="bookingInfoPanelContainer">
           <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Información de Reserva</h5>
-            <button class="btn-close" onclick="closeBookingPanel()"></button>
+            <button class="btn-close" onclick="this.closeBookingPanel()"></button>
           </div>
           <div class="card-body booking-info-content">
             <div class="booking-info-placeholder">
@@ -1317,13 +1317,6 @@
     document.getElementById('roomFilter').addEventListener('change', function() {
       filterRooms(this.value);
     });
-
-    function closeBookingPanel() {
-      const panelContainer = document.getElementById('bookingInfoPanelContainer');
-      if (panelContainer) {
-        panelContainer.classList.add('d-none');
-      }
-    }
     
     // Función para ocultar el panel
     function closeBookingPanel() {
