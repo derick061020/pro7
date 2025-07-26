@@ -1353,13 +1353,15 @@
       // Animar el panel antes de mostrar
       // Mostrar el contenedor del panel
       panelContainer.classList.remove('d-none');
+      hola.classList.remove('col-lg-12');
+      hola.classList.add('col-lg-8');
+      
       panelContainer.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
       panelContainer.style.transform = 'translateX(100%)';
       panelContainer.style.opacity = '0';
       
       
-      hola.classList.remove('col-lg-12');
-      hola.classList.add('col-lg-8');
+      
       
       // Animar el panel a su posición final
       panelContainer.style.transform = 'translateX(0)';
