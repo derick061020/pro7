@@ -1287,7 +1287,9 @@
     };
     
     // Establecer la vista por defecto (semana)
-    changeView('week');
+    window.onload = function() {
+      changeView('week');
+    };
     
 
 
