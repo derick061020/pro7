@@ -1125,12 +1125,6 @@
           setTimeout(IframeUrlChangeDetection, 1000);
         }
     });
-    timeline.on('click', function (properties) {
-      if (properties.group) {
-        window.open('https://www.google.com', '_blank');
-      }
-    });
-
     
     // Función para cambiar la vista del timeline
     window.changeView = function(scale) {
