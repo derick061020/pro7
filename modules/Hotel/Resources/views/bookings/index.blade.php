@@ -11,19 +11,9 @@
     </div>
   </div>
   <div class="card-body">
-    <!-- Panel lateral deslizante -->
-    <div id="bookingInfoPanel" class="booking-info-panel">
-      <div class="booking-info-header">
-        <h5 class="panel-title">Información de Reserva</h5>
-        <button class="close-panel-btn" onclick="closeBookingPanel()">&times;</button>
-      </div>
-      <div class="booking-info-content">
-        <div class="booking-info-placeholder">
-          Haga clic en una reserva para ver sus detalles
-        </div>
-      </div>
-    </div>
-    <!-- Leyenda de colores -->
+    <div class="row">
+      <div class="col-12 col-lg-8">
+        <!-- Leyenda de colores -->
     <div class="row mb-3">
       <div class="col-12">
         <div class="d-flex flex-wrap gap-3">
@@ -104,11 +94,11 @@
           </div>
         </div>
             <!-- Modal de Edición de Reserva con iframe -->
-    <div id="editBookingModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+    <div id="editBookingModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 40px; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
       <div class="modal-content" style="background-color: #fefefe; margin: 2% auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 1200px; height: 90%; border-radius: 5px; display: flex; flex-direction: column;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
           <h2 style="margin: 0;">Editar Reserva</h2>
-          <span class="close" style="color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+          <span class="close" onclick="closeEditModal()" style="color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
         </div>
         <div style="flex: 1; position: relative;">
           <iframe id="editBookingFrame" style="width: 100%; height: 100%; border: none; border-radius: 4px;"></iframe>
@@ -117,6 +107,20 @@
     </div>
     
 
+  </div>
+</div>
+<div class="col-12 col-lg-4">
+  <!-- Panel de información de reserva -->
+  <div class="card booking-info-panel">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Información de Reserva</h5>
+      <button class="btn-close" onclick="closeBookingPanel()"></button>
+    </div>
+    <div class="card-body booking-info-content">
+      <div class="booking-info-placeholder">
+        Haga clic en una reserva para ver sus detalles
+      </div>
+    </div>
   </div>
 </div>
 @endsection
@@ -133,23 +137,70 @@
     background-color: #fff;
   }
 
-  /* Estilos para el panel lateral deslizante */
+  /* Estilos para el panel de información de reserva */
   .booking-info-panel {
-    position: fixed;
-    top: 0;
-    right: -350px;
-    width: 350px;
-    height: 100vh;
-    background: #fff;
-    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
-    z-index: 1000;
-    transition: right 0.3s ease;
-    padding: 20px;
-    overflow-y: auto;
+    height: 100%;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
   }
 
-  .booking-info-panel.open {
-    right: 0;
+  .booking-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .panel-title {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #333;
+  }
+
+  .close-panel-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+    padding: 5px;
+  }
+
+  .close-panel-btn:hover {
+    color: #333;
+  }
+
+  .booking-info-content {
+    height: calc(100% - 60px);
+  }
+
+  .booking-info-placeholder {
+    text-align: center;
+    color: #666;
+    padding: 20px;
+  }
+
+  .booking-info-item {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .booking-info-item:last-child {
+    border-bottom: none;
+  }
+
+  .info-label {
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 5px;
+    display: block;
+  }
+
+  .info-value {
+    color: #333;
+    display: block;
   }
 
   .booking-info-header {
@@ -937,8 +988,21 @@
     var loadingMessage = document.createElement('div');
     loadingMessage.className = 'alert alert-info';
     loadingMessage.innerHTML = 'Eliminando reserva #' + itemId + '...';
-    document.getElementById('log').prepend(loadingMessage);
     
+    console.log(loadingMessage);
+    
+    // Preparar los datos para enviar
+    var startDate = item.start;
+    var endDate = item.end;
+    var roomId = item.group;
+    console.log(startDate);
+    console.log(endDate);
+    console.log(roomId);
+    console.log(JSON.stringify({
+        start: startDate,
+        end: endDate,
+        room_id: roomId
+      }))
     // Enviar la solicitud de eliminación al servidor
     fetch('{{ route("hotel.bookings.destroy", "") }}/' + itemId, {
       method: 'DELETE',
@@ -1243,10 +1307,9 @@
       filterRooms(this.value);
     });
 
-    // Función para abrir el panel de información
-    function openBookingPanel(itemData) {
+    // Función para mostrar información de reserva
+    function showBookingInfo(itemData) {
       const panel = document.getElementById('bookingInfoPanel');
-      panel.classList.add('open');
       
       // Limpiar contenido anterior
       const content = panel.querySelector('.booking-info-content');
@@ -1276,19 +1339,23 @@
       });
     }
 
-    // Función para cerrar el panel
-    function closeBookingPanel() {
+    // Función para ocultar información de reserva
+    function hideBookingInfo() {
       const panel = document.getElementById('bookingInfoPanel');
-      panel.classList.remove('open');
+      const content = panel.querySelector('.booking-info-content');
+      content.innerHTML = '';
+      content.innerHTML = `
+        <div class="booking-info-placeholder">
+          Haga clic en una reserva para ver sus detalles
+        </div>
+      `;
     }
 
-    // Evento para abrir el panel cuando se hace clic en un ítem
+    // Evento para mostrar información de reserva
     timeline.on('click', function (properties) {
-      console.log(properties);
       if (properties.item) {
         const item = items.get(properties.item);
-        console.log(item);
-        openBookingPanel(item);
+        showBookingInfo(item);
       }
     });
     
