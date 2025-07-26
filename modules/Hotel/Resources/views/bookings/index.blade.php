@@ -11,6 +11,18 @@
     </div>
   </div>
   <div class="card-body">
+    <!-- Panel lateral deslizante -->
+    <div id="bookingInfoPanel" class="booking-info-panel">
+      <div class="booking-info-header">
+        <h5 class="panel-title">Información de Reserva</h5>
+        <button class="close-panel-btn" onclick="closeBookingPanel()">&times;</button>
+      </div>
+      <div class="booking-info-content">
+        <div class="booking-info-placeholder">
+          Haga clic en una reserva para ver sus detalles
+        </div>
+      </div>
+    </div>
     <!-- Leyenda de colores -->
     <div class="row mb-3">
       <div class="col-12">
@@ -114,6 +126,92 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <style type="text/css">
+  /* Estilos para el select de habitaciones */
+  #roomFilter {
+    border-color: #e0e0e0;
+    transition: all 0.3s ease;
+    background-color: #fff;
+  }
+
+  /* Estilos para el panel lateral deslizante */
+  .booking-info-panel {
+    position: fixed;
+    top: 0;
+    right: -350px;
+    width: 350px;
+    height: 100vh;
+    background: #fff;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+    transition: right 0.3s ease;
+    padding: 20px;
+    overflow-y: auto;
+  }
+
+  .booking-info-panel.open {
+    right: 0;
+  }
+
+  .booking-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .panel-title {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #333;
+  }
+
+  .close-panel-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+    padding: 5px;
+  }
+
+  .close-panel-btn:hover {
+    color: #333;
+  }
+
+  .booking-info-content {
+    height: calc(100% - 60px);
+  }
+
+  .booking-info-placeholder {
+    text-align: center;
+    color: #666;
+    padding: 20px;
+  }
+
+  .booking-info-item {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .booking-info-item:last-child {
+    border-bottom: none;
+  }
+
+  .info-label {
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 5px;
+    display: block;
+  }
+
+  .info-value {
+    color: #333;
+    display: block;
+  }
+
   /* Estilos para el select de habitaciones */
   #roomFilter {
     border-color: #e0e0e0;
@@ -1143,6 +1241,55 @@
     // Evento para el select de filtro
     document.getElementById('roomFilter').addEventListener('change', function() {
       filterRooms(this.value);
+    });
+
+    // Función para abrir el panel de información
+    function openBookingPanel(itemData) {
+      const panel = document.getElementById('bookingInfoPanel');
+      panel.classList.add('open');
+      
+      // Limpiar contenido anterior
+      const content = panel.querySelector('.booking-info-content');
+      content.innerHTML = '';
+      
+      // Crear elementos de información
+      const infoItems = [
+        { label: 'Habitación', value: itemData.room.name },
+        { label: 'Cliente', value: itemData.customer.name },
+        { label: 'Teléfono', value: itemData.customer.number },
+        { label: 'Check-in', value: itemData.input_date + ' ' + itemData.input_time },
+        { label: 'Check-out', value: itemData.output_date + ' ' + itemData.output_time },
+        { label: 'Personas', value: itemData.quantity_persons },
+        { label: 'Toallas', value: itemData.towels },
+        { label: 'Estado', value: itemData.status }
+      ];
+      
+      // Agregar cada elemento de información
+      infoItems.forEach(item => {
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'booking-info-item';
+        infoDiv.innerHTML = `
+          <span class="info-label">${item.label}:</span>
+          <span class="info-value">${item.value}</span>
+        `;
+        content.appendChild(infoDiv);
+      });
+    }
+
+    // Función para cerrar el panel
+    function closeBookingPanel() {
+      const panel = document.getElementById('bookingInfoPanel');
+      panel.classList.remove('open');
+    }
+
+    // Evento para abrir el panel cuando se hace clic en un ítem
+    timeline.on('click', function (properties) {
+      console.log(properties);
+      if (properties.item) {
+        const item = items.get(properties.item);
+        console.log(item);
+        openBookingPanel(item);
+      }
     });
     
     // Evento para ajustar las fechas cuando se redimensiona un elemento
