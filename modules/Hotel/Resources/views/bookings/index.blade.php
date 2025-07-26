@@ -1351,12 +1351,13 @@
       if (!panel || !panelContainer) return;
       
       // Animar el panel antes de mostrar
+      // Mostrar el contenedor del panel
+      panelContainer.classList.remove('d-none');
       panelContainer.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
       panelContainer.style.transform = 'translateX(100%)';
       panelContainer.style.opacity = '0';
       
-      // Mostrar el contenedor del panel
-      panelContainer.classList.remove('d-none');
+      
       hola.classList.remove('col-lg-12');
       hola.classList.add('col-lg-8');
       
