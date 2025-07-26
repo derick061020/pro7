@@ -11,6 +11,18 @@
     </div>
   </div>
   <div class="card-body">
+    <!-- Panel lateral deslizante -->
+    <div id="bookingInfoPanel" class="booking-info-panel">
+      <div class="booking-info-header">
+        <h5 class="panel-title">Información de Reserva</h5>
+        <button class="close-panel-btn" onclick="closeBookingPanel()">&times;</button>
+      </div>
+      <div class="booking-info-content">
+        <div class="booking-info-placeholder">
+          Haga clic en una reserva para ver sus detalles
+        </div>
+      </div>
+    </div>
     <!-- Leyenda de colores -->
     <div class="row mb-3">
       <div class="col-12">
@@ -60,21 +72,7 @@
     </div>
     
     <!-- Visualización del timeline -->
-    <div class="timeline-container">
-      <div id="visualization" style="height: auto;"></div>
-      <!-- Panel lateral deslizante -->
-      <div id="bookingInfoPanel" class="booking-info-panel">
-        <div class="booking-info-header">
-          <h5 class="panel-title">Información de Reserva</h5>
-          <button class="close-panel-btn" onclick="closeBookingPanel()">&times;</button>
-        </div>
-        <div class="booking-info-content">
-          <div class="booking-info-placeholder">
-            Haga clic en una reserva para ver sus detalles
-          </div>
-        </div>
-      </div>
-    </div>
+    <div id="visualization" style="height: auto;"></div>
     
     <!-- Modal para nueva reserva (grande) -->
     <div id="newBookingModal" class="modal">
@@ -128,11 +126,97 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <style type="text/css">
+  /* Estilos para el select de habitaciones */
+  #roomFilter {
+    border-color: #e0e0e0;
+    transition: all 0.3s ease;
+    background-color: #fff;
+  }
+
   /* Estilos para el panel lateral deslizante */
-  .timeline-container {
-    position: relative;
-    width: 100%;
-    height: 100%;
+  .booking-info-panel {
+    position: fixed;
+    top: 0;
+    right: -350px;
+    width: 350px;
+    height: 100vh;
+    background: #fff;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+    transition: right 0.3s ease;
+    padding: 20px;
+    overflow-y: auto;
+  }
+
+  .booking-info-panel.open {
+    right: 0;
+  }
+
+  .booking-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .panel-title {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #333;
+  }
+
+  .close-panel-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+    padding: 5px;
+  }
+
+  .close-panel-btn:hover {
+    color: #333;
+  }
+
+  .booking-info-content {
+    height: calc(100% - 60px);
+  }
+
+  .booking-info-placeholder {
+    text-align: center;
+    color: #666;
+    padding: 20px;
+  }
+
+  .booking-info-item {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .booking-info-item:last-child {
+    border-bottom: none;
+  }
+
+  .info-label {
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 5px;
+    display: block;
+  }
+
+  .info-value {
+    color: #333;
+    display: block;
+  }
+
+  /* Estilos para el select de habitaciones */
+  #roomFilter {
+    border-color: #e0e0e0;
+    transition: all 0.3s ease;
+    background-color: #fff;
   }
   
   #roomFilter:focus {
@@ -1158,7 +1242,7 @@
     document.getElementById('roomFilter').addEventListener('change', function() {
       filterRooms(this.value);
     });
-    
+
     // Función para abrir el panel de información
     function openBookingPanel(itemData) {
       const panel = document.getElementById('bookingInfoPanel');
@@ -1207,7 +1291,7 @@
         }
       }
     });
-
+    
     // Evento para ajustar las fechas cuando se redimensiona un elemento
     timeline.on('changing', function (item, callback) {
       // Verificar si el elemento tiene is_booking en 0
