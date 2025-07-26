@@ -40,19 +40,12 @@
       </div>
       <div class="col-12 col-md-4">
         <div class="d-flex flex-wrap gap-2 mb-2">
-          <div class="position-relative w-100">
-            <select class="form-select form-select-sm custom-select" id="roomFilter">
-              <option value="">🔍 Todas las habitaciones</option>
-              @foreach($rooms->sortBy('id') as $room)
-                <option value="{{ $room->id }}" data-category="{{ $room->category->description }}">
-                  <i class="fas fa-bed"></i> {{ $room->name }} - {{ $room->category->description }}
-                </option>
-              @endforeach
-            </select>
-            <div class="position-absolute top-50 start-0 translate-middle-y ms-2">
-              <i class="fas fa-filter text-muted"></i>
-            </div>
-          </div>
+          <select class="form-select form-select-sm" id="roomFilter">
+            <option value="">Todas las habitaciones</option>
+            @foreach($rooms->sortBy('id') as $room)
+              <option value="{{ $room->id }}">{{ $room->name }} - {{ $room->category->description }}</option>
+            @endforeach
+          </select>
         </div>
         <div class="d-flex flex-wrap gap-1 btn-group" role="group" aria-label="Vista de calendario">
           <button type="button" class="btn btn-outline-secondary btn-sm flex-fill" onclick="changeView('day')">Día</button>
@@ -120,28 +113,14 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <style type="text/css">
   /* Estilos para el select de habitaciones */
-  .custom-select {
-    padding-left: 2.5rem !important;
-    background-color: #fff;
+  #roomFilter {
     border-color: #e0e0e0;
     transition: all 0.3s ease;
   }
   
-  .custom-select:focus {
+  #roomFilter:focus {
     border-color: #2196F3;
     box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25);
-  }
-  
-  .custom-select option {
-    padding: 0.5rem 1rem !important;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  
-  .custom-select option i {
-    color: #666;
-    font-size: 1rem;
   }
   
   /* Estilos para el contenedor principal */
