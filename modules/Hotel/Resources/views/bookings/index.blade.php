@@ -1287,6 +1287,7 @@
       console.log(properties);
       if (properties.item) {
         const item = items.get(properties.item);
+        console.log(item);
         openBookingPanel(item);
       }
     });
