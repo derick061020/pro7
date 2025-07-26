@@ -790,13 +790,17 @@
       const hola = document.getElementById('hola');
       
       if (panelContainer) {
-        // Agregar la clase de animación de salida
-        panelContainer.classList.add('slide-out');
+        // Animar el panel
+        panelContainer.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+        panelContainer.style.transform = 'translateX(100%)';
+        panelContainer.style.opacity = '0';
         
         // Esperar la duración de la animación (0.3s) antes de ocultar
         setTimeout(() => {
+          panelContainer.style.transform = '';
+          panelContainer.style.opacity = '';
+          panelContainer.style.transition = '';
           panelContainer.classList.add('d-none');
-          panelContainer.classList.remove('slide-out');
           hola.classList.remove('col-lg-8');
           hola.classList.add('col-lg-12');
         }, 300);
@@ -1346,17 +1350,21 @@
       
       if (!panel || !panelContainer) return;
       
-      // Agregar la clase de animación de entrada
-      panelContainer.classList.add('slide-in');
-      
       // Mostrar el contenedor del panel
       panelContainer.classList.remove('d-none');
       hola.classList.remove('col-lg-12');
       hola.classList.add('col-lg-8');
       
-      // Esperar la duración de la animación (0.3s) antes de remover la clase
+      // Animar el panel
+      panelContainer.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+      panelContainer.style.transform = 'translateX(0)';
+      panelContainer.style.opacity = '1';
+      
+      // Esperar la duración de la animación (0.3s) antes de remover los estilos
       setTimeout(() => {
-        panelContainer.classList.remove('slide-in');
+        panelContainer.style.transform = '';
+        panelContainer.style.opacity = '';
+        panelContainer.style.transition = '';
       }, 300);
       
       // Limpiar contenido anterior
