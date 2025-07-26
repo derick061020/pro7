@@ -60,7 +60,21 @@
     </div>
     
     <!-- Visualización del timeline -->
-    <div id="visualization" style="height: auto;"></div>
+    <div class="timeline-container">
+      <div id="visualization" style="height: auto;"></div>
+      <!-- Panel lateral deslizante -->
+      <div id="bookingInfoPanel" class="booking-info-panel">
+        <div class="booking-info-header">
+          <h5 class="panel-title">Información de Reserva</h5>
+          <button class="close-panel-btn" onclick="closeBookingPanel()">&times;</button>
+        </div>
+        <div class="booking-info-content">
+          <div class="booking-info-placeholder">
+            Haga clic en una reserva para ver sus detalles
+          </div>
+        </div>
+      </div>
+    </div>
     
     <!-- Modal para nueva reserva (grande) -->
     <div id="newBookingModal" class="modal">
@@ -114,11 +128,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <style type="text/css">
-  /* Estilos para el select de habitaciones */
-  #roomFilter {
-    border-color: #e0e0e0;
-    transition: all 0.3s ease;
-    background-color: #fff;
+  /* Estilos para el panel lateral deslizante */
+  .timeline-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
   }
   
   #roomFilter:focus {
@@ -1145,6 +1159,55 @@
       filterRooms(this.value);
     });
     
+    // Función para abrir el panel de información
+    function openBookingPanel(itemData) {
+      const panel = document.getElementById('bookingInfoPanel');
+      panel.classList.add('open');
+      
+      // Limpiar contenido anterior
+      const content = panel.querySelector('.booking-info-content');
+      content.innerHTML = '';
+      
+      // Crear elementos de información
+      const infoItems = [
+        { label: 'Habitación', value: itemData.room.name },
+        { label: 'Cliente', value: itemData.customer.name },
+        { label: 'Teléfono', value: itemData.customer.number },
+        { label: 'Check-in', value: itemData.input_date + ' ' + itemData.input_time },
+        { label: 'Check-out', value: itemData.output_date + ' ' + itemData.output_time },
+        { label: 'Personas', value: itemData.quantity_persons },
+        { label: 'Toallas', value: itemData.towels },
+        { label: 'Estado', value: itemData.status }
+      ];
+      
+      // Agregar cada elemento de información
+      infoItems.forEach(item => {
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'booking-info-item';
+        infoDiv.innerHTML = `
+          <span class="info-label">${item.label}:</span>
+          <span class="info-value">${item.value}</span>
+        `;
+        content.appendChild(infoDiv);
+      });
+    }
+
+    // Función para cerrar el panel
+    function closeBookingPanel() {
+      const panel = document.getElementById('bookingInfoPanel');
+      panel.classList.remove('open');
+    }
+
+    // Evento para abrir el panel cuando se hace clic en un ítem
+    timeline.on('click', function (properties) {
+      if (properties.item) {
+        const item = items.get(properties.item);
+        if (item && item.is_booking === 1) {
+          openBookingPanel(item);
+        }
+      }
+    });
+
     // Evento para ajustar las fechas cuando se redimensiona un elemento
     timeline.on('changing', function (item, callback) {
       // Verificar si el elemento tiene is_booking en 0
