@@ -116,7 +116,7 @@
         </div>
       </div>
       <div class="col-12 col-lg-4">
-        <div class="card booking-info-panel" id="bookingInfoPanelContainer" style="display: none;">
+        <div class="card booking-info-panel" id="bookingInfoPanelContainer">
           <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Información de Reserva</h5>
             <button class="btn-close" onclick="closeBookingPanel()"></button>
@@ -128,8 +128,6 @@
           </div>
         </div>
       </div>
-    <div class="booking-info-placeholder">
-      Haga clic en una reserva para ver sus detalles
     </div>
   </div>
 </div>
@@ -1334,6 +1332,7 @@
       
       // Mostrar el contenedor del panel
       panelContainer.style.display = 'block';
+      panelContainer.parentElement.style.display = 'block';
       
       // Limpiar contenido anterior
       const content = panel.querySelector('.booking-info-content');
