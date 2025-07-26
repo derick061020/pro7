@@ -878,9 +878,6 @@
       groupsData.push({
         id: {{ $room->id }},
         content: '{{ $room->name }} / {{ $room->category->description }}',
-        onClick: function() {
-          window.open('https://www.google.com', '_blank');
-        }
       });
     @endforeach
     
@@ -1128,6 +1125,12 @@
           setTimeout(IframeUrlChangeDetection, 1000);
         }
     });
+    timeline.on('click', function (properties) {
+      if (properties.group) {
+        window.open('https://www.google.com', '_blank');
+      }
+    });
+
     
     // Función para cambiar la vista del timeline
     window.changeView = function(scale) {
