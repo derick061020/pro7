@@ -39,6 +39,14 @@
         </p>
       </div>
       <div class="col-12 col-md-4">
+        <div class="d-flex flex-wrap gap-2 mb-2">
+          <select class="form-select form-select-sm" id="roomFilter">
+            <option value="">Todas las habitaciones</option>
+            @foreach($rooms->sortBy('id') as $room)
+              <option value="{{ $room->id }}">{{ $room->name }} / {{ $room->category->description }}</option>
+            @endforeach
+          </select>
+        </div>
         <div class="d-flex flex-wrap gap-1 btn-group" role="group" aria-label="Vista de calendario">
           <button type="button" class="btn btn-outline-secondary btn-sm flex-fill" onclick="changeView('day')">Día</button>
           <button type="button" class="btn btn-outline-secondary btn-sm flex-fill" onclick="changeView('3days')">3 Días</button>
@@ -1086,6 +1094,41 @@
       }
     };
     var timeline = new vis.Timeline(container, items, groups, options);
+    
+    // Función para filtrar habitaciones
+    function filterRooms(roomId) {
+      var filteredGroups = new vis.DataSet([]);
+      var filteredItems = new vis.DataSet([]);
+      
+      // Si no hay filtro (todas las habitaciones)
+      if (!roomId) {
+        filteredGroups = groups;
+        filteredItems = items;
+      } else {
+        // Filtrar grupos
+        groups.forEach(function(group) {
+          if (group.id == roomId) {
+            filteredGroups.add(group);
+          }
+        });
+        
+        // Filtrar items
+        items.forEach(function(item) {
+          if (item.group == roomId) {
+            filteredItems.add(item);
+          }
+        });
+      }
+      
+      // Actualizar el timeline
+      timeline.setGroups(filteredGroups);
+      timeline.setItems(filteredItems);
+    }
+    
+    // Evento para el select de filtro
+    document.getElementById('roomFilter').addEventListener('change', function() {
+      filterRooms(this.value);
+    });
     
     // Evento para ajustar las fechas cuando se redimensiona un elemento
     timeline.on('changing', function (item, callback) {
