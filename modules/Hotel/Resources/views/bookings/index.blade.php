@@ -1318,6 +1318,13 @@
       filterRooms(this.value);
     });
 
+    function closeBookingPanel() {
+      const panelContainer = document.getElementById('bookingInfoPanelContainer');
+      if (panelContainer) {
+        panelContainer.classList.add('d-none');
+      }
+    }
+    
     // Función para mostrar información de reserva
     function showBookingInfo(itemData) {
       const panelContainer = document.getElementById('bookingInfoPanelContainer');
