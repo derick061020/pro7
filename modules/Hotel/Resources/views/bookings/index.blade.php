@@ -115,7 +115,7 @@
           </div>
         </div>
       </div>
-      <div class="col-12 col-lg-4">
+      <div class="col-12 col-lg-4" style="margin-top:35px;margin-bottom:35px">
         <div class="card booking-info-panel d-none" id="bookingInfoPanelContainer">
           <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Información de Reserva</h5>
