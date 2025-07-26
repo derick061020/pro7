@@ -11,7 +11,7 @@
     </div>
   </div>
   <div class="row">
-    <div class="col-12 col-md-8card-body">
+    <div class="col-12 col-md-8 card-body">
       <!-- Leyenda de colores -->
       <div class="row mb-3">
         <div class="col-12">
