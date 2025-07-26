@@ -1138,6 +1138,17 @@
       // Actualizar el timeline
       timeline.setGroups(filteredGroups);
       timeline.setItems(filteredItems);
+      
+      // Ajustar la orientación según el número de habitaciones
+      var orientation = filteredGroups.length > 1 ? 
+        { axis: 'both', item: 'both' } :
+        { axis: 'bottom', item: 'bottom' };
+      
+      timeline.setOptions({
+        orientation: orientation,
+        groupHeight: filteredGroups.length > 1 ? 30 : 100,
+        itemHeight: filteredGroups.length > 1 ? 30 : 50
+      });
     }
     
     // Evento para el select de filtro
