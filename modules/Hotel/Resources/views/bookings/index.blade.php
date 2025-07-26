@@ -50,11 +50,11 @@
           </div>
         </div>
         <div class="d-flex flex-wrap gap-1 btn-group" role="group" aria-label="Vista de calendario">
-          <button type="button" class="btn btn-outline-secondary btn-sm flex-fill" onclick="changeView('day')">Día</button>
-          <button type="button" class="btn btn-outline-secondary btn-sm flex-fill" onclick="changeView('3days')">3 Días</button>
-          <button type="button" class="btn btn-outline-secondary btn-sm flex-fill" onclick="changeView('week')">Semana</button>
-          <button type="button" class="btn btn-outline-secondary btn-sm flex-fill" onclick="changeView('2weeks')">2 Semanas</button>
-          <button type="button" class="btn btn-outline-secondary btn-sm flex-fill" onclick="changeView('month')">Mes</button>
+          <button type="button" scale="day" class="btn btn-outline-secondary btn-sm flex-fill" onclick="changeView('day')">Día</button>
+          <button type="button" scale="3days" class="btn btn-outline-secondary btn-sm flex-fill" onclick="changeView('3days')">3 Días</button>
+          <button type="button" scale="week" class="btn btn-outline-secondary btn-sm flex-fill" onclick="changeView('week')">Semana</button>
+          <button type="button" scale="2weeks" class="btn btn-outline-secondary btn-sm flex-fill" onclick="changeView('2weeks')">2 Semanas</button>
+          <button type="button" scale="month" class="btn btn-outline-secondary btn-sm flex-fill" onclick="changeView('month')">Mes</button>
         </div>
       </div>
     </div>
@@ -1333,7 +1333,7 @@
         
         // Actualizar los botones activos
         document.querySelectorAll('.btn-group .btn').forEach(btn => {
-            const btnScale = btn.getAttribute('onclick').match(/'([^']+)'/)[1];
+            const btnScale = btn.getAttribute('scale');
             if (btnScale === scale) {
                 btn.classList.remove('btn-outline-secondary');
                 btn.classList.add('btn-primary');
