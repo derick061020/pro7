@@ -1287,9 +1287,7 @@
       console.log(properties);
       if (properties.item) {
         const item = items.get(properties.item);
-        if (item && item.is_booking === 1) {
-          openBookingPanel(item);
-        }
+        openBookingPanel(item);
       }
     });
     
