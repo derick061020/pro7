@@ -591,7 +591,7 @@
                                         <button
                                             class="btn waves-effect waves-light btn-xs btn-success mr-1"
                                             type="button"
-                                            @click.prevent="savePayment(row, index)"
+                                            @click.prevent="savePayment(row, index);this.window.location.reload();"
                                             :disabled="!row.payment_method_type_id || !row.payment_destination_id || !row.payment"
                                             title="Guardar pago"
                                         >
@@ -1215,7 +1215,7 @@ export default {
                 // Aquí puedes agregar lógica adicional para determinar si un ítem puede ser eliminado
                 // Por ejemplo, solo permitir eliminar ciertos tipos de registros o con ciertos estados
                 const history = JSON.parse(this.currentRent.history);
-                const found = history.find(h => h.id === item.id && h.quantity > item.quantity);
+                const found = history.find(h => h.id === item.id);
                 return (found && !item.delete) || item.is_product;
             },
 
@@ -1682,6 +1682,14 @@ export default {
                 });
         },
         async onGoToInvoice() {
+            // Iterate through all payments and save only those that are visible (display: flex)
+            if (this.document.payments && this.document.payments.length > 0) {
+                for (const payment of this.document.payments) {
+                    if (payment.display === 'flex') {
+                        await this.savePayment(payment);
+                    }
+                }
+            }
 
             await this.onUpdateItemsWithExtras();
             await this.onCalculateTotals();
@@ -1889,10 +1897,7 @@ export default {
                 await this.$http.post(`/hotels/rents/${this.currentRent.id}/update-payment-history`, {
                     payment_history: JSON.stringify(paymentHistory)
                 });
-                
-                // Refresh the data
-                await this.initDocument();
-                window.location.reload();
+
                 this.$message.success('Pago registrado correctamente');
                 
             } catch (error) {

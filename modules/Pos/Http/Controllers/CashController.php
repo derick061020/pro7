@@ -13,7 +13,6 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Mail;
 use Modules\Pos\Exports\ReportCashExport;
 use Modules\Pos\Mail\CashEmail;
-Use Modules\Hotel\Models\HotelRent;
 use Mpdf\Mpdf;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -198,6 +197,38 @@ class CashController extends Controller
 
         $cash_documents = $cash_documents->merge($cashDocumentInOtherCash);
         $data['cash_documents_total'] = (int)$cash_documents->count();
+        $cashPayments = \App\Models\Tenant\Payment::where('payment_destination_id', $cash->id)->get();
+        $data['cash_documents_total'] += $cashPayments->count();
+        foreach($cashPayments as $cashPayment){
+            $temp = [
+                'type_transaction'          => 'Pago',
+                'document_type_description' => $cashPayment->notes ? 'NOTA DE VENTA' : 'ADELANTO',
+                'number'                    => $cashPayment->notes ? $cashPayment->notes : $cashPayment->id,
+                'date_of_issue'             => $cashPayment->created_at,
+                'date_sort'                 => $cashPayment->created_at,
+                'customer_name'             => $cashPayment->customer['name']?:'',
+                'customer_number'           => $cashPayment->customer['number']?:'',
+                'total'                     => $cashPayment->amount,
+                'currency_type_id'          => 'PEN',
+                'usado'                     => " ".__LINE__,
+                'tipo'                      => $cashPayment->type,
+                'total_payments'            => $cashPayment->amount,
+                'total_string'              => self::FormatNumber($cashPayment->amount),
+                'type_transaction_prefix'   => 'income',
+                'order_number_key'          => $cashPayment->id.'_'.$cashPayment->created_at->format('YmdHis'),
+            ];
+            $all_documents[] = $temp;
+
+        }
+        foreach ($methods_payment as $record)
+        {
+            $record_total = $cashPayments->where('payment_method_type_id', $record->id)->sum('amount');
+            $record->sum = ($record->sum + $record_total);
+            if($record->id === '01') $data['total_payment_cash_01_sale_note'] += $record_total;
+            $data['total_cash_income_pmt_01'] += $record_total;
+            $cash_income += $record_total;
+            $final_balance += $record_total;
+        }
 
         /************************/
 
@@ -211,11 +242,21 @@ class CashController extends Controller
             $currency_type_id = null;
             $temp = [];
             $notes = [];
-            $totalPaymentsDiff = 0;
             $usado = '';
 
             /** Documentos de Tipo Nota de venta */
             if ($cash_document->sale_note) {
+                foreach($cash_document->sale_note->items as $item) {
+                    $items++;
+                    array_push($all_items, $item);
+                    $collection_items->push($item);
+                }
+                if(\App\Models\Tenant\Payment::where('payment_destination_id', $cash->id)->where('notes', $cash_document->sale_note->id)->exists()){
+                    continue;
+                }
+                if($cash_document->sale_note->hotel_rent_id){
+                    continue;
+                }
                 $sale_note = $cash_document->sale_note;
                 $pays = [];
                 if (in_array($sale_note->state_type_id, $status_type_id)) {
@@ -225,21 +266,6 @@ class CashController extends Controller
                         $sale_note->currency_type_id,
                         $sale_note->exchange_rate_sale
                     );
-                    if ($sale_note->related != null) {
-                        foreach ($sale_note->related as $related) {
-                            if($related){
-                               $sale = SaleNote::where('id', $related)->first(); 
-                               if($sale && strtotime($sale->date_of_issue . ' ' . $sale->time_of_issue) <= strtotime($cash->date_opening.' '.$cash->time_opening)){
-                                $totalPaymentsDiff = ($sale->currency_type_id == 'PEN') 
-                                   ? $sale->total 
-                                   : ($sale->total * $sale->exchange_rate_sale);
-                                $total -= ($sale->currency_type_id == 'PEN') 
-                                ? $sale->total 
-                                : ($sale->total * $sale->exchange_rate_sale);
-                               }
-                            }
-                        }
-                    }
                     $cash_income += $total;
                     $final_balance += $total;
                     if (count($sale_note->payments) > 0) {
@@ -267,7 +293,6 @@ class CashController extends Controller
                         $date_payment=$value->date_of_payment->format('Y-m-d');
                     }
                 }
-               
                 $totalPayments = (!in_array($sale_note->state_type_id, $status_type_id))
                     ? 0
                     : $sale_note->payments()
@@ -275,8 +300,6 @@ class CashController extends Controller
                         $query->where('cash_id', $cash_id);
                     })
                     ->sum('payment');
-                $totalPayments -= $totalPaymentsDiff;
-                
 
                 $temp = [
                     'type_transaction'          => 'Venta',
@@ -291,7 +314,7 @@ class CashController extends Controller
                     'currency_type_id'          => $sale_note->currency_type_id,
                     'usado'                     => $usado." ".__LINE__,
                     'tipo'                      => 'sale_note',
-                    'total_payments'            => $totalPayments ,
+                    'total_payments'            => $totalPayments,
                     'type_transaction_prefix'   => 'income',
                     'order_number_key'          => $order_number.'_'.$sale_note->created_at->format('YmdHis'),
                 ];
@@ -310,6 +333,14 @@ class CashController extends Controller
             /** Documentos de Tipo Document */
             elseif ($cash_document->document)
             {
+                foreach($cash_document->document->items as $item) {
+                    $items++;
+                    array_push($all_items, $item);
+                    $collection_items->push($item);
+                }
+                if($cash_document->document->hotel_rent_id){
+                    continue;
+                }
                 $record_total = 0;
                 $document = $cash_document->document;
                 $payment_condition_id = $document->payment_condition_id;
@@ -317,7 +348,6 @@ class CashController extends Controller
                     return $payment->cashDocumentPayments->contains('cash_id', $cash_id);
                 });
                 $pagado = 0;
-                $diffID = collect();
                 if (in_array($document->state_type_id, $status_type_id)) {
                     if ($payment_condition_id == '01') {
                         $total = self::CalculeTotalOfCurency(
@@ -326,22 +356,6 @@ class CashController extends Controller
                             $document->exchange_rate_sale
                         );
                         $usado .= '<br>Tomado para income<br>';
-                        if ($document->sale_notes_relateds != null) {
-                            foreach ($document->sale_notes_relateds as $related) {
-                                if($related){
-                                   $sale = SaleNote::where('id', $related)->first(); 
-                                   if($sale && strtotime($sale->date_of_issue . ' ' . $sale->time_of_issue) <= strtotime($cash->date_opening.' '.$cash->time_opening)){
-                                    $totalPaymentsDiff = ($sale->currency_type_id == 'PEN') 
-                                       ? $sale->total 
-                                       : ($sale->total * $sale->exchange_rate_sale);
-                                    $diffID->push(['document_id'=>$document->id, 'totalPaymentsDiff'=>$totalPaymentsDiff]);
-                                    $total -= ($sale->currency_type_id == 'PEN') 
-                                    ? $sale->total 
-                                    : ($sale->total * $sale->exchange_rate_sale);
-                                   }
-                                }
-                            }
-                        }
                         $cash_income += $total;
                         $final_balance += $total;
                         if (count($pays) > 0) {
@@ -351,16 +365,7 @@ class CashController extends Controller
                                     ->where('payment_method_type_id', $record->id)
                                     ->whereIn('document.state_type_id', $status_type_id)
                                     ->sum('payment');
-                                $record_payment = $pays
-                                ->where('payment_method_type_id', $record->id)
-                                ->whereIn('document.state_type_id', $status_type_id);
-                                $record_payment->each(function ($payment) use ($diffID) {
-                                    $diff = $diffID->where('document_id', $payment->document_id)->first();
-                                    if($diff){
-                                        $payment->sum = ($payment->sum + $payment->payment) - $diff['totalPaymentsDiff'];
-                                    }
-                                });
-                                $record->sum = $record_payment->sum('sum');
+                                $record->sum = ($record->sum + $record_total);
                                 if (!empty($record_total)) {
                                     $usado .= self::getStringPaymentMethod($record->id).'<br>Se usan los pagos Tipo '.$record->id.'<br>';
                                 }
@@ -412,7 +417,7 @@ class CashController extends Controller
                     }
 
                     $data['total_tips'] += $document->tip ? $document->tip->total : 0;
-                    $data['total_cash_income_pmt_01'] += $this->getIncomeEgressCashDocumentPayments($document->payments,$cash_id) - $totalPaymentsDiff;
+                    $data['total_cash_income_pmt_01'] += $this->getIncomeEgressCashDocumentPayments($document->payments,$cash_id);
 
                 }
                 if ($record_total != $document->total) {
@@ -434,7 +439,6 @@ class CashController extends Controller
                     })
                     ->sum('payment');
 
-                $totalPayments -= $totalPaymentsDiff;
                 $temp = [
                     'type_transaction'          => 'Venta',
                     'document_type_description' => $document->document_type->description,
@@ -459,11 +463,7 @@ class CashController extends Controller
 
                 // items
                 // dd($document->items);
-                foreach($document->items as $item) {
-                    $items++;
-                    array_push($all_items, $item);
-                    $collection_items->push($item);
-                }
+                
                 // dd($items);
                 // fin items
             }
@@ -725,55 +725,10 @@ class CashController extends Controller
 
                 }
             }
-            
-            /** Notas de credito o debito */
-            
 
         }
 
 
-        $rents = HotelRent::get();
-            if($rents->count() > 0){
-                foreach ($rents as $rent) {
-                    if ($rent->payment_history) {
-                        $payments = json_decode($rent->payment_history, true);
-                        foreach ($payments as $payment) {
-                            $paymentDate = date('Y-m-d H:i:s', strtotime(str_replace('/', '-', $payment['date'])));
-                            if (strtotime($paymentDate) > strtotime($cash->date_opening . ' ' . $cash->time_opening) && isset($payment['type']) && strtotime($paymentDate) < strtotime($cash->date_closed . ' ' . $cash->time_closed)  && $payment['type'] === 'advancePayment') {
-                                $temp = [
-                                    'type_transaction'          => 'ADELANTO',
-                                    'document_type_description' => 'HABITACION '.$rent->room->name,
-                                    'number'                    => $rent->id,
-                                    'date_of_issue'             => $paymentDate,
-                                    'date_sort'                 => $paymentDate,
-                                    'customer_name'             => $rent->customer->name,
-                                    'customer_number'           => $rent->customer->number,
-                                    'total'                     => $payment['amount'],
-                                    'total_payments'            => $payment['amount'],
-                                    'currency_type_id'          => 'PEN',
-                                    'usado'                     => ' '.__LINE__,
-                                    'tipo'                      => 'document',
-                                    'type_transaction_prefix'   => 'income',
-                                    'order_number_key'          => $rent->created_at->format('YmdHis'),
-                                ];
-        
-                                $temp['usado'] =  '--';
-                                $temp['total_string'] = self::FormatNumber($temp['total']);
-                                $all_documents[] = $temp;
-                                $cash_income += $payment['amount'];
-                                $data['total_cash_income_pmt_01'] += $payment['amount'];
-                                $final_balance += $payment['amount'];
-                                $data['cash_documents_total'] += 1;
-                                foreach ($methods_payment as $record) {
-                                    if($record->id == $payment['payment_method_type_id']){
-                                        $record->sum = ($record->sum + $payment['amount']);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
 //Inicio: Deyvis: pendiente revisar para que funke
         // finanzas ingresos
         $id_income=$cash->user_id;
@@ -1159,7 +1114,6 @@ class CashController extends Controller
         $temp = tempnam(sys_get_temp_dir(), 'cash_pdf_a4');
         file_put_contents($temp, $this->getPdf($cash, 'a4'));
 
-
         $headers = [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="Reporte"'
@@ -1281,11 +1235,39 @@ class CashController extends Controller
         foreach ($cash->cash_documents as $cash_document)
         {
             $model_associated = $cash_document->getDataModelAssociated();
+            if($cash_document->sale_note && \App\Models\Tenant\Payment::where('payment_destination_id', $cash->id)->where('notes', $cash_document->sale_note->id)->exists()){
+                continue;
+            }
+            if($model_associated->hotel_rent_id){
+                continue;
+            }
+
             $payments = $model_associated->getCashPayments();
+
 
             $payments->each(function($payment) use($data_payments){
                 $data_payments->push($payment);
             });
+        }
+
+        foreach(\App\Models\Tenant\Payment::where('payment_destination_id', $cash->id)->get() as $payment){
+            if($payment->payment_method_type_id != PaymentMethodType::CASH_PAYMENT_ID){
+                continue;
+            }
+            $data_payments->push([
+               "type"=>"advance",
+               "type_transaction"=>"income",
+               "type_transaction_description"=>"Venta",
+               "date_of_issue"=>$payment->created_at,
+               "number_full"=>$payment->id,
+               "acquirer_name"=>$payment->customer['name'],
+               "acquirer_number"=>$payment->customer['number'],
+               "currency_type_id"=>'PEN',
+               "document_id"=>$payment->document_id,
+               "document_type_description"=>"AVANCE",
+               "payment_method_type_id"=>$payment->payment_method_type_id,
+               "payment"=>$payment->amount,
+            ]);
         }
 
         $data['total_income'] = $data_payments->where('type_transaction', 'income')->sum('payment');

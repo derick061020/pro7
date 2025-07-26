@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\CashRequest;
 use App\Http\Resources\Tenant\CashCollection;
 use App\Http\Resources\Tenant\CashResource;
-use Modules\Hotel\Models\HotelRent;
 use App\Models\Tenant\Cash;
 use App\Models\Tenant\CashDocument;
 use App\Models\Tenant\Company;
@@ -229,60 +228,32 @@ class CashController extends Controller
         $cash->time_closed = date('H:i:s');
 
         $final_balance = 0;
+        $sale_notes_id = [];
+        $payments = \App\Models\Tenant\Payment::where('payment_destination_id', $cash->id)->get();
+        foreach ($payments as $payment) {
+            $final_balance += $payment->amount;
+            $sale_notes_id[] = $payment->notes;
+        }
         $income = 0;
 
-        $rents = HotelRent::where('status', '!=', 'FINALIZADO')->where('status', '!=', 'ELIMINADO')->get();
-
-        if($rents->count() > 0){
-            foreach ($rents as $rent) {
-                if ($rent->payment_history) {
-                    $payments = json_decode($rent->payment_history, true);
-                    foreach ($payments as $payment) {
-                        $paymentDate = date('Y-m-d H:i:s', strtotime(str_replace('/', '-', $payment['date'])));
-                        if (strtotime($paymentDate) > strtotime($cash->date_opening . ' ' . $cash->time_opening) && isset($payment['type']) && $payment['type'] === 'advancePayment') {
-                            $final_balance += $payment['amount'];
-                        }
-                    }
-                }
-            }
-        }
-        
-        
-        // Add payments to final balance
-        
         foreach ($cash->cash_documents as $cash_document) {
 
 
             if($cash_document->sale_note){
+                if(in_array($cash_document->sale_note->id, $sale_notes_id)){
+                    continue;
+                }
+                if($cash_document->sale_note->hotel_rent_id){
+                    continue;
+                }
+                if (\App\Models\Tenant\Payment::where('notes', $cash_document->sale_note->id)->exists()){
+                    continue;
+                }
 
                 if(in_array($cash_document->sale_note->state_type_id, ['01','03','05','07','13'])){
                     $final_balance += ($cash_document->sale_note->currency_type_id == 'PEN') 
                     ? $cash_document->sale_note->total 
                     : ($cash_document->sale_note->total * $cash_document->sale_note->exchange_rate_sale);
-                    if ($cash_document->sale_note->related) {
-                        foreach ($cash_document->sale_note->related as $sale_note) {
-                            if($sale_note){
-                               $sale = SaleNote::where('id', $sale_note)->first(); 
-                               if($sale && strtotime($sale->date_of_issue . ' ' . $sale->time_of_issue) <= strtotime($cash->date_opening.' '.$cash->time_opening)){
-                                   $final_balance -= ($sale->currency_type_id == 'PEN') 
-                                   ? $sale->total 
-                                   : ($sale->total * $sale->exchange_rate_sale);
-                               }
-                            }
-                        }
-                    }
-                    if(isset($cash_document->sale_note->hotel_rent_id)){
-                        $rent = HotelRent::where('id', $cash_document->sale_note->hotel_rent_id)->first();
-                        if($rent){
-                            $payments = json_decode($rent->payment_history, true);
-                            foreach ($payments as $payment) {
-                                $paymentDate = date('Y-m-d H:i:s', strtotime(str_replace('/', '-', $payment['date'])));
-                                if (strtotime($paymentDate) < strtotime($cash->date_opening . ' ' . $cash->time_opening) && isset($payment['type']) && $payment['type'] === 'advancePayment') {
-                                    $final_balance -= $payment['amount'];
-                                }
-                            }
-                        }
-                    }
                 }
 
                 // $final_balance += $cash_document->sale_note->total;
@@ -290,34 +261,13 @@ class CashController extends Controller
             }
             else if($cash_document->document){
 
-                if(in_array($cash_document->document->state_type_id, ['01','03','05','07','13'])) {
+                if($cash_document->document->hotel_rent_id){
+                    continue;
+                }
+                if(in_array($cash_document->document->state_type_id, ['01','03','05','07','13'])){
                     $final_balance += ($cash_document->document->currency_type_id == 'PEN') 
                         ? $cash_document->document->total 
                         : ($cash_document->document->total * $cash_document->document->exchange_rate_sale);
-                    if ($cash_document->document->sale_notes_relateds) {
-                        foreach ($cash_document->document->sale_notes_relateds as $sale_note) {
-                            if($sale_note){
-                               $sale = SaleNote::where('id', $sale_note)->first(); 
-                               if($sale && strtotime($sale->date_of_issue . ' ' . $sale->time_of_issue) <= strtotime($cash->date_opening.' '.$cash->time_opening)){
-                                   $final_balance -= ($sale->currency_type_id == 'PEN') 
-                                   ? $sale->total 
-                                   : ($sale->total * $sale->exchange_rate_sale);
-                               }
-                            }
-                        }
-                    }
-                    if(isset($cash_document->document->hotel_rent_id)){
-                        $rent = HotelRent::where('id', $cash_document->document->hotel_rent_id)->first();
-                        if($rent){
-                            $payments = json_decode($rent->payment_history, true);
-                            foreach ($payments as $payment) {
-                                $paymentDate = date('Y-m-d H:i:s', strtotime(str_replace('/', '-', $payment['date'])));
-                                if (strtotime($paymentDate) < strtotime($cash->date_opening . ' ' . $cash->time_opening) && isset($payment['type']) && $payment['type'] === 'advancePayment') {
-                                    $final_balance -= $payment['amount'];
-                                }
-                            }
-                        }
-                    }
                 }
 
                 // $final_balance += $cash_document->document->total;
@@ -671,7 +621,6 @@ class CashController extends Controller
     {
         
 
-        exit();
         set_time_limit(0);
         $data = [];
         /** @var Cash $cash */

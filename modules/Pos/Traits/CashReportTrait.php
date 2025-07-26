@@ -5,6 +5,8 @@ namespace Modules\Pos\Traits;
 use App\CoreFacturalo\Helpers\Functions\GeneralPdfHelper;
 use Mpdf\Mpdf;
 use App\Models\Tenant\PaymentMethodType;
+use App\Models\Tenant\Document;
+use App\Models\Tenant\SaleNote;
 use App\Exports\GeneralFormatExport;
 
 
@@ -24,6 +26,43 @@ trait CashReportTrait
         foreach ($cash->global_destination as $global_payment) 
         {
             $payments->push($global_payment->payment->getDataCashPaymentReport());
+        }
+        foreach ($payments as $key => $payment) 
+        {
+            if($payment['type'] == 'sale_note'){
+                $sale_note = SaleNote::find($payment['document_id']);
+                if($sale_note && \App\Models\Tenant\Payment::where('payment_destination_id', $cash->id)->where('notes', $sale_note->id)->exists()){
+                    $payments->forget($key);
+                }
+                if($sale_note->hotel_rent_id){
+                    $payments->forget($key);
+                }
+            }elseif($payment['type'] == 'document'){
+                $document = Document::find($payment['document_id']);
+                if($document->hotel_rent_id){
+                    $payments->forget($key);
+                }
+            }
+        }
+        foreach(\App\Models\Tenant\Payment::where('payment_destination_id', $cash->id)->get() as $payment){
+            if($payment->payment_method_type_id != PaymentMethodType::CASH_PAYMENT_ID){
+                continue;
+            }
+            $payments->push([
+               "type"=>"advance",
+               "type_transaction"=>"income",
+               "type_transaction_description"=>"Venta",
+               "date_of_issue"=>$payment->created_at,
+               "number_full"=>$payment->id,
+               "acquirer_name"=>$payment->customer['name'],
+               "acquirer_number"=>$payment->customer['number'],
+               "currency_type_id"=>'PEN',
+               "document_id"=>$payment->document_id,
+               "document_type_description"=>"AVANCE",
+               "payment_method_type_id"=>$payment->payment_method_type_id,
+               "payment"=>$payment->amount,
+               "total"=>$payment->amount,
+            ]);
         }
 
         $payments_pen = $payments->where('currency_type_id', PaymentMethodType::NATIONAL_CURRENCY_ID);
@@ -62,7 +101,40 @@ trait CashReportTrait
         {
             $payments->push($global_payment->payment->getRowResourceCashPayment());
         }
-        
+        foreach ($payments as $key => $payment) 
+        {
+            if($payment['type'] == 'sale_note'){
+                $sale_note = SaleNote::find($payment['document_id']);
+                if($sale_note && \App\Models\Tenant\Payment::where('payment_destination_id', $cash->id)->where('notes', $sale_note->id)->exists()){
+                    $payments->forget($key);
+                }
+                if($sale_note->hotel_rent_id){
+                    $payments->forget($key);
+                }
+            }elseif($payment['type'] == 'document'){
+                $document = Document::find($payment['document_id']);
+                if($document->hotel_rent_id){
+                    $payments->forget($key);
+                }
+            }
+        }
+        foreach(\App\Models\Tenant\Payment::where('payment_destination_id', $cash->id)->get() as $payment){
+            $payments->push([
+               "type"=>"advance",
+               "type_transaction"=>"income",
+               "type_transaction_description"=>"Venta",
+               "date_of_issue"=>$payment->created_at,
+               "number_full"=>$payment->id,
+               "acquirer_name"=>$payment->customer['name'],
+               "acquirer_number"=>$payment->customer['number'],
+               "currency_type_id"=>'PEN',
+               "document_id"=>$payment->document_id,
+               "document_type_description"=>"AVANCE",
+               "payment_method_type_id"=>$payment->payment_method_type_id,
+               "payment"=>$payment->amount,
+            ]);
+        }
+
         $data['total_income'] = $payments->where('type_transaction', 'income')->where('payment_method_type_id', PaymentMethodType::CASH_PAYMENT_ID)->sum('payment');
         $data['total_egress'] = $payments->where('type_transaction', 'egress')->where('payment_method_type_id', PaymentMethodType::CASH_PAYMENT_ID)->sum('payment');
         $data['total_balance'] =  $data['cash_beginning_balance'] + $data['total_income'] - $data['total_egress'];
@@ -95,8 +167,45 @@ trait CashReportTrait
         {
             $payments->push($global_payment->payment->getRowResourceCashPayment());
         }
+        foreach ($payments as $key => $payment) 
+        {
+            if($payment['type'] == 'sale_note'){
+                $sale_note = SaleNote::find($payment['document_id']);
+                if($sale_note && \App\Models\Tenant\Payment::where('payment_destination_id', $cash->id)->where('notes', $sale_note->id)->exists()){
+                    $payments->forget($key);
+                }
+                if($sale_note->hotel_rent_id){
+                    $payments->forget($key);
+                }
+            }elseif($payment['type'] == 'document'){
+                $document = Document::find($payment['document_id']);
+                if($document->hotel_rent_id){
+                    $payments->forget($key);
+                }
+            }
+        }
+        foreach(\App\Models\Tenant\Payment::where('payment_destination_id', $cash->id)->get() as $payment){
+            if($payment->payment_method_type_id != PaymentMethodType::CASH_PAYMENT_ID){
+                continue;
+            }
+            $payments->push([
+               "type"=>"advance",
+               "type_transaction"=>"income",
+               "type_transaction_description"=>"Venta",
+               "date_of_issue"=>$payment->created_at,
+               "number_full"=>$payment->id,
+               "acquirer_name"=>$payment->customer['name'],
+               "acquirer_number"=>$payment->customer['number'],
+               "currency_type_id"=>'PEN',
+               "document_id"=>$payment->document_id,
+               "document_type_description"=>"AVANCE",
+               "payment_method_type_id"=>$payment->payment_method_type_id,
+               "payment"=>$payment->amount,
+            ]);
+        }
         
-        $data['total_income'] = $payments->sum('payment');
+        
+        $data['total_income'] = $payments->sum('payment') ;
 
         return [
             'data' => $data,
@@ -200,6 +309,13 @@ trait CashReportTrait
         foreach ($cash->cash_documents as $cash_document)
         {
             $model_associated = $cash_document->getDataModelAssociated();
+            
+            if($cash_document->sale_note && \App\Models\Tenant\Payment::where('payment_destination_id', $cash->id)->where('notes', $cash_document->sale_note->id)->exists()){
+                continue;
+            }
+            if($model_associated->hotel_rent_id){
+                continue;
+            }
             
             if($model_associated)
             {

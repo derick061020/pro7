@@ -257,20 +257,22 @@ class HotelRentController extends Controller
 				'rate_type' => $request->rate_type,
             ];
             
-
-			if ($isCheckin) {
+            // If this is a check-in, update status and is_booking
+            if ($isCheckin) {
                 $updateData['status'] = 'INICIADO';
                 $updateData['is_booking'] = 0;
                 
                 // Update room status to OCUPADO
                 $room = $rent->room;
-				$updateData['input_date'] = now()->format('Y-m-d');
-				$updateData['input_time'] = now()->format('H:i');
+				$rent->input_date = now()->format('Y-m-d');
+				$rent->input_time = now()->format('H:i');
+				$rent->update();
                 if ($room) {
                     $room->status = 'OCUPADO';
                     $room->save();
                 }
             }
+            
             // Update the rent data
             $rent->update($updateData);
 			
@@ -358,7 +360,7 @@ class HotelRentController extends Controller
             
             return response()->json([
                 'success' => true,
-                'message' => 'Recepción actualizada correctamente '.$isCheckin,
+                'message' => 'Recepción actualizada correctamente',
                 'data' => $rent->fresh() // Return the updated rent data without trying to load relationships
             ]);
             
@@ -474,8 +476,32 @@ class HotelRentController extends Controller
 					$type = 'payment';
 				}
 
+				// Obtener la caja activa del usuario actual
+				$cash = \App\Models\Tenant\Cash::where([
+					['user_id', auth()->user()->id],
+					['state', true]
+				])->first();
+
+				if (!$cash) {
+					throw new \Exception('No se encontró una caja activa para el usuario actual');
+				}
+
+				// Crear registro en la tabla de pagos
+				$payment = new \App\Models\Tenant\Payment([
+					'date' => now()->toDateString(),
+					'amount' => (float)$total,
+					'payment_method_type_id' => $request->rent_payment['payment_method_type_id'],
+					'payment_destination_id' => $cash->id, // Usar el ID de la caja activa
+					'type' => $type,
+					'notes' => (int)$request->sale_note_id,
+					'customer' => $rent->customer,
+					'description' => 'Pago de habitación',
+					'reference' => ''
+				]);
+				$payment->save();
 				// Crear registro del pago
 				$paymentData = [
+					'payment_id' => $payment->id,
 					'date' => now()->format('d/m/Y, H:i:s'),
 					'amount' => (float)$total,
 					'payment_method_type_id' => $request->rent_payment['payment_method_type_id'],
@@ -489,10 +515,21 @@ class HotelRentController extends Controller
 				$paymentHistory[] = $paymentData;
 				$rent->payment_history = json_encode($paymentHistory);
 				$rent->save();
+
+				
+
+				// Mantener compatibilidad con el código existente
+				$record = $item->payments()->create([
+					'date_of_payment' => date('Y-m-d'),
+					'payment_method_type_id' => $request->rent_payment['payment_method_type_id'],
+					'reference' => '',
+					'payment' => (float)$total,
+				]);
 			}
 			
 			//registrar pago
-			$this->saveHotelRentItemPayment($request->rent_payment, $item);
+			
+			//$this->saveHotelRentItemPayment($request->rent_payment, $item);
 
 			DB::connection('tenant')->commit();
 
@@ -535,6 +572,7 @@ class HotelRentController extends Controller
 			]);
 
 		}
+
 	}
 
 
@@ -618,6 +656,11 @@ class HotelRentController extends Controller
 					break;
 				}
 			}
+			if($lastProduct && isset($lastProduct['sale_note_id'])){
+			$sale_note_id = $lastProduct['sale_note_id'];
+			}else{
+				$sale_note_id = null;
+			}
 			if($lastProduct && (int)$lastProduct['unit_price'] == (int)$product['unit_price']){
 				$lastProduct['quantity'] += $product['quantity'];
 				$lastProduct['extended'] = true;
@@ -697,10 +740,35 @@ class HotelRentController extends Controller
 			if (isset($request->advance_amount) && $request->advance_amount > 0) {
 				// Obtener el historial de pagos existente o inicializar como array vacío
 				
+				// Obtener la caja activa del usuario actual
+				$cash = \App\Models\Tenant\Cash::where([
+					['user_id', auth()->user()->id],
+					['state', true]
+				])->first();
+
+				if (!$cash) {
+					throw new \Exception('No se encontró una caja activa para el usuario actual');
+				}
+
+				// Crear registro en la tabla de pagos
+				$payment = new \App\Models\Tenant\Payment([
+					'date' => now()->toDateString(),
+					'amount' => (float)$request->advance_amount,
+					'payment_method_type_id' => $request->payment_method_type_id,
+					'payment_destination_id' => $cash->id, // Usar el ID de la caja activa
+					'type' => 'advancePayment',
+					'notes' => (int)$sale_note_id,
+					'customer' => $rent->customer,
+					'description' => 'Pago adelantado por extensión de tiempo',
+					'reference' => ''
+				]);
+				$payment->save();
+				
 				$paymentHistory = json_decode($rent->payment_history ?? '[]', true);
 				
 				// Crear registro del pago
 				$paymentData = [
+					'payment_id' => $payment->id,
 					'date' => now()->format('Y-m-d H:i:s'),
 					'amount' => (float)$request->advance_amount,
 					'payment_method_type_id' => $request->payment_method_type_id,
@@ -709,6 +777,7 @@ class HotelRentController extends Controller
 					'description' => 'Pago adelantado por extensión de tiempo',
 					'reference' => ''
 				];
+				
 				
 				// Agregar el nuevo pago al historial
 				$paymentHistory[] = $paymentData;
@@ -809,10 +878,35 @@ class HotelRentController extends Controller
 				$item->save();
 
 				$this->saveHotelRentItemPayment($product['rent_payment'], $item);
+				
 			}
 			if($product['payment_status']=='PAID'){
+				
+				$cash = \App\Models\Tenant\Cash::where([
+					['user_id', auth()->user()->id],
+					['state', true]
+				])->first();
+
+				if (!$cash) {
+					throw new \Exception('No se encontró una caja activa para el usuario actual');
+				}
+
+				// Crear registro en la tabla de pagos
+				$payment = new \App\Models\Tenant\Payment([
+					'date' => now()->toDateString(),
+					'amount' => (float)$product['total'],
+					'payment_method_type_id' => '01',
+					'payment_destination_id' => $cash->id, // Usar el ID de la caja activa
+					'type' => 'advance',
+					'notes' => (int)$request->sale_note_id,
+					'customer' => $rent->customer,
+					'description' => 'Pago de habitación',
+					'reference' => ''
+				]);
+				$payment->save();
 				$paymentHistory = json_decode($rent->payment_history ?? '[]', true);
 				$paymentData = [
+					'payment_id' => $payment->id,
 					'date' => now()->format('d/m/Y, H:i:s'),
 					'amount' => (float)$product['total'],
 					'payment_method_type_id' => '01',
@@ -1255,13 +1349,39 @@ class HotelRentController extends Controller
             
             // Decodificar el historial de pagos
             $paymentHistory = json_decode($request->input('payment_history'), true);
+            $lastItem = array_slice($paymentHistory, -1)[0];
+
+			$cash = \App\Models\Tenant\Cash::where([
+				['user_id', auth()->user()->id],
+				['state', true]
+			])->first();
+
+			if (!$cash) {
+				throw new \Exception('No se encontró una caja activa para el usuario actual');
+			}
+			$payment = new \App\Models\Tenant\Payment([
+				'date' => now()->toDateString(),
+				'amount' => (float)$lastItem['amount'],
+				'payment_method_type_id' => $lastItem['payment_method_type_id'],
+				'payment_destination_id' => $cash->id,
+				'type' => $lastItem['type'],
+				'customer' => $rent->customer,
+				'notes' => null,
+				'description' => $lastItem['description'],
+				'reference' => $lastItem['reference'],
+			]);
+            
+			$payment->save();
+			$lastItem['payment_id'] = $payment->id;
             
             if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new \Exception('El formato del historial de pagos no es válido');
             }
             
             // Actualizar el historial de pagos
-            $rent->payment_history = $request->input('payment_history');
+            $pHistory = json_decode($rent->payment_history, true);
+			$pHistory[] = $lastItem;
+			$rent->payment_history = json_encode($pHistory);
             $rent->save();
             
             DB::commit();
@@ -1736,6 +1856,9 @@ class HotelRentController extends Controller
             // Actualizar el historial de pagos y cambios
             $rent->payment_history = json_encode($paymentHistory);
             $rent->save();
+			$payment = \App\Models\Tenant\Payment::findOrFail($paymentHistory[$paymentIndex]['payment_id']);
+			$payment->payment_method_type_id = $newPaymentMethod;
+			$payment->save();
             
 			$rent = HotelRent::findOrFail($id);
             DB::commit();

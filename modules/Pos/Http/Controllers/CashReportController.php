@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use Modules\Pos\Traits\CashReportTrait;
+use App\Models\Tenant\PaymentMethodType;
 use Mpdf\Mpdf;
 use App\Models\Tenant\Cash;
 use Carbon\Carbon;
@@ -100,6 +101,7 @@ class CashReportController extends Controller
         $cash = Cash::with(['cash_documents', 'cash_documents_credit'])->findOrFail($cash_id);
         $header_data = app(CashController::class)->getHeaderCommonDataToReport($cash);
 
+
         $data = $this->initDataSummaryDailyOperations();
 
         $this->setDataCreditSales($cash, $data);
@@ -107,6 +109,21 @@ class CashReportController extends Controller
         $this->setDataCashSalesPurchases($cash, $data);
 
         $this->calculateGlobalValues($data);
+        $cashPayments = \App\Models\Tenant\Payment::where('payment_destination_id', $cash->id)->get();
+        foreach($cashPayments as $cashPayment){
+            if($cashPayment->payment_method_type_id == PaymentMethodType::CASH_PAYMENT_ID){
+                $data['cash_sales_income']['total_cash'] += $cashPayment->amount;
+                $data['total_cash_sales'] += $cashPayment->amount;
+                $data['cash_balance'] += $cashPayment->amount;
+            }else{
+                $data['cash_sales_income']['total_transfer'] += $cashPayment->amount;
+                $data['total_cash_purchases_transfer'] += $cashPayment->amount;
+                $data['balance_transfer'] += $cashPayment->amount;
+            }
+            $data['cash_sales_income']['total'] += $cashPayment->amount;
+            $data['total_balance'] += $cashPayment->amount;
+            
+        }
 
         $pdf_data = [
             'header_data' => $header_data,

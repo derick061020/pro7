@@ -43,6 +43,57 @@
             </div>
           </div>
 
+          <div class="row" style="margin-bottom: -40px;">
+            <div
+                class="col-6 col-md-6 form-group"
+                :class="{ 'has-danger': errors.custom_price }"
+            >
+                <label class="control-label">Tarifa</label>
+                <div v-if="room_rates.length > 0" class="mb-3">
+                    <el-select 
+                        v-model="selected_rate" 
+                        placeholder="Seleccione una tarifa"
+                        style="width: 100%; margin-bottom: 15px;"
+                        @change="onRateChange"
+                        filterable>
+                        <el-option
+                            v-for="rate in room_rates"
+                            :key="rate.id"
+                            :label="`${rate.rate.description} - S/ ${rate.price}`"
+                            :value="rate.price">
+                        </el-option>
+                    </el-select>
+                </div>
+                <div v-else-if="loadingRates" class="text-center" style="margin: 10px 0;">
+                    <i class="el-icon-loading"></i> Cargando tarifas...
+                </div>
+                <small
+                    class="form-control-feedback"
+                    v-if="errors.custom_price"
+                    v-text="errors.custom_price[0]"
+                ></small>
+            </div>
+            <div
+                class="col-6 col-md-6 form-group"
+                :class="{ 'has-danger': errors.finalPrice }"
+            >
+                <label class="control-label">Precio final</label>
+                <div class="mb-3">
+                    <el-input 
+                        v-model="finalPrice" 
+                        placeholder="Precio final"
+                        style="width: 100%; margin-bottom: 15px;"
+                        @change="onRateChange"
+                        filterable>
+                    </el-input>
+                </div>
+                <small
+                    class="form-control-feedback"
+                    v-if="errors.finalPrice"
+                    v-text="errors.finalPrice[0]"
+                ></small>
+            </div>
+          </div>
           <div class="row">
             <div
                 class="col-6 col-md-4 form-group"
@@ -91,55 +142,6 @@
                     class="form-control-feedback"
                     v-if="errors.output_time"
                     v-text="errors.output_time[0]"
-                ></small>
-            </div>
-            <div
-                class="col-6 col-md-4 form-group"
-                :class="{ 'has-danger': errors.custom_price }"
-            >
-                <label class="control-label">Tarifa</label>
-                <div v-if="room_rates.length > 0" class="mb-3">
-                    <el-select 
-                        v-model="selected_rate" 
-                        placeholder="Seleccione una tarifa"
-                        style="width: 100%; margin-bottom: 15px;"
-                        @change="onRateChange"
-                        filterable>
-                        <el-option
-                            v-for="rate in room_rates"
-                            :key="rate.id"
-                            :label="`${rate.rate.description} - S/ ${rate.price}`"
-                            :value="rate.price">
-                        </el-option>
-                    </el-select>
-                </div>
-                <div v-else-if="loadingRates" class="text-center" style="margin: 10px 0;">
-                    <i class="el-icon-loading"></i> Cargando tarifas...
-                </div>
-                <small
-                    class="form-control-feedback"
-                    v-if="errors.custom_price"
-                    v-text="errors.custom_price[0]"
-                ></small>
-            </div>
-            <div
-                class="col-6 col-md-4 form-group"
-                :class="{ 'has-danger': errors.finalPrice }"
-            >
-                <label class="control-label">Precio final</label>
-                <div class="mb-3">
-                    <el-input 
-                        v-model="finalPrice" 
-                        placeholder="Precio final"
-                        style="width: 100%; margin-bottom: 15px;"
-                        @change="onRateChange"
-                        filterable>
-                    </el-input>
-                </div>
-                <small
-                    class="form-control-feedback"
-                    v-if="errors.finalPrice"
-                    v-text="errors.finalPrice[0]"
                 ></small>
             </div>
             <!-- Sección de adelanto de pago -->
@@ -305,6 +307,10 @@ export default {
         this.form.duration = -1 * (currentOutputDate.diff(outputDate, 'months'));
       } else if (this.room.rent.rate_type === 'HOUR') {
         this.form.duration = -1 * (moment(`${currentOutputDate.format('YYYY-MM-DD')} ${currentTime.format('HH:mm')}`).diff(moment(`${outputDate.format('YYYY-MM-DD')} ${outputTime.format('HH:mm')}`), 'hours'));
+      }
+
+      if(this.form.duration === 0){
+        this.form.duration = 1;
       }
 
       this.getItem()
