@@ -878,6 +878,9 @@
       groupsData.push({
         id: {{ $room->id }},
         content: '{{ $room->name }} / {{ $room->category->description }}',
+        onClick: function() {
+          window.open('https://www.google.com', '_blank');
+        }
       });
     @endforeach
     
@@ -1391,8 +1394,7 @@
           const loadingMessage = document.createElement('div');
           loadingMessage.className = 'alert alert-info';
           loadingMessage.innerHTML = 'Eliminando reserva #' + itemId + '...';
-          console.log(loadingMessage);
-          
+          console.log(loadingMessage);          
           // Enviar la solicitud de eliminación al servidor
           fetch('{{ route("hotel.bookings.destroy", "") }}/' + itemId, {
             method: 'DELETE',
