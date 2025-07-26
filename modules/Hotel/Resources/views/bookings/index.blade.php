@@ -128,6 +128,8 @@
           </div>
         </div>
       </div>
+    <div class="booking-info-placeholder">
+      Haga clic en una reserva para ver sus detalles
     </div>
   </div>
 </div>
@@ -1332,7 +1334,6 @@
       
       // Mostrar el contenedor del panel
       panelContainer.style.display = 'block';
-      panelContainer.parentElement.style.display = 'block';
       
       // Limpiar contenido anterior
       const content = panel.querySelector('.booking-info-content');
