@@ -40,12 +40,14 @@
       </div>
       <div class="col-12 col-md-4">
         <div class="d-flex flex-wrap gap-2 mb-2">
-          <select class="form-select form-select-sm" id="roomFilter">
-            <option value="">Todas las habitaciones</option>
-            @foreach($rooms->sortBy('id') as $room)
-              <option value="{{ $room->id }}">{{ $room->name }} - {{ $room->category->description }}</option>
-            @endforeach
-          </select>
+          <div class="btn-group w-100" role="group">
+            <select class="btn btn-outline-secondary btn-sm flex-fill" id="roomFilter">
+              <option value="">Todas las habitaciones</option>
+              @foreach($rooms->sortBy('id') as $room)
+                <option value="{{ $room->id }}">{{ $room->name }} - {{ $room->category->description }}</option>
+              @endforeach
+            </select>
+          </div>
         </div>
         <div class="d-flex flex-wrap gap-1 btn-group" role="group" aria-label="Vista de calendario">
           <button type="button" class="btn btn-outline-secondary btn-sm flex-fill" onclick="changeView('day')">Día</button>
@@ -116,11 +118,13 @@
   #roomFilter {
     border-color: #e0e0e0;
     transition: all 0.3s ease;
+    background-color: #fff;
   }
   
   #roomFilter:focus {
     border-color: #2196F3;
     box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25);
+    background-color: #fff;
   }
   
   /* Estilos para el contenedor principal */
