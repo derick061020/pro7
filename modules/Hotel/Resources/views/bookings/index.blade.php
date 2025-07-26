@@ -1325,15 +1325,15 @@
       }
     }
     
-    // Función para mostrar el panel
-    function showBookingPanel(itemData) {
+    // Función para mostrar información de reserva
+    function showBookingInfo(itemData) {
       const panelContainer = document.getElementById('bookingInfoPanelContainer');
       const panel = document.querySelector('.booking-info-panel');
       
       if (!panel || !panelContainer) return;
       
       // Mostrar el contenedor del panel
-      panelContainer.style.display = 'block';
+      panelContainer.classList.remove('d-none');
       
       // Limpiar contenido anterior
       const content = panel.querySelector('.booking-info-content');
@@ -1363,13 +1363,20 @@
       });
     }
 
-    // Evento para mostrar el panel cuando se hace clic en una reserva
+    // Función para ocultar información de reserva
+    function hideBookingInfo() {
+      const panelContainer = document.getElementById('bookingInfoPanelContainer');
+      if (panelContainer) {
+        panelContainer.classList.add('d-none');
+      }
+    }
+
+    // Evento para mostrar información de reserva
     timeline.on('click', function (properties) {
       if (properties.item) {
         const item = items.get(properties.item);
-        if (item && item.is_booking === 1) {
-          showBookingPanel(item);
-        }
+        console.log(item);
+        showBookingInfo(item);
       }
     });
 
