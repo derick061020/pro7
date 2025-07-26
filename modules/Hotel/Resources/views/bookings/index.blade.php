@@ -10,117 +10,101 @@
       </button>
     </div>
   </div>
-  <div class="row">
-    <div class="col-12 col-md-8 card-body">
-      <!-- Leyenda de colores -->
-      <div class="row mb-3">
-        <div class="col-12">
-          <div class="d-flex flex-wrap gap-3">
-            <div class="d-flex align-items-center">
-              <div style="width: 10px; height: 10px; background-color: #FF5252; margin-right: 6px; border-radius: 10%;"></div>
-              <span>Entrada</span>
-            </div>
-            <div class="d-flex align-items-center">
-              <div style="width: 10px; height: 10px; background-color: #2196F3; margin-right: 6px; margin-left: 6px; border-radius: 10%;"></div>
-              <span>Reservado</span>
-            </div>
-            <div class="d-flex align-items-center">
-              <div style="width: 10px; height: 10px; background-color: #9E9E9E; margin-right: 6px; margin-left: 6px; border-radius: 10%;"></div>
-              <span>Finalizado</span>
-            </div>
+  <div class="card-body">
+    <!-- Leyenda de colores -->
+    <div class="row mb-3">
+      <div class="col-12">
+        <div class="d-flex flex-wrap gap-3">
+          <div class="d-flex align-items-center">
+            <div style="width: 10px; height: 10px; background-color: #FF5252; margin-right: 6px; border-radius: 10%;"></div>
+            <span>Entrada</span>
+          </div>
+          <div class="d-flex align-items-center">
+            <div style="width: 10px; height: 10px; background-color: #2196F3; margin-right: 6px; margin-left: 6px; border-radius: 10%;"></div>
+            <span>Reservado</span>
+          </div>
+          <div class="d-flex align-items-center">
+            <div style="width: 10px; height: 10px; background-color: #9E9E9E; margin-right: 6px; margin-left: 6px; border-radius: 10%;"></div>
+            <span>Finalizado</span>
           </div>
         </div>
       </div>
+    </div>
 
-      <div class="row align-items-center mb-4">
-        <div class="col-12 col-md-8 mb-3 mb-md-0">
-          <p class="mb-0">
-            Vista de reservas por habitación. Puede arrastrar y redimensionar las reservas para modificarlas.
-            <small class="text-muted">Mostrando datos desde {{ \Carbon\Carbon::now()->subDays(7)->format('d/m/Y') }} hasta {{ \Carbon\Carbon::now()->addDays(30)->format('d/m/Y') }}</small>
-          </p>
+    <div class="row align-items-center mb-4">
+      <div class="col-12 col-md-8 mb-3 mb-md-0">
+        <p class="mb-0">
+          Vista de reservas por habitación. Puede arrastrar y redimensionar las reservas para modificarlas.
+          <small class="text-muted">Mostrando datos desde {{ \Carbon\Carbon::now()->subDays(7)->format('d/m/Y') }} hasta {{ \Carbon\Carbon::now()->addDays(30)->format('d/m/Y') }}</small>
+        </p>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="d-flex flex-wrap gap-2 mb-2">
+          <div class="btn-group w-100" role="group">
+            <select class="btn btn-outline-secondary btn-sm flex-fill" id="roomFilter">
+              <option value="">Todas las habitaciones</option>
+              @foreach($rooms->sortBy('id') as $room)
+                <option value="{{ $room->id }}">{{ $room->name }} - {{ $room->category->description }}</option>
+              @endforeach
+            </select>
+          </div>
         </div>
-        <div class="col-12 col-md-4">
-          <div class="d-flex flex-wrap gap-2 mb-2">
-            <div class="btn-group w-100" role="group">
-              <select class="btn btn-outline-secondary btn-sm flex-fill" id="roomFilter">
-                <option value="">Todas las habitaciones</option>
-                @foreach($rooms->sortBy('id') as $room)
-                  <option value="{{ $room->id }}">{{ $room->name }} - {{ $room->category->description }}</option>
+        <div class="d-flex flex-wrap gap-1 btn-group" role="group" aria-label="Vista de calendario">
+          <button type="button" scale="day" class="btn btn-outline-secondary btn-sm flex-fill" onclick="changeView('day')">Día</button>
+          <button type="button" scale="3days" class="btn btn-outline-secondary btn-sm flex-fill" onclick="changeView('3days')">3 Días</button>
+          <button type="button" scale="week" class="btn btn-outline-secondary btn-sm flex-fill" onclick="changeView('week')">Semana</button>
+          <button type="button" scale="2weeks" class="btn btn-outline-secondary btn-sm flex-fill" onclick="changeView('2weeks')">2 Semanas</button>
+          <button type="button" scale="month" class="btn btn-outline-secondary btn-sm flex-fill" onclick="changeView('month')">Mes</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Visualización del timeline -->
+    <div id="visualization" style="height: auto;"></div>
+    
+    <!-- Modal para nueva reserva (grande) -->
+    <div id="newBookingModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Nueva Reserva</h5>
+        <span class="closeModal" id="closeModalBtn" >&times;</span>
+        </div>
+        <div class="modal-body">
+          <!-- Paso 1: Seleccionar habitación -->
+          <div id="room-selection-container" class="p-3">
+            <div class="form-group">
+              <label for="room_id"><strong>Seleccione una habitación para continuar:</strong></label>
+              <select class="form-control" id="room_id" name="room_id" required>
+                <option value="">-- Seleccionar habitación --</option>
+                @foreach($rooms as $room)
+                  <option value="{{ $room->id }}">{{ $room->name }} - {{ $room->category->description }} ({{ $room->status }})</option>
                 @endforeach
               </select>
             </div>
-          </div>
-          <div class="d-flex flex-wrap gap-1 btn-group" role="group" aria-label="Vista de calendario">
-            <button type="button" scale="day" class="btn btn-outline-secondary btn-sm flex-fill" onclick="changeView('day')">Día</button>
-            <button type="button" scale="3days" class="btn btn-outline-secondary btn-sm flex-fill" onclick="changeView('3days')">3 Días</button>
-            <button type="button" scale="week" class="btn btn-outline-secondary btn-sm flex-fill" onclick="changeView('week')">Semana</button>
-            <button type="button" scale="2weeks" class="btn btn-outline-secondary btn-sm flex-fill" onclick="changeView('2weeks')">2 Semanas</button>
-            <button type="button" scale="month" class="btn btn-outline-secondary btn-sm flex-fill" onclick="changeView('month')">Mes</button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Visualización del timeline -->
-      <div id="visualization" style="height: auto;"></div>
-      
-      <!-- Modal para nueva reserva (grande) -->
-      <div id="newBookingModal" class="modal">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Nueva Reserva</h5>
-          <span class="closeModal" id="closeModalBtn" >&times;</span>
-          </div>
-          <div class="modal-body">
-            <!-- Paso 1: Seleccionar habitación -->
-            <div id="room-selection-container" class="p-3">
-              <div class="form-group">
-                <label for="room_id"><strong>Seleccione una habitación para continuar:</strong></label>
-                <select class="form-control" id="room_id" name="room_id" required>
-                  <option value="">-- Seleccionar habitación --</option>
-                  @foreach($rooms as $room)
-                    <option value="{{ $room->id }}">{{ $room->name }} - {{ $room->category->description }} ({{ $room->status }})</option>
-                  @endforeach
-                </select>
-              </div>
-              <div class="text-center mt-3">
-                <button type="button" class="btn btn-primary" id="continueWithRoomBtn">Continuar</button>
-              </div>
-            </div>
-            
-            <!-- Paso 2: Iframe con la vista de la habitación seleccionada -->
-            <div id="room-detail-container" style="display: none; height: 100%;">
-              <iframe id="roomDetailFrame" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+            <div class="text-center mt-3">
+              <button type="button" class="btn btn-primary" id="continueWithRoomBtn">Continuar</button>
             </div>
           </div>
-              <!-- Modal de Edición de Reserva con iframe -->
-      <div id="editBookingModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
-        <div class="modal-content" style="background-color: #fefefe; margin: 2% auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 1200px; height: 90%; border-radius: 5px; display: flex; flex-direction: column;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <h2 style="margin: 0;">Editar Reserva</h2>
-            <span class="close" style="color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
-          </div>
-          <div style="flex: 1; position: relative;">
-            <iframe id="editBookingFrame" style="width: 100%; height: 100%; border: none; border-radius: 4px;"></iframe>
+          
+          <!-- Paso 2: Iframe con la vista de la habitación seleccionada -->
+          <div id="room-detail-container" style="display: none; height: 100%;">
+            <iframe id="roomDetailFrame" src="" style="width: 100%; height: 100%; border: none;"></iframe>
           </div>
         </div>
+            <!-- Modal de Edición de Reserva con iframe -->
+    <div id="editBookingModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+      <div class="modal-content" style="background-color: #fefefe; margin: 2% auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 1200px; height: 90%; border-radius: 5px; display: flex; flex-direction: column;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+          <h2 style="margin: 0;">Editar Reserva</h2>
+          <span class="close" style="color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+        </div>
+        <div style="flex: 1; position: relative;">
+          <iframe id="editBookingFrame" style="width: 100%; height: 100%; border: none; border-radius: 4px;"></iframe>
+        </div>
       </div>
-      
+    </div>
+    
 
-    </div>
-    <div class="col-12 col-md-4 card-body">
-      <!-- Panel lateral deslizante -->
-      <div id="bookingInfoPanel" class="booking-info-panel">
-        <div class="booking-info-header">
-          <h5 class="panel-title">Información de Reserva</h5>
-          <button class="close-panel-btn" onclick="closeBookingPanel()">&times;</button>
-        </div>
-        <div class="booking-info-content">
-          <div class="booking-info-placeholder">
-            Haga clic en una reserva para ver sus detalles
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 @endsection
@@ -130,92 +114,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <style type="text/css">
-  /* Estilos para el select de habitaciones */
-  #roomFilter {
-    border-color: #e0e0e0;
-    transition: all 0.3s ease;
-    background-color: #fff;
-  }
-
-  /* Estilos para el panel lateral deslizante */
-  .booking-info-panel {
-    position: fixed;
-    top: 0;
-    right: -350px;
-    width: 350px;
-    height: 100vh;
-    background: #fff;
-    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
-    z-index: 1000;
-    transition: right 0.3s ease;
-    padding: 20px;
-    overflow-y: auto;
-  }
-
-  .booking-info-panel.open {
-    right: 0;
-  }
-
-  .booking-info-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #eee;
-  }
-
-  .panel-title {
-    margin: 0;
-    font-size: 1.1rem;
-    color: #333;
-  }
-
-  .close-panel-btn {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #666;
-    padding: 5px;
-  }
-
-  .close-panel-btn:hover {
-    color: #333;
-  }
-
-  .booking-info-content {
-    height: calc(100% - 60px);
-  }
-
-  .booking-info-placeholder {
-    text-align: center;
-    color: #666;
-    padding: 20px;
-  }
-
-  .booking-info-item {
-    margin-bottom: 15px;
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-  }
-
-  .booking-info-item:last-child {
-    border-bottom: none;
-  }
-
-  .info-label {
-    font-weight: 600;
-    color: #666;
-    margin-bottom: 5px;
-    display: block;
-  }
-
-  .info-value {
-    color: #333;
-    display: block;
-  }
-
   /* Estilos para el select de habitaciones */
   #roomFilter {
     border-color: #e0e0e0;
@@ -1245,55 +1143,6 @@
     // Evento para el select de filtro
     document.getElementById('roomFilter').addEventListener('change', function() {
       filterRooms(this.value);
-    });
-
-    // Función para abrir el panel de información
-    function openBookingPanel(itemData) {
-      const panel = document.getElementById('bookingInfoPanel');
-      panel.classList.add('open');
-      
-      // Limpiar contenido anterior
-      const content = panel.querySelector('.booking-info-content');
-      content.innerHTML = '';
-      
-      // Crear elementos de información
-      const infoItems = [
-        { label: 'Habitación', value: itemData.room.name },
-        { label: 'Cliente', value: itemData.customer.name },
-        { label: 'Teléfono', value: itemData.customer.number },
-        { label: 'Check-in', value: itemData.input_date + ' ' + itemData.input_time },
-        { label: 'Check-out', value: itemData.output_date + ' ' + itemData.output_time },
-        { label: 'Personas', value: itemData.quantity_persons },
-        { label: 'Toallas', value: itemData.towels },
-        { label: 'Estado', value: itemData.status }
-      ];
-      
-      // Agregar cada elemento de información
-      infoItems.forEach(item => {
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'booking-info-item';
-        infoDiv.innerHTML = `
-          <span class="info-label">${item.label}:</span>
-          <span class="info-value">${item.value}</span>
-        `;
-        content.appendChild(infoDiv);
-      });
-    }
-
-    // Función para cerrar el panel
-    function closeBookingPanel() {
-      const panel = document.getElementById('bookingInfoPanel');
-      panel.classList.remove('open');
-    }
-
-    // Evento para abrir el panel cuando se hace clic en un ítem
-    timeline.on('click', function (properties) {
-      console.log(properties);
-      if (properties.item) {
-        const item = items.get(properties.item);
-        console.log(item);
-        openBookingPanel(item);
-      }
     });
     
     // Evento para ajustar las fechas cuando se redimensiona un elemento
