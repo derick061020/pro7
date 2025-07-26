@@ -116,7 +116,7 @@
         </div>
       </div>
       <div class="col-12 col-lg-4">
-        <div class="card booking-info-panel" id="bookingInfoPanelContainer">
+        <div class="card booking-info-panel" id="bookingInfoPanelContainer" style="display: none;">
           <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Información de Reserva</h5>
             <button class="btn-close" onclick="closeBookingPanel()"></button>
@@ -1325,15 +1325,15 @@
       }
     }
     
-    // Función para mostrar información de reserva
-    function showBookingInfo(itemData) {
+    // Función para mostrar el panel
+    function showBookingPanel(itemData) {
       const panelContainer = document.getElementById('bookingInfoPanelContainer');
       const panel = document.querySelector('.booking-info-panel');
       
       if (!panel || !panelContainer) return;
       
       // Mostrar el contenedor del panel
-      panelContainer.classList.remove('d-none');
+      panelContainer.style.display = 'block';
       
       // Limpiar contenido anterior
       const content = panel.querySelector('.booking-info-content');
@@ -1363,20 +1363,13 @@
       });
     }
 
-    // Función para ocultar información de reserva
-    function hideBookingInfo() {
-      const panelContainer = document.getElementById('bookingInfoPanelContainer');
-      if (panelContainer) {
-        panelContainer.classList.add('d-none');
-      }
-    }
-
-    // Evento para mostrar información de reserva
+    // Evento para mostrar el panel cuando se hace clic en una reserva
     timeline.on('click', function (properties) {
       if (properties.item) {
         const item = items.get(properties.item);
-        console.log(item);
-        showBookingInfo(item);
+        if (item && item.is_booking === 1) {
+          showBookingPanel(item);
+        }
       }
     });
 
