@@ -1138,22 +1138,35 @@
       // Actualizar el timeline
       timeline.setGroups(filteredGroups);
       timeline.setItems(filteredItems);
-      
-      // Ajustar la orientación según el número de habitaciones
-      var orientation = filteredGroups.length > 1 ? 
-        { axis: 'both', item: 'both' } :
-        { axis: 'bottom', item: 'bottom' };
-      
-      timeline.setOptions({
-        orientation: orientation,
-        groupHeight: filteredGroups.length > 1 ? 30 : 100,
-        itemHeight: filteredGroups.length > 1 ? 30 : 50
-      });
     }
     
     // Evento para el select de filtro
     document.getElementById('roomFilter').addEventListener('change', function() {
       filterRooms(this.value);
+      
+      // Si hay una sola habitación, cambiar a orientación vertical
+      if (this.value) {
+        timeline.setOptions({
+          orientation: {
+            axis: 'left',
+            item: 'left'
+          },
+          groupHeight: 100,
+          itemHeight: 50,
+          width: 'auto',
+          height: '600px'
+        });
+      } else {
+        // Si se seleccionan todas las habitaciones, volver a horizontal
+        timeline.setOptions({
+          orientation: {
+            axis: 'both',
+            item: 'both'
+          },
+          groupHeight: 30,
+          itemHeight: 30
+        });
+      }
     });
     
     // Evento para ajustar las fechas cuando se redimensiona un elemento
