@@ -12,7 +12,7 @@
   </div>
   <div class="container-fluid">
     <div class="row">
-      <div class="col-12 col-lg-8">
+      <div class="col-12 col-lg-8"  id="hola">
         <div class="card">
           <div class="card-header">
             <h5 class="card-title mb-0">Gestión de Reservas</h5>
@@ -787,8 +787,12 @@
     
     function closeBookingPanel() {
       const panelContainer = document.getElementById('bookingInfoPanelContainer');
+
+      const hola = document.getElementById('hola');
       if (panelContainer) {
         panelContainer.classList.add('d-none');
+        hola.classList.remove('col-lg-8');
+        hola.classList.add('col-lg-12');
       }
     }
   document.addEventListener('DOMContentLoaded', function() {
