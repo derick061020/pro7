@@ -34,6 +34,8 @@ class DownloadController extends Controller
             }
 
         }
+        var_dump($document);
+        exit();
         return $this->download($type, $document);
     }
 
