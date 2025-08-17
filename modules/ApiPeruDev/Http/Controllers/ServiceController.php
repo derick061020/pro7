@@ -53,6 +53,9 @@ class ServiceController extends Controller
         }
 
         $response = json_decode(curl_exec($curl), true);
+        if($response['success'] == false){
+                return (new ServiceData)->service($type, $number);
+        }
         if (isset($response['data']) && $response['success']) {
             $response['data']['address'] = $response['data']['direccion'];
             $ubigeo_reniec = (string)$response['data']['ubigeo_reniec'];

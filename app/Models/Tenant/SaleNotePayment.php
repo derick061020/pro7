@@ -93,6 +93,7 @@ class SaleNotePayment extends ModelTenant
             'acquirer_name' => $this->associated_record_payment->customer->name,
             'acquirer_number' => $this->associated_record_payment->customer->number,
             'currency_type_id' => $this->associated_record_payment->currency_type_id,
+            'document_id' => $this->associated_record_payment->id,
             'document_type_description' => $this->associated_record_payment->getDocumentTypeDescription(),
             'payment_method_type_id' => $this->payment_method_type_id,
             'payment' => $this->associated_record_payment->isVoidedOrRejected() ? 0 : $this->payment,

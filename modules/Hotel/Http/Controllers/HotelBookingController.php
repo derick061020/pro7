@@ -33,7 +33,7 @@ class HotelBookingController extends Controller
             ->get();
 
         // Obtener reservas reales desde la base de datos
-        $rents = HotelRent::with(['room'])
+        $bookings = HotelRent::with(['room'])
             ->whereHas('room', function($query) use ($user) {
                 $query->where('establishment_id', $user->establishment_id);
             })
@@ -42,7 +42,30 @@ class HotelBookingController extends Controller
 
         // Formatear reservas para la visualización del timeline
         // Obtener todas las reservas (HotelRent) con sus habitaciones
-        $bookings = HotelRent::with(['room'])->where('status', '!=', 'ELIMINADO')->get();
+        $bookings = HotelRent::with(['room'])->where('status', '!=', 'ELIMINADO')->get()->each(function ($rent) {
+            $total = 0;
+            $paid = 0;
+            $debt = 0;
+            if(isset($rent->history)){
+                foreach(json_decode($rent->history) as $history){
+                    if(isset($history->total)){
+                        $total += $history->total;
+                    }
+                }
+            }
+            if(isset($rent->payment_history)){
+                foreach(json_decode($rent->payment_history) as $payment){
+                    if(isset($payment->amount)){
+                        $paid += $payment->amount;
+                    }
+                }
+            }
+            $debt = $total - $paid;
+            $rent->paid = $paid;
+            $rent->debt = $debt;
+            $rent->total = $total;
+            return $rent;
+        });
         
         // Formatear los datos para el timeline
         $formattedBookings = [];

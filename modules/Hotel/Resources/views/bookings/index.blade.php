@@ -115,13 +115,14 @@
           </div>
         </div>
       </div>
-      <div class="col-12 col-lg-4" style="margin-top:35px;margin-bottom:35px">
-        <div class="card booking-info-panel d-none slide-panel" id="bookingInfoPanelContainer">
-          <div class="card-header d-flex justify-content-between align-items-center">
+      <!-- Modal para información de reserva -->
+      <div id="bookingInfoPanelContainer" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+        <div class="modal-content" style="background-color: #fefefe; margin: 2% auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 800px; height: 80%; border-radius: 5px; display: flex; flex-direction: column;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <h5 class="mb-0">Información de Reserva</h5>
             <button class="btn-close" onclick="closeBookingPanel()"></button>
           </div>
-          <div class="card-body booking-info-content">
+          <div class="card-body booking-info-content" style="flex: 1; overflow-y: auto;">
             <div class="booking-info-placeholder">
               Haga clic en una reserva para ver sus detalles
             </div>
@@ -176,6 +177,11 @@
     cursor: pointer;
     color: #666;
     padding: 5px;
+  }
+  @media only screen and (min-width: 768px) {
+    html.fixed .inner-wrapper {
+        padding-top: 40px;
+    }
   }
 
   .close-panel-btn:hover {
@@ -1130,6 +1136,9 @@
           id: {{ $room->id ?? 0 }},
           name: '{{ $room->name ?? 'Sin habitación' }}'
         },
+        total: {{ $rent->total ?? 0 }},
+        paid: {{ $rent->paid ?? 0 }},
+        debt: {{ $rent->debt ?? 0 }},
         input_date: '{{ $rent->input_date ?? $booking['start_date'] }}',
         input_time: '{{ $rent->input_time ?? '14:00' }}',
         output_date: '{{ $rent->output_date ?? $booking['end_date'] }}',
@@ -1382,12 +1391,15 @@
       const infoItems = [
         { label: 'Habitación', value: itemData.room.name },
         { label: 'Cliente', value: itemData.customer.name },
-        { label: 'Teléfono', value: itemData.customer.number },
+        { label: 'N° Documento', value: itemData.customer.number },
         { label: 'Check-in', value: itemData.input_date + ' ' + itemData.input_time },
         { label: 'Check-out', value: itemData.output_date + ' ' + itemData.output_time },
         { label: 'Personas', value: itemData.quantity_persons },
         { label: 'Toallas', value: itemData.towels },
-        { label: 'Estado', value: itemData.status }
+        { label: 'Estado', value: itemData.status },
+        { label: 'Total', value: itemData.total },
+        { label: 'Pagado', value: itemData.paid },
+        { label: itemData.debt > 0 ? 'Deuda' : 'Saldo', value: itemData.debt },
       ];
       
       // Agregar cada elemento de información
@@ -1400,7 +1412,16 @@
         `;
         content.appendChild(infoDiv);
       });
+      const infoDiv = document.createElement('div');
+      infoDiv.className = 'booking-info-item';
+      infoDiv.innerHTML = `
+        <span style="font-weight: bold;text-align: right;" class="info-label">Total: <span style="color: black;">${itemData.total}</span></span>
+        <span style="font-weight: bold;text-align: right;" class="info-label">Pagado: <span style="color: green;">${itemData.paid}</span></span>
+        <span style="font-weight: bold;text-align: right;" class="info-label">${itemData.debt > 0 ? 'Deuda' : 'Saldo'}: <span style="color: ${itemData.debt > 0 ? 'red' : 'green'};">${itemData.debt}</span></span>
+      `;
+      content.appendChild(infoDiv);
     }
+    
 
     // Función para ocultar información de reserva
     function hideBookingInfo() {
