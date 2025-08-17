@@ -16,10 +16,8 @@ class DownloadController extends Controller
     use StorageDocument;
 
     public function downloadExternal($model, $type, $external_id, $format = null) {
-
-        die ('hola');
         $model = "App\\Models\\Tenant\\".ucfirst($model);
-
+        
         $document = $model::where('external_id', $external_id)->first();
 
         if (!$document) throw new Exception("El código {$external_id} es inválido, no se encontro documento relacionado");
